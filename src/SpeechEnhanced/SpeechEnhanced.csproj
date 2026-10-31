@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>CzechSpeechEnhanced</AssemblyName>
+    <RootNamespace>CzechSpeechEnhanced</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <DebugType>portable</DebugType>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GameDir Condition="'$(GameDir)' == ''">$(MSBuildProjectDirectory)\..\..\..</GameDir>
+    <ManagedDir>$(GameDir)\Scam With Your Friends_Data\Managed</ManagedDir>
+    <BepInExDir>$(GameDir)\BepInEx</BepInExDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Plugin.cs" Link="Plugin.cs" />
+    <Compile Include="..\Patches.cs" Link="Patches.cs" />
+    <Compile Include="..\ParakeetBridge.cs" Link="ParakeetBridge.cs" />
+    <Compile Include="..\TranscriptCleaner.cs" Link="TranscriptCleaner.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="Newtonsoft.Json" HintPath="$(ManagedDir)\Newtonsoft.Json.dll" Private="false" />
+    <Reference Include="BepInEx" HintPath="$(BepInExDir)\core\BepInEx.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="$(BepInExDir)\core\0Harmony.dll" Private="false" />
+    <Reference Include="UnityEngine" HintPath="$(ManagedDir)\UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(ManagedDir)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="ScriptsAssDef" HintPath="$(ManagedDir)\ScriptsAssDef.dll" Private="false" />
+    <Reference Include="MetaVoiceChat.Core" HintPath="$(ManagedDir)\MetaVoiceChat.Core.dll" Private="false" />
+    <Reference Include="Kolkata.Speech" HintPath="$(ManagedDir)\Kolkata.Speech.dll" Private="false" />
+    <Reference Include="com.whisper.unity" HintPath="$(ManagedDir)\com.whisper.unity.dll" Private="false" />
+  </ItemGroup>
+</Project>
