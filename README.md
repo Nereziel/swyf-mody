@@ -55,6 +55,24 @@ Lze použít i přímo PowerShell:
 .\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod All
 ```
 
+## Vytvoření GitHub Release
+
+Pro automatický release je potřeba [GitHub CLI](https://cli.github.com/). Poprvé se přihlas:
+
+```text
+gh auth login
+```
+
+Potom stačí například:
+
+```text
+release.cmd 1.3.1
+```
+
+`release.cmd` ověří, že lokální repo odpovídá `origin/main`, smaže staré `.swyfmod` z `dist/`, sestaví všechny 3 mody, vytvoří tag/release `v1.3.1`, vygeneruje release notes a nahraje nové balíčky. Cestu ke hře si vyžádá při spuštění.
+
+Pokud release se stejným tagem už existuje, skript nabídne nahrazení jeho `.swyfmod` souborů.
+
 ## Licence
 
 Kód vytvořený v tomto repozitáři je dostupný pod MIT licencí v rozsahu uvedeném v souboru `LICENSE`.
