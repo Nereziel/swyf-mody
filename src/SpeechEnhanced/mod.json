@@ -4,11 +4,11 @@
   "name_en": "CzechSpeechEnhanced",
   "version": "1.3.0",
   "author": "Nereziel",
-  "description": "Parakeet, Parakeet Ultra a Nemotron Unified. Vypni verzi Canary i původní mod a restartuj hru.",
-  "description_en": "Parakeet, Parakeet Ultra and Nemotron Unified. Disable Canary and the original mod, then restart.",
+  "description": "Parakeet TDT v3 a Parakeet Ultra. Vypni verzi Canary i původní mod a restartuj hru.",
+  "description_en": "Parakeet TDT v3 and Parakeet Ultra. Disable Canary and the original mod, then restart.",
   "icon": "E720",
-  "tags": [ "Parakeet", "Nemotron", "Čeština" ],
-  "tags_en": [ "Parakeet", "Nemotron", "Czech" ],
+  "tags": [ "Parakeet", "Čeština" ],
+  "tags_en": [ "Parakeet", "Czech" ],
   "dll": "CzechSpeechEnhanced.dll",
   "settings": [
     {
@@ -20,8 +20,7 @@
       "default": "parakeet",
       "options": [
         { "name": "Parakeet", "name_en": "Parakeet", "value": "parakeet" },
-        { "name": "Parakeet Ultra", "name_en": "Parakeet Ultra", "value": "ultra" },
-        { "name": "Nemotron", "name_en": "Nemotron", "value": "nemotron" }
+        { "name": "Parakeet Ultra", "name_en": "Parakeet Ultra", "value": "ultra" }
       ]
     },
     {
@@ -61,18 +60,6 @@
       "sha256": "e59fc6d24bfc07c904311c53f46accd51dbbbab25ec9f1faebbf89e9e3825322",
       "size": 714456704,
       "path": "Parakeet/parakeet-ultra.q8.gguf",
-      "default": false
-    },
-    {
-      "id": "nemotron-unified",
-      "name": "Nemotron Unified Q8",
-      "name_en": "Nemotron Unified Q8",
-      "description": "Model Nemotron Unified, licence OpenMDW 1.1.",
-      "description_en": "Optional Nemotron Unified model (939 MB), OpenMDW 1.1 license.",
-      "url": "https://huggingface.co/mudler/parakeet-cpp-gguf/resolve/07a08a3a405d20c5434b9a1442f6e6cf571f57ad/nemotron-labs-unified-asr-0.6b-q8_0.gguf",
-      "sha256": "655b4cd140d82f78d5aede71a0342cb92207a80c543ab8dc646c2d3edaaf0c09",
-      "size": 939228800,
-      "path": "Nemotron/nemotron-unified.q8.gguf",
       "default": false
     }
   ]
