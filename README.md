@@ -15,13 +15,10 @@ Mod Hub nainstaluje potřebný **BepInEx** a umí instalovat balíčky `.swyfmod
 | Mod | Funkce |
 |---|---|
 | **CzechSpeechEnhanced** | Lepší rozpoznávání češtiny/slovenštiny pomocí Parakeet TDT v3 nebo Parakeet Ultra. |
-| **CzechSpeechEnhancedCanary** | Alternativní rozpoznávání řeči pomocí NVIDIA Canary 1B v2. |
 | **CzechTTSFix** | Opravuje zpracování českého textu pro herní TTS, NPC už mluví s diakritikou. |
 | **PrivacyTelemetry** | Blokuje známou analytiku hry a omezuje diagnostická data odesílaná ve feedbacku. |
 
-**CzechSpeechEnhanced a CzechSpeechEnhancedCanary nezapínej současně.** Oba upravují stejnou část rozpoznávání řeči. TTS Fix a PrivacyTelemetry lze používat nezávisle.
-
-Speech mody čekají přibližně **1,3 sekundy ticha** před ukončením věty, aby krátká pauza při mluvení nerozdělila jednu větu na dvě.
+Speech mod čeká přibližně **1,3 sekundy ticha** před ukončením věty, aby krátká pauza při mluvení nerozdělila jednu větu na dvě.
 
 ## Instalace
 
@@ -33,7 +30,7 @@ Speech mody čekají přibližně **1,3 sekundy ticha** před ukončením věty,
 
 ## Lokální sestavení
 
-Potřebuješ `.NET SDK`, nainstalovanou hru a BepInEx. Pro sestavení Canary balíčku je navíc potřeba Python 3.14 s `pip`.
+Potřebuješ `.NET SDK`, nainstalovanou hru a BepInEx.
 
 Nejjednodušší je spustit v kořeni repozitáře:
 
@@ -46,7 +43,6 @@ Skript se zeptá na cestu ke hře a co chceš sestavit:
 ```text
 All
 Speech
-Canary
 TTS
 Privacy
 ```
