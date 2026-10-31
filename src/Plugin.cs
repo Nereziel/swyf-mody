@@ -22,7 +22,6 @@ namespace CzechSpeechEnhanced
         internal const string DefaultEngine = "parakeet";
         public const string PluginVersion = "1.3.1";
 
-        /// <summary>Preferred models, best first. Anything else ending in .bin is used as a last resort.</summary>
         private static readonly string[] PreferredModels =
         {
             "ggml-large-v3.bin",
@@ -51,11 +50,8 @@ namespace CzechSpeechEnhanced
         internal static ConfigEntry<bool> CleanTranscript;
         internal static ConfigEntry<bool> LogTranscripts;
 
-        /// <summary>Folder the mod looks for models in: Mods/CzechSpeechEnhanced.</summary>
-        // Not Paths.PluginPath / Assembly.Location: the SWYF Mod Manager loads mods from memory (see MOD-FORMAT.md).
         internal static string ModelFolder => Path.Combine(Paths.GameRootPath, "Mods", ModId);
 
-        /// <summary>Lowercase language code to force, or null to follow the game's speech language.</summary>
         internal static string ForcedLanguage
         {
             get
@@ -82,12 +78,7 @@ namespace CzechSpeechEnhanced
             string savedEngine = SpeechEngine.Value?.Trim().ToLowerInvariant();
             if (savedEngine != "parakeet" && savedEngine != "ultra")
             {
-                if (savedEngine == "canary")
-                    Log.LogWarning("Canary support was removed; switching the saved engine to Parakeet.");
-                else if (savedEngine == "nemotron")
-                    Log.LogWarning("Nemotron support was removed; switching the saved engine to Parakeet.");
-                else
-                    Log.LogWarning("Unsupported speech engine '" + savedEngine + "'; switching to Parakeet.");
+                Log.LogWarning("Unsupported speech engine '" + savedEngine + "'; switching to Parakeet.");
                 SpeechEngine.Value = "parakeet";
             }
 
@@ -155,7 +146,6 @@ namespace CzechSpeechEnhanced
                             ? "Runtime and model files found."
                             : "Runtime or model files missing; using the game's Whisper. Install all files for the selected engine and restart."));
 
-            // Which model is used is decided when the game loads it: only then do we know whether Whisper gets the GPU.
             string[] models = Directory.Exists(ModelFolder)
                 ? Directory.GetFiles(ModelFolder, "*.bin").Select(f => $"{Path.GetFileName(f)} ({new FileInfo(f).Length / 1048576} MiB)").ToArray()
                 : new string[0];
@@ -167,13 +157,8 @@ namespace CzechSpeechEnhanced
 
         private Harmony _harmony;
 
-        /// <summary>Written while we try the graphics card against the game's will; deleted once a test run on it worked.</summary>
         internal const string GpuTryFile = "gpu-zkouska.txt";
-
-        /// <summary>Left behind when a graphics-card try ended with the game closing: further starts use the processor.</summary>
         internal const string GpuFailedFile = "gpu-selhala.txt";
-
-        /// <summary>Where recognition should run this session: auto (the game decides), gpu or cpu.</summary>
         internal static string EffectiveDevice = "auto";
 
         private static void ResolveDevice()
@@ -189,7 +174,6 @@ namespace CzechSpeechEnhanced
             {
                 if (File.Exists(tryPath))
                 {
-                    // The previous start loaded the model on the graphics card and never finished a test run on it.
                     File.WriteAllText(failedPath,
                         "Pri minulem spusteni hra skoncila, zatimco rozpoznavani reci zkouselo grafickou kartu.\r\n" +
                         "Mod proto pocita na procesoru. Smaz tento soubor (nebo v SWYF Mod Hubu znovu vyber Grafika), " +
@@ -207,7 +191,6 @@ namespace CzechSpeechEnhanced
             {
                 Log.LogWarning("Could not check the GPU try files: " + e.Message);
             }
-            // "-whisper-cpu" on the command line is someone asking for the processor on purpose.
             if (device == "auto" && Environment.GetCommandLineArgs().Any(a => a.Equals("-whisper-cpu", StringComparison.OrdinalIgnoreCase)))
             {
                 device = "cpu";
@@ -219,7 +202,6 @@ namespace CzechSpeechEnhanced
             }
         }
 
-        /// <summary>Turned on by the Mod Manager after the game already loaded its model: nothing changes until a restart.</summary>
         private static void WarnIfModelAlreadyLoaded()
         {
             foreach (var manager in UnityEngine.Resources.FindObjectsOfTypeAll<Whisper.WhisperManager>())
@@ -232,14 +214,10 @@ namespace CzechSpeechEnhanced
             }
         }
 
-        // Turned off by the Mod Manager while the game runs: stop patching. The big model the game already
-        // loaded stays in memory until the game restarts (it is loaded once, at startup).
         private void OnDestroy() { ParakeetBridge.Stop(); _harmony?.UnpatchSelf(); }
 
-        /// <summary>Full path of the model to use, or null when there is none.</summary>
         internal static string FindModel()
         {
-            // On the processor large-v3 needs tens of seconds per sentence; prefer the CPU model when it is there.
             if (Speech.GameForcesCpu)
             {
                 string cpuModel = ResolveModel(CpuModel.Value);
@@ -276,7 +254,6 @@ namespace CzechSpeechEnhanced
                 .FirstOrDefault();
         }
 
-        /// <summary>Config value (large-v3, turbo, file name or full path) -> existing model file, or null.</summary>
         internal static string ResolveModel(string value)
         {
             string name = value?.Trim();
