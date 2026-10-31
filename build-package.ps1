@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)][string]$GameDir,
-    [ValidateSet('All','Speech','Canary','TTS','Privacy')][string]$Mod = 'All',
+    [ValidateSet('All','Speech','TTS','Privacy')][string]$Mod = 'All',
     [string]$CacheDir
 )
 $ErrorActionPreference = 'Stop'
@@ -77,39 +77,11 @@ function Build-Speech {
         $runtime = [IO.Compression.ZipFile]::OpenRead($nemoPath)
         try {
             foreach ($entry in $runtime.Entries) {
-                if ($entry.FullName -match '^nemo-speech-0\.3\.0-windows-x86_64-vulkan/bin/([^/]+)$') { Add-ArchiveEntry $pkg.Zip $entry "files/Parakeet/bin/$($Matches[1])" }
+                if ($entry.FullName -match '^nemo-speech-0\.3\.0-windows-x86_64-vulkan/bin/([^/]+)$') {
+                    Add-ArchiveEntry $pkg.Zip $entry "files/Parakeet/bin/$($Matches[1])"
+                }
             }
         } finally { $runtime.Dispose() }
-    } finally { $pkg.Zip.Dispose() }
-    Write-Output "Balíček: $($pkg.Path)"
-}
-
-function Build-Canary {
-    $dir = Join-Path $root 'src\CzechSpeechEnhancedCanary'
-    Build-Project $dir
-    $pkg = Open-Package $dir
-    try {
-        Add-Licenses $pkg.Zip
-        $python = Get-VerifiedArchive 'python-3.14.9-embed-amd64.zip' 'https://www.python.org/ftp/python/3.14.9/python-3.14.9-embed-amd64.zip' '3c01d7cfc666f746a6f064f60fb2156ab0ec464d3d738ab796371a46a9bb24a2'
-        $portable = Join-Path $CacheDir 'canary-python-gpu'
-        $ready = Join-Path $portable 'canary-deps-v2-gpu.ready'
-        if (-not (Test-Path -LiteralPath $ready)) {
-            if (Test-Path -LiteralPath $portable) { Remove-Item -LiteralPath $portable -Recurse -Force }
-            New-Item -ItemType Directory -Force -Path $portable | Out-Null
-            Expand-Archive -LiteralPath $python -DestinationPath $portable -Force
-            Add-Content -LiteralPath (Join-Path $portable 'python314._pth') -Value 'Lib\site-packages'
-            py -3.14 -m pip install --target (Join-Path $portable 'Lib\site-packages') -r (Join-Path $root 'src\canary-requirements.txt')
-            if ($LASTEXITCODE -ne 0) { throw 'Instalace závislostí Canary selhala. Nainstaluj Python 3.14 a pip.' }
-            & (Join-Path $portable 'python.exe') -c 'import onnx_asr, onnxruntime, numpy'
-            if ($LASTEXITCODE -ne 0) { throw 'Ověření Canary runtime selhalo.' }
-            [IO.File]::WriteAllText($ready, 'onnx-asr 0.10.1; onnxruntime-gpu 1.31.1; CUDA 13')
-        }
-        Add-File $pkg.Zip (Join-Path $root 'src\canary_server.py') 'files/Canary/canary_server.py'
-        foreach ($file in Get-ChildItem -LiteralPath $portable -Recurse -File) {
-            $relative = $file.FullName.Substring($portable.Length + 1).Replace('\', '/')
-            if ($relative -match '^canary-deps-.*\.ready$|(^|/)__pycache__/|\.pyc$') { continue }
-            Add-File $pkg.Zip $file.FullName "files/Canary/python/$relative"
-        }
     } finally { $pkg.Zip.Dispose() }
     Write-Output "Balíček: $($pkg.Path)"
 }
@@ -125,12 +97,10 @@ function Build-Simple([string]$relativeDir) {
 switch ($Mod) {
     'All' {
         Build-Speech
-        Build-Canary
         Build-Simple 'src\CzechTTSFix'
         Build-Simple 'src\PrivacyTelemetry'
     }
     'Speech' { Build-Speech }
-    'Canary' { Build-Canary }
     'TTS' { Build-Simple 'src\CzechTTSFix' }
     'Privacy' { Build-Simple 'src\PrivacyTelemetry' }
 }
