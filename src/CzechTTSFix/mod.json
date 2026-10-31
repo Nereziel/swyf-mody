@@ -1,0 +1,13 @@
+{
+  "id": "CzechTTSFix",
+  "name": "Oprava českého TTS",
+  "name_en": "Czech TTS Fix",
+  "version": "1.0.0",
+  "author": "Nereziel",
+  "description": "Opravuje zpracování českého textu pro Pocket TTS, aby se zachovala diakritika a text se správně připravil pro český hlas.",
+  "description_en": "Fixes Czech text preprocessing for Pocket TTS, preserving diacritics and preparing text correctly for the Czech voice.",
+  "icon": "E8D4",
+  "tags": [ "TTS", "Čeština" ],
+  "tags_en": [ "TTS", "Czech" ],
+  "dll": "CzechTTSFix.dll"
+}
