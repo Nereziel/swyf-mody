@@ -16,7 +16,7 @@ Mod Hub nainstaluje potřebný **BepInEx** a umí instalovat balíčky `.swyfmod
 |---|---|
 | **CzechSpeechEnhanced** | Lepší rozpoznávání češtiny/slovenštiny pomocí Parakeet TDT v3 nebo Parakeet Ultra. |
 | **CzechSpeechEnhancedCanary** | Alternativní rozpoznávání řeči pomocí NVIDIA Canary 1B v2. |
-| **CzechTTSFix** | Opravuje zpracování českého textu pro herní TTS, hlavně diakritiku a interpunkci. |
+| **CzechTTSFix** | Opravuje zpracování českého textu pro herní TTS, NPC už mluví s diakritikou. |
 | **PrivacyTelemetry** | Blokuje známou analytiku hry a omezuje diagnostická data odesílaná ve feedbacku. |
 
 **CzechSpeechEnhanced a CzechSpeechEnhancedCanary nezapínej současně.** Oba upravují stejnou část rozpoznávání řeči. TTS Fix a PrivacyTelemetry lze používat nezávisle.
