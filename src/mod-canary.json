@@ -1,8 +1,30 @@
 {
+  "id": "CzechSpeechEnhancedCanary",
+  "name": "CzechSpeechEnhancedCanary",
+  "name_en": "CzechSpeechEnhancedCanary",
+  "version": "1.3.0",
   "author": "Nereziel",
   "description": "Samostatný Canary 1B v2, CPU nebo NVIDIA CUDA. Vypni CzechSpeechEnhanced i původní mod a restartuj hru.",
   "description_en": "Standalone Canary 1B v2, CPU or NVIDIA CUDA. Disable CzechSpeechEnhanced and the original mod, then restart.",
+  "icon": "E720",
+  "tags": [ "Canary", "Čeština" ],
+  "tags_en": [ "Canary", "Czech" ],
   "dll": "CzechSpeechEnhancedCanary.dll",
+  "settings": [
+    {
+      "name": "VÝPOČET",
+      "name_en": "COMPUTE DEVICE",
+      "file": "BepInEx/config/nereziel.swyf.czechspeechenhancedcanary.cfg",
+      "section": "Recognition",
+      "key": "ComputeDevice",
+      "default": "auto",
+      "options": [
+        { "name": "Automaticky", "name_en": "Automatic", "value": "auto" },
+        { "name": "Procesor", "name_en": "CPU", "value": "cpu" },
+        { "name": "Grafika", "name_en": "GPU", "value": "gpu" }
+      ]
+    }
+  ],
   "downloads": [
     {
       "id": "canary-1",
@@ -52,85 +74,5 @@
       "path": "Canary/model/vocab.txt",
       "default": true
     }
-  ],
-  "icon": "E720",
-  "id": "CzechSpeechEnhancedCanary",
-  "name": "CzechSpeechEnhancedCanary",
-  "name_en": "CzechSpeechEnhancedCanary",
-  "settings": [
-    {
-      "name": "VÝPOČET",
-      "name_en": "COMPUTE DEVICE",
-      "file": "BepInEx/config/nereziel.swyf.czechspeechenhancedcanary.cfg",
-      "section": "Recognition",
-      "key": "ComputeDevice",
-      "default": "auto",
-      "options": [
-        {
-          "name": "Automaticky",
-          "name_en": "Automatic",
-          "value": "auto"
-        },
-        {
-          "name": "Procesor",
-          "name_en": "CPU",
-          "value": "cpu"
-        },
-        {
-          "name": "Grafika",
-          "name_en": "GPU",
-          "value": "gpu"
-        }
-      ]
-    },
-    {
-      "name": "ANALYTIKA",
-      "name_en": "ANALYTICS",
-      "file": "BepInEx/config/nereziel.swyf.czechspeechenhancedcanary.cfg",
-      "section": "Privacy",
-      "key": "BlockAnalytics",
-      "default": "true",
-      "options": [
-        {
-          "name": "Blokovat",
-          "name_en": "Block",
-          "value": "true"
-        },
-        {
-          "name": "Povolit",
-          "name_en": "Allow",
-          "value": "false"
-        }
-      ]
-    },
-    {
-      "name": "DIAGNOSTIKA ZPĚTNÉ VAZBY",
-      "name_en": "FEEDBACK DIAGNOSTICS",
-      "file": "BepInEx/config/nereziel.swyf.czechspeechenhancedcanary.cfg",
-      "section": "Privacy",
-      "key": "BlockFeedbackDiagnostics",
-      "default": "true",
-      "options": [
-        {
-          "name": "Blokovat",
-          "name_en": "Block",
-          "value": "true"
-        },
-        {
-          "name": "Povolit",
-          "name_en": "Allow",
-          "value": "false"
-        }
-      ]
-    }
-  ],
-  "tags": [
-    "Canary",
-    "Čeština"
-  ],
-  "tags_en": [
-    "Canary",
-    "Czech"
-  ],
-  "version": "1.3.0"
+  ]
 }
