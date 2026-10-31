@@ -24,7 +24,25 @@ namespace CzechSpeechEnhanced
         private static bool forceCpu;
         private static string Folder => Path.Combine(BepInEx.Paths.GameRootPath, "Mods", Plugin.ModId, "Parakeet");
         private static string Exe => Path.Combine(Folder, "bin", "nemo-speech.exe");
-        private static string Engine => (Plugin.SpeechEngine.Value ?? "parakeet").Trim().ToLowerInvariant();
+        private static string Engine
+        {
+            get
+            {
+                string engine = (Plugin.SpeechEngine.Value ?? "parakeet").Trim().ToLowerInvariant();
+                if (engine == "canary" || engine == "ultra" || engine == "parakeet") return engine;
+
+                if (engine == "nemotron")
+                {
+                    Plugin.Log.LogWarning("Nemotron support was removed; switching the saved engine to Parakeet.");
+                }
+                else
+                {
+                    Plugin.Log.LogWarning("Unsupported speech engine '" + engine + "'; switching to Parakeet.");
+                }
+                Plugin.SpeechEngine.Value = "parakeet";
+                return "parakeet";
+            }
+        }
         private static string Device => (Plugin.ComputeDevice.Value ?? "auto").Trim().ToLowerInvariant();
         private static string Model => Path.Combine(Folder, Engine == "ultra" ? "parakeet-ultra.q8.gguf" : "parakeet.q8.gguf");
         private static string CanaryFolder => Path.Combine(BepInEx.Paths.GameRootPath, "Mods", Plugin.ModId, "Canary");
