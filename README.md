@@ -6,12 +6,12 @@ Repo je rozdělené na čtyři samostatné mody, které se sestavují a instaluj
 
 | Mod | Projekt | Co obsahuje |
 |---|---|---|
-| **CzechSpeechEnhanced** | `src/SpeechEnhanced/` | Parakeet TDT v3, Parakeet Ultra a Nemotron Unified |
+| **CzechSpeechEnhanced** | `src/SpeechEnhanced/` | Parakeet TDT v3 a Parakeet Ultra |
 | **CzechSpeechEnhancedCanary** | `src/CzechSpeechEnhancedCanary/` | Canary 1B v2 přes ONNX Runtime |
 | **CzechTTSFix** | `src/CzechTTSFix/` | oprava českého textu pro Pocket TTS |
 | **PrivacyTelemetry** | `src/PrivacyTelemetry/` | blokování známé analytiky a omezení diagnostiky feedbacku |
 
-Společné ASR zdrojáky (`Plugin.cs`, `Patches.cs`, `ParakeetBridge.cs`, `TranscriptCleaner.cs`) zůstávají v `src/` a oba speech projekty je linkují při kompilaci. TTS a Privacy mají vlastní plugin entry point a do ASR DLL se nekompilují.
+Společné ASR zdrojáky (`Plugin.cs`, `Patches.cs`, `SpeechTimingPatch.cs`, `ParakeetBridge.cs`, `TranscriptCleaner.cs`) zůstávají v `src/` a oba speech projekty je linkují při kompilaci. TTS a Privacy mají vlastní plugin entry point a do ASR DLL se nekompilují.
 
 ## Lokální sestavení
 
@@ -75,13 +75,14 @@ Výstupy vzniknou v `dist/` jako samostatné `.swyfmod` soubory.
 
 ## CzechSpeechEnhanced
 
-Používá jeden mod pro tři volitelné enginy:
+Používá jeden mod pro dva volitelné enginy:
 
 - **Parakeet TDT v3**
 - **Parakeet Ultra**
-- **Nemotron Unified**
 
-Model se volí v SWYF Mod Hubu. Parakeet/Ultra používají NeMo-Speech.cpp runtime, Nemotron používá `parakeet.cpp`. Modely nejsou součástí repozitáře; jejich URL, velikost a SHA-256 jsou v `src/SpeechEnhanced/mod.json` a Hub je stáhne zvlášť.
+Model se volí v SWYF Mod Hubu. Oba používají NeMo-Speech.cpp runtime. Modely nejsou součástí repozitáře; jejich URL, velikost a SHA-256 jsou v `src/SpeechEnhanced/mod.json` a Hub je stáhne zvlášť.
+
+Oba speech mody používají minimálně **1,3 sekundy ticha** před ukončením rozpoznávané věty. Krátká přirozená pauza uprostřed řeči tak méně často rozdělí jednu větu na dvě části.
 
 ## CzechSpeechEnhancedCanary
 
@@ -133,6 +134,7 @@ swyf-mody/
    │  └─ mod.json
    ├─ Plugin.cs
    ├─ Patches.cs
+   ├─ SpeechTimingPatch.cs
    ├─ ParakeetBridge.cs
    ├─ TranscriptCleaner.cs
    ├─ CzechPocketText.cs
@@ -148,6 +150,5 @@ swyf-mody/
 - NVIDIA Parakeet: model distribuovaný samostatně pod CC BY 4.0.
 - Canary 1B v2: NVIDIA, model CC BY 4.0; použitý ONNX převod od istupakov.
 - Parakeet Ultra: Moondream, GGUF převod od dawsonvosburga, CC BY 4.0.
-- Nemotron Unified: NVIDIA / převod pro parakeet.cpp; OpenMDW 1.1 a související oznámení jsou ve `licenses/`.
 
 Před veřejnou distribucí odvozeného kódu z původního modu ověř licenci původního repozitáře.
