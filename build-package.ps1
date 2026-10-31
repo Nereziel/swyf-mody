@@ -80,14 +80,6 @@ function Build-Speech {
                 if ($entry.FullName -match '^nemo-speech-0\.3\.0-windows-x86_64-vulkan/bin/([^/]+)$') { Add-ArchiveEntry $pkg.Zip $entry "files/Parakeet/bin/$($Matches[1])" }
             }
         } finally { $runtime.Dispose() }
-
-        $pkPath = Get-VerifiedArchive 'parakeet-v0.6.1-bin-win-vulkan-x64.zip' 'https://github.com/mudler/parakeet.cpp/releases/download/v0.6.1/parakeet-v0.6.1-bin-win-vulkan-x64.zip' '1b9adfb041394ebd016865a15699614a3c095876e07e7c3d67669d5a00cdda86'
-        $runtime = [IO.Compression.ZipFile]::OpenRead($pkPath)
-        try {
-            $entry = $runtime.Entries | Where-Object { $_.FullName -match '(^|/)parakeet-server\.exe$' } | Select-Object -First 1
-            if (-not $entry) { throw 'Nemotron server nebyl nalezen.' }
-            Add-ArchiveEntry $pkg.Zip $entry 'files/Nemotron/bin/parakeet-server.exe'
-        } finally { $runtime.Dispose() }
     } finally { $pkg.Zip.Dispose() }
     Write-Output "Balíček: $($pkg.Path)"
 }
