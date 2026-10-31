@@ -1,38 +1,120 @@
-# CzechSpeechEnhanced
+# SWYF mody
 
-Samostatný neoficiální mod pro **Scam With Your Friends** a SWYF Mod Hub. Autorem je **Nereziel**. Projekt byl postaven na základech modu [Lepší čeština od Dex](https://github.com/dexhauls/swyf-mods).
+Monorepo neoficiálních modů pro **Scam With Your Friends** a SWYF Mod Hub. Autorem je **Nereziel**. ASR část vychází z práce na modu Lepší čeština od Dex.
 
-- Dva samostatné mody: CzechSpeechEnhanced nabízí Parakeet TDT v3, Parakeet Ultra a Nemotron Unified; CzechSpeechEnhancedCanary nabízí Canary 1B v2 INT8.
-- Výběr zařízení `auto`, `cpu` nebo `gpu`. Modely Parakeet a Nemotron používají Vulkan; Canary používá NVIDIA CUDA. Při selhání akcelerace se mod pokusí o CPU.
-- Zachování české diakritiky pro český Pocket TTS; výslovnost a kompatibilitu je třeba ověřit ve hře.
-- Nastavitelná prodleva ukončení řeči a volby pro známý analytický sběrač a diagnostiku zpětné vazby. Nejde o úplnou blokaci síťového provozu.
+Repo je rozdělené na čtyři samostatné mody, které se sestavují a instalují nezávisle:
 
-## Instalace
+| Mod | Projekt | Co obsahuje |
+|---|---|---|
+| **CzechSpeechEnhanced** | `src/SpeechEnhanced/` | Parakeet TDT v3, Parakeet Ultra a Nemotron Unified |
+| **CzechSpeechEnhancedCanary** | `src/CzechSpeechEnhancedCanary/` | Canary 1B v2 přes ONNX Runtime |
+| **CzechTTSFix** | `src/CzechTTSFix/` | oprava českého textu pro Pocket TTS |
+| **PrivacyTelemetry** | `src/PrivacyTelemetry/` | blokování známé analytiky a omezení diagnostiky feedbacku |
 
-V SWYF Mod Hubu nainstaluj buď `CzechSpeechEnhanced-1.3.0.swyfmod`, nebo `CzechSpeechEnhancedCanary-1.3.0.swyfmod`, a vyber soubory požadovaného modelu. Pro Canary jsou potřeba všechny čtyři soubory (dohromady asi 1 GB). V kartě modu vyber zařízení, vypni druhý mod i původní Lepší češtinu a restartuj hru. Oba mody se z bezpečnostních důvodů při současném zapnutí deaktivují. Mod vyžaduje 64bit Windows; GPU potřebuje Vulkan nebo u Canary NVIDIA CUDA 13 a kompatibilní ovladač. Canary používá i CPU operace. Chybějící soubory nebo opakovaná chyba vedou k použití herního Whisperu.
+Společné ASR zdrojáky (`Plugin.cs`, `Patches.cs`, `ParakeetBridge.cs`, `TranscriptCleaner.cs`) zůstávají v `src/` a oba speech projekty je linkují při kompilaci. TTS a Privacy mají vlastní plugin entry point a do ASR DLL se nekompilují.
 
-Při aktualizaci ze společného balíčku 1.2.0 Hub zachovává staré soubory, včetně `Mods/CzechSpeechEnhanced/Canary`. Po úspěšném přechodu je můžeš ručně odstranit; nový Canary používá vlastní složku `Mods/CzechSpeechEnhancedCanary/Canary` a nový konfigurační soubor. Pokud měla základní verze vybrán Canary, přepne se na Parakeet.
+## Sestavení
 
-## Sestavení balíčku
+Potřebuješ:
 
-Potřebuješ .NET SDK, Python 3.14 s pipem, nainstalovanou hru a její BepInEx základ s Harmony. Herní knihovny nejsou součástí projektu.
+- .NET SDK,
+- nainstalovanou hru,
+- BepInEx základ s Harmony v adresáři hry,
+- pro Canary také Python 3.14 s `pip` při prvním sestavení runtime balíčku.
+
+Všechny čtyři mody:
 
 ```powershell
-.\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Flavor Both
+.\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod All
 ```
 
-Skript vytvoří oba balíčky do `dist`. Parametr `-Flavor Core` sestaví pouze Parakeet/Nemotron a nepotřebuje Python; `-Flavor Canary` sestaví pouze Canary. Stahované runtime skript ověřuje SHA-256. Balíček Canary s CUDA knihovnami je velký. Modely se nestahují do repozitáře; jejich adresy a kontrolní součty obsahují manifesty pro Hub.
+Jen konkrétní mod:
 
-## Nastavení
+```powershell
+.\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod Speech
+.\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod Canary
+.\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod TTS
+.\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod Privacy
+```
 
-Po spuštění hry najdeš konfiguraci v `BepInEx/config/nereziel.swyf.czechspeechenhanced.cfg`. `BlockAnalytics` a `BlockFeedbackDiagnostics` řídí oddělené ochrany; blokace diagnostiky se vztahuje na známou cestu formuláře zpětné vazby, ne na všechny služby nebo lokální logy. Přiložené nahrávky zůstávají součástí ručně odeslané zpětné vazby. AI backend nadále dostává text potřebný pro odpovědi.
+Výstupy vzniknou v `dist/` jako samostatné `.swyfmod` soubory.
 
-Základní mod používá `nereziel.swyf.czechspeechenhanced.cfg`, Canary používá vlastní `nereziel.swyf.czechspeechenhancedcanary.cfg`. Základní `Recognition/Engine` přijímá `parakeet`, `ultra` nebo `nemotron`; Canary volí vždy svůj model. U obou `Recognition/ComputeDevice` přijímá `auto`, `cpu` nebo `gpu`. Po změně restartuj hru. Server Nemotronu zatím rozpoznává jazyk automaticky, na rozdíl od Canary nerespektuje vynucený jazyk v konfiguraci. Přesnost jednotlivých modelů na konkrétním hlase je třeba porovnat na stejných větách.
+Řešení pro Visual Studio je `swyf-mody.sln`.
 
-## Zdroje a licence
+## CzechSpeechEnhanced
 
-Původní mod: Dex, [swyf-mods](https://github.com/dexhauls/swyf-mods). NeMo-Speech.cpp: NVIDIA, Apache-2.0; oznámení jsou ve složce `licenses`. Model [NVIDIA Parakeet](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) je distribuován samostatně pod CC BY 4.0. Licenci původního modu před veřejnou distribucí ověř u autora; v jeho repozitáři není výslovně uvedena.
+Používá jeden mod pro tři volitelné enginy:
 
-Canary: [NVIDIA Canary 1B v2](https://huggingface.co/nvidia/canary-1b-v2), ONNX převod od [istupakova](https://huggingface.co/istupakov/canary-1b-v2-onnx), model CC BY 4.0. Runtime používá [onnx-asr](https://github.com/istupakov/onnx-asr) a ONNX Runtime; jejich licence jsou přibaleny v balíčcích Pythonu.
+- **Parakeet TDT v3**
+- **Parakeet Ultra**
+- **Nemotron Unified**
 
-Parakeet Ultra: [Moondream](https://huggingface.co/moondream/parakeet-ultra), převod GGUF od [dawsonvosburga](https://huggingface.co/dawsonvosburg/parakeet-ultra-gguf), CC BY 4.0. Nemotron Unified: [NVIDIA](https://huggingface.co/nvidia/nemotron-labs-unified-asr-0.6b), převod [mudler](https://huggingface.co/mudler/parakeet-cpp-gguf); licence OpenMDW 1.1 a oznámení jsou ve složce `licenses`. Runtime [parakeet.cpp](https://github.com/mudler/parakeet.cpp) má vlastní přiloženou licenci.
+Model se volí v SWYF Mod Hubu. Parakeet/Ultra používají NeMo-Speech.cpp runtime, Nemotron používá `parakeet.cpp`. Modely nejsou součástí repozitáře; jejich URL, velikost a SHA-256 jsou v `src/SpeechEnhanced/mod.json` a Hub je stáhne zvlášť.
+
+## CzechSpeechEnhancedCanary
+
+Samostatný Canary 1B v2 mod. Používá ONNX převod a lokální helper server. Modelové soubory nejsou v repozitáři a Hub je stahuje podle `src/CzechSpeechEnhancedCanary/mod.json`.
+
+Canary a CzechSpeechEnhanced se nemají zapínat současně, protože oba patchují stejnou herní speech pipeline.
+
+## CzechTTSFix
+
+Malý samostatný mod bez ASR modelu. Opravuje preprocessing českého Pocket TTS: zachová Unicode/diakritiku, normalizuje mezery a doplní ukončovací interpunkci tam, kde chybí.
+
+## PrivacyTelemetry
+
+Samostatný privacy mod. Aktuálně:
+
+- blokuje známý `Kolkata.Analytics.AnalyticsCollector`,
+- může omezit diagnostická metadata a recent logs ve feedback snapshotu,
+- neblokuje AI backend, multiplayer ani všechen síťový provoz,
+- explicitně přiložené nahrávky ve feedbacku zůstávají zachované.
+
+Konfigurace:
+
+```text
+BepInEx/config/nereziel.swyf.privacytelemetry.cfg
+```
+
+## Struktura
+
+```text
+swyf-mody/
+├─ swyf-mody.sln
+├─ build-package.ps1
+├─ licenses/
+└─ src/
+   ├─ SpeechEnhanced/
+   │  ├─ SpeechEnhanced.csproj
+   │  └─ mod.json
+   ├─ CzechSpeechEnhancedCanary/
+   │  ├─ CzechSpeechEnhancedCanary.csproj
+   │  └─ mod.json
+   ├─ CzechTTSFix/
+   │  ├─ CzechTTSFix.csproj
+   │  ├─ Plugin.cs
+   │  └─ mod.json
+   ├─ PrivacyTelemetry/
+   │  ├─ PrivacyTelemetry.csproj
+   │  ├─ Plugin.cs
+   │  └─ mod.json
+   ├─ Plugin.cs
+   ├─ Patches.cs
+   ├─ ParakeetBridge.cs
+   ├─ TranscriptCleaner.cs
+   ├─ CzechPocketText.cs
+   ├─ PrivacyPatches.cs
+   ├─ canary_server.py
+   └─ canary-requirements.txt
+```
+
+## Licence a třetí strany
+
+- Původní mod: Dex / `swyf-mods`.
+- NeMo-Speech.cpp: NVIDIA, Apache-2.0; oznámení jsou ve `licenses/`.
+- NVIDIA Parakeet: model distribuovaný samostatně pod CC BY 4.0.
+- Canary 1B v2: NVIDIA, model CC BY 4.0; použitý ONNX převod od istupakov.
+- Parakeet Ultra: Moondream, GGUF převod od dawsonvosburga, CC BY 4.0.
+- Nemotron Unified: NVIDIA / převod pro parakeet.cpp; OpenMDW 1.1 a související oznámení jsou ve `licenses/`.
+
+Před veřejnou distribucí odvozeného kódu z původního modu ověř licenci původního repozitáře.
