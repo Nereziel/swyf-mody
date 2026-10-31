@@ -1,10 +1,16 @@
 param(
     [Parameter(Mandatory = $true)][string]$GameDir,
     [ValidateSet('All','Speech','Canary','TTS','Privacy')][string]$Mod = 'All',
-    [string]$CacheDir = (Join-Path $PSScriptRoot '.cache')
+    [string]$CacheDir
 )
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($root)) {
+    $root = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+if ([string]::IsNullOrWhiteSpace($CacheDir)) {
+    $CacheDir = Join-Path $root '.cache'
+}
 $game = (Resolve-Path -LiteralPath $GameDir).Path
 $managed = Join-Path $game 'Scam With Your Friends_Data\Managed'
 if (-not (Test-Path -LiteralPath (Join-Path $managed 'ScriptsAssDef.dll'))) { throw 'Herní knihovny nebyly nalezeny.' }
