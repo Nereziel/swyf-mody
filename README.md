@@ -13,7 +13,7 @@ Repo je rozdělené na čtyři samostatné mody, které se sestavují a instaluj
 
 Společné ASR zdrojáky (`Plugin.cs`, `Patches.cs`, `ParakeetBridge.cs`, `TranscriptCleaner.cs`) zůstávají v `src/` a oba speech projekty je linkují při kompilaci. TTS a Privacy mají vlastní plugin entry point a do ASR DLL se nekompilují.
 
-## Sestavení
+## Lokální sestavení
 
 Potřebuješ:
 
@@ -21,6 +21,38 @@ Potřebuješ:
 - nainstalovanou hru,
 - BepInEx základ s Harmony v adresáři hry,
 - pro Canary také Python 3.14 s `pip` při prvním sestavení runtime balíčku.
+
+### Nejjednodušší: `build.cmd`
+
+Spusť v kořeni repozitáře dvojklikem:
+
+```text
+build.cmd
+```
+
+Skript se zeptá na cestu ke hře a co chceš sestavit:
+
+```text
+All
+Speech
+Canary
+TTS
+Privacy
+```
+
+Výchozí volba je `All`. `build.cmd` automaticky spustí `build-package.ps1` přes PowerShell 7 (`pwsh`), pokud je dostupný, jinak použije Windows PowerShell. Použije `ExecutionPolicy Bypass`, takže není potřeba měnit systémovou PowerShell Execution Policy.
+
+Lze ho spustit i s parametry bez interaktivních dotazů:
+
+```cmd
+build.cmd -GameDir "D:\Hry\Steam\steamapps\common\Scam With Your Friends" -Mod All
+build.cmd -GameDir "D:\Hry\Steam\steamapps\common\Scam With Your Friends" -Mod Speech
+build.cmd -GameDir "D:\Hry\Steam\steamapps\common\Scam With Your Friends" -Mod Canary
+build.cmd -GameDir "D:\Hry\Steam\steamapps\common\Scam With Your Friends" -Mod TTS
+build.cmd -GameDir "D:\Hry\Steam\steamapps\common\Scam With Your Friends" -Mod Privacy
+```
+
+### Přímé spuštění PowerShellu
 
 Všechny čtyři mody:
 
@@ -81,6 +113,7 @@ BepInEx/config/nereziel.swyf.privacytelemetry.cfg
 ```text
 swyf-mody/
 ├─ swyf-mody.sln
+├─ build.cmd
 ├─ build-package.ps1
 ├─ licenses/
 └─ src/
