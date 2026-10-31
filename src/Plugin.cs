@@ -59,8 +59,6 @@ namespace CzechSpeechEnhanced
         internal static ConfigEntry<float> EndSilenceSeconds;
         internal static ConfigEntry<bool> CleanTranscript;
         internal static ConfigEntry<bool> LogTranscripts;
-        internal static ConfigEntry<bool> BlockAnalytics;
-        internal static ConfigEntry<bool> BlockFeedbackDiagnostics;
 
         /// <summary>Folder the mod looks for models in: Mods/CzechSpeechEnhanced.</summary>
         // Not Paths.PluginPath / Assembly.Location: the SWYF Mod Manager loads mods from memory (see MOD-FORMAT.md).
@@ -132,10 +130,6 @@ namespace CzechSpeechEnhanced
                 "Remove typical Whisper nonsense (\"Titulky vytvořil JohnyX\", repeated words, the prompt echoed back).");
             LogTranscripts = Config.Bind("Debug", "LogTranscripts", false,
                 "Write what was recognized into BepInEx/LogOutput.log (for testing).");
-            BlockAnalytics = Config.Bind("Privacy", "BlockAnalytics", true,
-                "Block the game's analytics collector from queuing and uploading analytics. Does not block AI, multiplayer, or other network traffic.");
-            BlockFeedbackDiagnostics = Config.Bind("Privacy", "BlockFeedbackDiagnostics", true,
-                "Exclude game diagnostic metadata and logs from manually submitted feedback. Does not disable local game logs or explicitly attached recordings.");
 
             if (!Enabled.Value)
             {
