@@ -1,0 +1,39 @@
+{
+  "id": "PrivacyTelemetry",
+  "name": "Ochrana soukromí / telemetrie",
+  "name_en": "Privacy / Telemetry",
+  "version": "1.0.0",
+  "author": "Nereziel",
+  "description": "Samostatně blokuje známý analytický sběrač hry a omezuje diagnostická metadata a logy přidávané do ručně odeslané zpětné vazby.",
+  "description_en": "Standalone privacy mod that blocks the known analytics collector and limits diagnostic metadata and logs included in manually submitted feedback.",
+  "icon": "E72E",
+  "tags": [ "Soukromí", "Telemetrie" ],
+  "tags_en": [ "Privacy", "Telemetry" ],
+  "dll": "PrivacyTelemetry.dll",
+  "settings": [
+    {
+      "name": "ANALYTIKA",
+      "name_en": "ANALYTICS",
+      "file": "BepInEx/config/nereziel.swyf.privacytelemetry.cfg",
+      "section": "Privacy",
+      "key": "BlockAnalytics",
+      "default": "true",
+      "options": [
+        { "name": "Blokovat", "name_en": "Block", "value": "true" },
+        { "name": "Povolit", "name_en": "Allow", "value": "false" }
+      ]
+    },
+    {
+      "name": "DIAGNOSTIKA ZPĚTNÉ VAZBY",
+      "name_en": "FEEDBACK DIAGNOSTICS",
+      "file": "BepInEx/config/nereziel.swyf.privacytelemetry.cfg",
+      "section": "Privacy",
+      "key": "BlockFeedbackDiagnostics",
+      "default": "true",
+      "options": [
+        { "name": "Blokovat", "name_en": "Block", "value": "true" },
+        { "name": "Povolit", "name_en": "Allow", "value": "false" }
+      ]
+    }
+  ]
+}
