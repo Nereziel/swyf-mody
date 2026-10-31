@@ -22,50 +22,27 @@ namespace CzechSpeechEnhanced
         private static string endpoint;
         private static bool disabled;
         private static bool forceCpu;
+
         private static string Folder => Path.Combine(BepInEx.Paths.GameRootPath, "Mods", Plugin.ModId, "Parakeet");
         private static string Exe => Path.Combine(Folder, "bin", "nemo-speech.exe");
+        private static string Device => (Plugin.ComputeDevice.Value ?? "auto").Trim().ToLowerInvariant();
+
         private static string Engine
         {
             get
             {
                 string engine = (Plugin.SpeechEngine.Value ?? "parakeet").Trim().ToLowerInvariant();
-                if (engine == "canary" || engine == "ultra" || engine == "parakeet") return engine;
+                if (engine == "parakeet" || engine == "ultra") return engine;
 
-                if (engine == "nemotron")
-                {
-                    Plugin.Log.LogWarning("Nemotron support was removed; switching the saved engine to Parakeet.");
-                }
-                else
-                {
-                    Plugin.Log.LogWarning("Unsupported speech engine '" + engine + "'; switching to Parakeet.");
-                }
+                Plugin.Log.LogWarning("Unsupported speech engine '" + engine + "'; switching to Parakeet.");
                 Plugin.SpeechEngine.Value = "parakeet";
                 return "parakeet";
             }
         }
-        private static string Device => (Plugin.ComputeDevice.Value ?? "auto").Trim().ToLowerInvariant();
-        private static string Model => Path.Combine(Folder, Engine == "ultra" ? "parakeet-ultra.q8.gguf" : "parakeet.q8.gguf");
-        private static string CanaryFolder => Path.Combine(BepInEx.Paths.GameRootPath, "Mods", Plugin.ModId, "Canary");
-        private static bool UseCanary => Engine == "canary";
-        private static string CanaryPython => Path.Combine(CanaryFolder, "python", "python.exe");
-        private static string CanaryScript => Path.Combine(CanaryFolder, "canary_server.py");
-        private static string CanaryModel => Path.Combine(CanaryFolder, "model");
-        private static string CanaryLanguage
-        {
-            get
-            {
-                string value = Plugin.ForcedLanguage ?? "cs";
-                return System.Text.RegularExpressions.Regex.IsMatch(value, "^[a-z]{2}$") ? value : "cs";
-            }
-        }
 
-        internal static bool Available => !disabled && (UseCanary
-            ? File.Exists(CanaryPython) && File.Exists(CanaryScript) &&
-              File.Exists(Path.Combine(CanaryModel, "encoder-model.int8.onnx")) &&
-              File.Exists(Path.Combine(CanaryModel, "decoder-model.int8.onnx")) &&
-              File.Exists(Path.Combine(CanaryModel, "config.json")) &&
-              File.Exists(Path.Combine(CanaryModel, "vocab.txt"))
-            : (Engine == "parakeet" || Engine == "ultra") && File.Exists(Exe) && File.Exists(Model));
+        private static string Model => Path.Combine(Folder, Engine == "ultra" ? "parakeet-ultra.q8.gguf" : "parakeet.q8.gguf");
+
+        internal static bool Available => !disabled && File.Exists(Exe) && File.Exists(Model);
 
         internal static async Task<WhisperResult> Transcribe(float[] samples, int frequency, int channels, Func<Task<WhisperResult>> fallbackCall)
         {
@@ -75,29 +52,12 @@ namespace CzechSpeechEnhanced
                 try
                 {
                     await EnsureServer().ConfigureAwait(false);
-                    if (UseCanary)
-                    {
-                        using (var audio = new ByteArrayContent(Wav(samples, frequency, channels)))
-                        using (var response = await Client.PostAsync(endpoint + "/transcribe", audio).ConfigureAwait(false))
-                        {
-                            string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            response.EnsureSuccessStatusCode();
-                            var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                            if (data == null || !data.TryGetValue("text", out string value) || value == null)
-                                throw new Exception("Missing text in Canary response");
-                            data.TryGetValue("device", out string actualDevice);
-                            data.TryGetValue("fallback", out string fallbackReason);
-                            Plugin.Log.LogInfo("Canary completed transcription; device=" + actualDevice +
-                                               (string.IsNullOrEmpty(fallbackReason) ? "" : "; GPU fallback=" + fallbackReason));
-                            return new WhisperResult(new List<WhisperSegment> { new WhisperSegment(0, value, 0, 0) }, 0);
-                        }
-                    }
-
                     using (var form = new MultipartFormDataContent())
                     {
                         var audio = new ByteArrayContent(Wav(samples, frequency, channels));
                         audio.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("audio/wav");
                         form.Add(audio, "file", "speech.wav");
+
                         using (var response = await Client.PostAsync(endpoint + "/v1/audio/transcriptions", form).ConfigureAwait(false))
                         {
                             string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -105,6 +65,7 @@ namespace CzechSpeechEnhanced
                             var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
                             if (data == null || !data.TryGetValue("text", out string text) || text == null)
                                 throw new Exception("Missing text in ASR response");
+
                             Plugin.Log.LogInfo(Engine + " completed transcription.");
                             return new WhisperResult(new List<WhisperSegment> { new WhisperSegment(0, text, 0, 0) }, 0);
                         }
@@ -154,13 +115,14 @@ namespace CzechSpeechEnhanced
 
             string chosen = forceCpu ? "cpu" : Device == "cpu" || Device == "gpu" ? Device : "auto";
             string nemoDevice = chosen == "cpu" ? "cpu" : chosen == "gpu" ? "vulkan:0" : "auto";
+
             var start = new ProcessStartInfo
             {
-                FileName = UseCanary ? CanaryPython : Exe,
-                WorkingDirectory = UseCanary ? CanaryFolder : Path.GetDirectoryName(Exe),
-                Arguments = UseCanary
-                    ? "\"" + CanaryScript + "\" --port " + port + " --model \"" + CanaryModel + "\" --language " + CanaryLanguage + " --device " + chosen
-                    : "serve --host 127.0.0.1 --port " + port + " --no-ui --no-warmup --device " + nemoDevice + " --asr-model \"" + Model + "\"",
+                FileName = Exe,
+                WorkingDirectory = Path.GetDirectoryName(Exe),
+                Arguments = "serve --host 127.0.0.1 --port " + port +
+                            " --no-ui --no-warmup --device " + nemoDevice +
+                            " --asr-model \"" + Model + "\"",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden
@@ -212,6 +174,7 @@ namespace CzechSpeechEnhanced
                 writer.Write((short)16);
                 writer.Write(Encoding.ASCII.GetBytes("data"));
                 writer.Write(frames * 2);
+
                 for (int i = 0; i < frames; i++)
                 {
                     float v = 0;
