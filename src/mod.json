@@ -1,0 +1,151 @@
+{
+  "author": "Nereziel",
+  "description": "Parakeet, Parakeet Ultra a Nemotron Unified. Vypni verzi Canary i původní mod a restartuj hru.",
+  "description_en": "Parakeet, Parakeet Ultra and Nemotron Unified. Disable Canary and the original mod, then restart.",
+  "dll": "CzechSpeechEnhanced.dll",
+  "downloads": [
+    {
+      "id": "parakeet-v3",
+      "name": "Parakeet TDT v3",
+      "name_en": "Parakeet TDT v3",
+      "description": "Model Parakeet TDT v3.",
+      "description_en": "Czech speech recognition model required for Parakeet (714 MB).",
+      "url": "https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3/resolve/main/parakeet-tdt-0.6b-v3.q8_0.gguf",
+      "sha256": "e3880d0aaaaf2c308ea2c35016b2b895c423eb3fda924c1b463d1c19b7f4d32e",
+      "size": 713975456,
+      "path": "Parakeet/parakeet.q8.gguf",
+      "default": true
+    },
+    {
+      "id": "parakeet-ultra",
+      "name": "Parakeet Ultra Q8",
+      "name_en": "Parakeet Ultra Q8",
+      "description": "Model Parakeet Ultra.",
+      "description_en": "Optional Parakeet Ultra model (714 MB).",
+      "url": "https://huggingface.co/dawsonvosburg/parakeet-ultra-gguf/resolve/bb2ab0a6c9ba509e28abb1d258bb74e65ec93512/parakeet-ultra.q8_0.gguf",
+      "sha256": "e59fc6d24bfc07c904311c53f46accd51dbbbab25ec9f1faebbf89e9e3825322",
+      "size": 714456704,
+      "path": "Parakeet/parakeet-ultra.q8.gguf",
+      "default": false
+    },
+    {
+      "id": "nemotron-unified",
+      "name": "Nemotron Unified Q8",
+      "name_en": "Nemotron Unified Q8",
+      "description": "Model Nemotron Unified, licence OpenMDW 1.1.",
+      "description_en": "Optional Nemotron Unified model (939 MB), OpenMDW 1.1 license.",
+      "url": "https://huggingface.co/mudler/parakeet-cpp-gguf/resolve/07a08a3a405d20c5434b9a1442f6e6cf571f57ad/nemotron-labs-unified-asr-0.6b-q8_0.gguf",
+      "sha256": "655b4cd140d82f78d5aede71a0342cb92207a80c543ab8dc646c2d3edaaf0c09",
+      "size": 939228800,
+      "path": "Nemotron/nemotron-unified.q8.gguf",
+      "default": false
+    }
+  ],
+  "icon": "E720",
+  "id": "CzechSpeechEnhanced",
+  "name": "CzechSpeechEnhanced",
+  "name_en": "CzechSpeechEnhanced",
+  "settings": [
+    {
+      "name": "MODEL PŘEPISU",
+      "name_en": "SPEECH MODEL",
+      "file": "BepInEx/config/nereziel.swyf.czechspeechenhanced.cfg",
+      "section": "Recognition",
+      "key": "Engine",
+      "default": "parakeet",
+      "options": [
+        {
+          "name": "Parakeet",
+          "name_en": "Parakeet",
+          "value": "parakeet"
+        },
+        {
+          "name": "Parakeet Ultra",
+          "name_en": "Parakeet Ultra",
+          "value": "ultra"
+        },
+        {
+          "name": "Nemotron",
+          "name_en": "Nemotron",
+          "value": "nemotron"
+        }
+      ]
+    },
+    {
+      "name": "VÝPOČET",
+      "name_en": "COMPUTE DEVICE",
+      "file": "BepInEx/config/nereziel.swyf.czechspeechenhanced.cfg",
+      "section": "Recognition",
+      "key": "ComputeDevice",
+      "default": "auto",
+      "options": [
+        {
+          "name": "Automaticky",
+          "name_en": "Automatic",
+          "value": "auto"
+        },
+        {
+          "name": "Procesor",
+          "name_en": "CPU",
+          "value": "cpu"
+        },
+        {
+          "name": "Grafika",
+          "name_en": "GPU",
+          "value": "gpu"
+        }
+      ]
+    },
+    {
+      "name": "ANALYTIKA",
+      "name_en": "ANALYTICS",
+      "file": "BepInEx/config/nereziel.swyf.czechspeechenhanced.cfg",
+      "section": "Privacy",
+      "key": "BlockAnalytics",
+      "default": "true",
+      "options": [
+        {
+          "name": "Blokovat",
+          "name_en": "Block",
+          "value": "true"
+        },
+        {
+          "name": "Povolit",
+          "name_en": "Allow",
+          "value": "false"
+        }
+      ]
+    },
+    {
+      "name": "DIAGNOSTIKA ZPĚTNÉ VAZBY",
+      "name_en": "FEEDBACK DIAGNOSTICS",
+      "file": "BepInEx/config/nereziel.swyf.czechspeechenhanced.cfg",
+      "section": "Privacy",
+      "key": "BlockFeedbackDiagnostics",
+      "default": "true",
+      "options": [
+        {
+          "name": "Blokovat",
+          "name_en": "Block",
+          "value": "true"
+        },
+        {
+          "name": "Povolit",
+          "name_en": "Allow",
+          "value": "false"
+        }
+      ]
+    }
+  ],
+  "tags": [
+    "Parakeet",
+    "Čeština",
+    "Soukromí"
+  ],
+  "tags_en": [
+    "Parakeet",
+    "Czech",
+    "Privacy"
+  ],
+  "version": "1.3.0"
+}

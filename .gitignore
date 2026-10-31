@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+dist/
+.cache/
+*.swyfmod
+*.gguf
+*.bin
+*.log
+*.wav
+*.pdb
