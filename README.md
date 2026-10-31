@@ -1,30 +1,41 @@
 # SWYF mody
 
-Monorepo neoficiálních modů pro **Scam With Your Friends** a SWYF Mod Hub. Autorem je **Nereziel**. ASR část vychází z práce na modu Lepší čeština od Dex.
+Neoficiální mody pro **Scam With Your Friends**.
 
-Repo je rozdělené na čtyři samostatné mody, které se sestavují a instalují nezávisle:
+## Nejdřív nainstaluj SWYF Mod Hub
 
-| Mod | Projekt | Co obsahuje |
-|---|---|---|
-| **CzechSpeechEnhanced** | `src/SpeechEnhanced/` | Parakeet TDT v3 a Parakeet Ultra |
-| **CzechSpeechEnhancedCanary** | `src/CzechSpeechEnhancedCanary/` | Canary 1B v2 přes ONNX Runtime |
-| **CzechTTSFix** | `src/CzechTTSFix/` | oprava českého textu pro Pocket TTS |
-| **PrivacyTelemetry** | `src/PrivacyTelemetry/` | blokování známé analytiky a omezení diagnostiky feedbacku |
+Pro tyto mody je potřeba **SWYF Mod Hub od Dexe**:
 
-Společné ASR zdrojáky (`Plugin.cs`, `Patches.cs`, `SpeechTimingPatch.cs`, `ParakeetBridge.cs`, `TranscriptCleaner.cs`) zůstávají v `src/` a oba speech projekty je linkují při kompilaci. TTS a Privacy mají vlastní plugin entry point a do ASR DLL se nekompilují.
+**https://dexhauls.github.io/swyf-mods/**
+
+Mod Hub nainstaluje potřebný **BepInEx** a umí instalovat balíčky `.swyfmod`.
+
+## Co jednotlivé mody dělají
+
+| Mod | Funkce |
+|---|---|
+| **CzechSpeechEnhanced** | Lepší rozpoznávání češtiny/slovenštiny pomocí Parakeet TDT v3 nebo Parakeet Ultra. |
+| **CzechSpeechEnhancedCanary** | Alternativní rozpoznávání řeči pomocí NVIDIA Canary 1B v2. |
+| **CzechTTSFix** | Opravuje zpracování českého textu pro herní TTS, hlavně diakritiku a interpunkci. |
+| **PrivacyTelemetry** | Blokuje známou analytiku hry a omezuje diagnostická data odesílaná ve feedbacku. |
+
+**CzechSpeechEnhanced a CzechSpeechEnhancedCanary nezapínej současně.** Oba upravují stejnou část rozpoznávání řeči. TTS Fix a PrivacyTelemetry lze používat nezávisle.
+
+Speech mody čekají přibližně **1,3 sekundy ticha** před ukončením věty, aby krátká pauza při mluvení nerozdělila jednu větu na dvě.
+
+## Instalace
+
+1. Nainstaluj [SWYF Mod Hub](https://dexhauls.github.io/swyf-mods/).
+2. Stáhni požadovaný `.swyfmod` balíček.
+3. Nainstaluj ho přes SWYF Mod Hub.
+4. U speech modu případně vyber model a způsob výpočtu.
+5. Restartuj hru.
 
 ## Lokální sestavení
 
-Potřebuješ:
+Potřebuješ `.NET SDK`, nainstalovanou hru a BepInEx. Pro sestavení Canary balíčku je navíc potřeba Python 3.14 s `pip`.
 
-- .NET SDK,
-- nainstalovanou hru,
-- BepInEx základ s Harmony v adresáři hry,
-- pro Canary také Python 3.14 s `pip` při prvním sestavení runtime balíčku.
-
-### Nejjednodušší: `build.cmd`
-
-Spusť v kořeni repozitáře dvojklikem:
+Nejjednodušší je spustit v kořeni repozitáře:
 
 ```text
 build.cmd
@@ -40,115 +51,16 @@ TTS
 Privacy
 ```
 
-Výchozí volba je `All`. `build.cmd` automaticky spustí `build-package.ps1` přes PowerShell 7 (`pwsh`), pokud je dostupný, jinak použije Windows PowerShell. Použije `ExecutionPolicy Bypass`, takže není potřeba měnit systémovou PowerShell Execution Policy.
+Výsledné balíčky vzniknou v `dist/` jako `.swyfmod`.
 
-Lze ho spustit i s parametry bez interaktivních dotazů:
-
-```cmd
-build.cmd -GameDir "D:\Hry\Steam\steamapps\common\Scam With Your Friends" -Mod All
-build.cmd -GameDir "D:\Hry\Steam\steamapps\common\Scam With Your Friends" -Mod Speech
-build.cmd -GameDir "D:\Hry\Steam\steamapps\common\Scam With Your Friends" -Mod Canary
-build.cmd -GameDir "D:\Hry\Steam\steamapps\common\Scam With Your Friends" -Mod TTS
-build.cmd -GameDir "D:\Hry\Steam\steamapps\common\Scam With Your Friends" -Mod Privacy
-```
-
-### Přímé spuštění PowerShellu
-
-Všechny čtyři mody:
+Lze použít i přímo PowerShell:
 
 ```powershell
 .\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod All
 ```
 
-Jen konkrétní mod:
+## Licence
 
-```powershell
-.\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod Speech
-.\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod Canary
-.\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod TTS
-.\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod Privacy
-```
+Kód vytvořený v tomto repozitáři je dostupný pod MIT licencí v rozsahu uvedeném v souboru `LICENSE`.
 
-Výstupy vzniknou v `dist/` jako samostatné `.swyfmod` soubory.
-
-Řešení pro Visual Studio je `swyf-mody.sln`.
-
-## CzechSpeechEnhanced
-
-Používá jeden mod pro dva volitelné enginy:
-
-- **Parakeet TDT v3**
-- **Parakeet Ultra**
-
-Model se volí v SWYF Mod Hubu. Oba používají NeMo-Speech.cpp runtime. Modely nejsou součástí repozitáře; jejich URL, velikost a SHA-256 jsou v `src/SpeechEnhanced/mod.json` a Hub je stáhne zvlášť.
-
-Oba speech mody používají minimálně **1,3 sekundy ticha** před ukončením rozpoznávané věty. Krátká přirozená pauza uprostřed řeči tak méně často rozdělí jednu větu na dvě části.
-
-## CzechSpeechEnhancedCanary
-
-Samostatný Canary 1B v2 mod. Používá ONNX převod a lokální helper server. Modelové soubory nejsou v repozitáři a Hub je stahuje podle `src/CzechSpeechEnhancedCanary/mod.json`.
-
-Canary a CzechSpeechEnhanced se nemají zapínat současně, protože oba patchují stejnou herní speech pipeline.
-
-## CzechTTSFix
-
-Malý samostatný mod bez ASR modelu. Opravuje preprocessing českého Pocket TTS: zachová Unicode/diakritiku, normalizuje mezery a doplní ukončovací interpunkci tam, kde chybí.
-
-## PrivacyTelemetry
-
-Samostatný privacy mod. Aktuálně:
-
-- blokuje známý `Kolkata.Analytics.AnalyticsCollector`,
-- může omezit diagnostická metadata a recent logs ve feedback snapshotu,
-- neblokuje AI backend, multiplayer ani všechen síťový provoz,
-- explicitně přiložené nahrávky ve feedbacku zůstávají zachované.
-
-Konfigurace:
-
-```text
-BepInEx/config/nereziel.swyf.privacytelemetry.cfg
-```
-
-## Struktura
-
-```text
-swyf-mody/
-├─ swyf-mody.sln
-├─ build.cmd
-├─ build-package.ps1
-├─ licenses/
-└─ src/
-   ├─ SpeechEnhanced/
-   │  ├─ SpeechEnhanced.csproj
-   │  └─ mod.json
-   ├─ CzechSpeechEnhancedCanary/
-   │  ├─ CzechSpeechEnhancedCanary.csproj
-   │  └─ mod.json
-   ├─ CzechTTSFix/
-   │  ├─ CzechTTSFix.csproj
-   │  ├─ Plugin.cs
-   │  └─ mod.json
-   ├─ PrivacyTelemetry/
-   │  ├─ PrivacyTelemetry.csproj
-   │  ├─ Plugin.cs
-   │  └─ mod.json
-   ├─ Plugin.cs
-   ├─ Patches.cs
-   ├─ SpeechTimingPatch.cs
-   ├─ ParakeetBridge.cs
-   ├─ TranscriptCleaner.cs
-   ├─ CzechPocketText.cs
-   ├─ PrivacyPatches.cs
-   ├─ canary_server.py
-   └─ canary-requirements.txt
-```
-
-## Licence a třetí strany
-
-- Původní mod: Dex / `swyf-mods`.
-- NeMo-Speech.cpp: NVIDIA, Apache-2.0; oznámení jsou ve `licenses/`.
-- NVIDIA Parakeet: model distribuovaný samostatně pod CC BY 4.0.
-- Canary 1B v2: NVIDIA, model CC BY 4.0; použitý ONNX převod od istupakov.
-- Parakeet Ultra: Moondream, GGUF převod od dawsonvosburga, CC BY 4.0.
-
-Před veřejnou distribucí odvozeného kódu z původního modu ověř licenci původního repozitáře.
+Část speech kódu vychází z projektu [dexhauls/swyf-mods](https://github.com/dexhauls/swyf-mods) a MIT licence tohoto repozitáře nepřelicencovává cizí nebo odvozený kód. Použité externí runtime/modely mají vlastní licence.
