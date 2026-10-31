@@ -2,13 +2,13 @@
   "id": "CzechSpeechEnhanced",
   "name": "CzechSpeechEnhanced",
   "name_en": "CzechSpeechEnhanced",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "author": "Nereziel",
-  "description": "Parakeet TDT v3 a Parakeet Ultra. Vypni verzi Canary i původní mod a restartuj hru.",
-  "description_en": "Parakeet TDT v3 and Parakeet Ultra. Disable Canary and the original mod, then restart.",
+  "description": "Lepší rozpoznávání češtiny a slovenštiny pomocí Parakeet TDT v3 nebo Parakeet Ultra.",
+  "description_en": "Improved Czech and Slovak speech recognition using Parakeet TDT v3 or Parakeet Ultra.",
   "icon": "E720",
-  "tags": [ "Parakeet", "Čeština" ],
-  "tags_en": [ "Parakeet", "Czech" ],
+  "tags": [ "Parakeet", "Čeština", "Slovenština" ],
+  "tags_en": [ "Parakeet", "Czech", "Slovak" ],
   "dll": "CzechSpeechEnhanced.dll",
   "settings": [
     {
