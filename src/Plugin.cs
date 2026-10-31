@@ -16,20 +16,11 @@ namespace CzechSpeechEnhanced
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     public class Plugin : BaseUnityPlugin
     {
-#if CANARY_ONLY
-        public const string PluginGuid = "nereziel.swyf.czechspeechenhancedcanary";
-        public const string PluginName = "CzechSpeechEnhancedCanary";
-        internal const string ModId = "CzechSpeechEnhancedCanary";
-        internal const string OtherModId = "CzechSpeechEnhanced";
-        internal const string DefaultEngine = "canary";
-#else
         public const string PluginGuid = "nereziel.swyf.czechspeechenhanced";
         public const string PluginName = "CzechSpeechEnhanced";
         internal const string ModId = "CzechSpeechEnhanced";
-        internal const string OtherModId = "CzechSpeechEnhancedCanary";
         internal const string DefaultEngine = "parakeet";
-#endif
-        public const string PluginVersion = "1.3.0";
+        public const string PluginVersion = "1.3.1";
 
         /// <summary>Preferred models, best first. Anything else ending in .bin is used as a last resort.</summary>
         private static readonly string[] PreferredModels =
@@ -79,20 +70,29 @@ namespace CzechSpeechEnhanced
             Log = Logger;
             string oldConfig = Path.Combine(Paths.ConfigPath, "dex.swyf.czechspeechenhanced.cfg");
             string newConfig = Path.Combine(Paths.ConfigPath, PluginGuid + ".cfg");
-            if (ModId == "CzechSpeechEnhanced" && !File.Exists(newConfig) && File.Exists(oldConfig))
+            if (!File.Exists(newConfig) && File.Exists(oldConfig))
             {
                 File.Copy(oldConfig, newConfig);
                 Config.Reload();
                 Log.LogInfo("Migrated CzechSpeechEnhanced settings to the new configuration file.");
             }
+
             Enabled = Config.Bind("General", "Enabled", true, "Use the better speech recognition.");
             SpeechEngine = Config.Bind("Recognition", "Engine", DefaultEngine, "Speech recognition engine. Restart after changing it.");
-#if CANARY_ONLY
-            if (!string.Equals(SpeechEngine.Value, "canary", StringComparison.OrdinalIgnoreCase)) SpeechEngine.Value = "canary";
-#else
-            if (string.Equals(SpeechEngine.Value, "canary", StringComparison.OrdinalIgnoreCase)) { SpeechEngine.Value = "parakeet"; Log.LogWarning("Canary is now a separate mod; core switched to Parakeet."); }
-#endif
-            ComputeDevice = Config.Bind("Recognition", "ComputeDevice", "auto", "Speech computation device: auto, gpu, or cpu. Restart after changing it. GPU requires Vulkan; Canary uses NVIDIA CUDA. Unsupported operations can fall back to CPU.");
+            string savedEngine = SpeechEngine.Value?.Trim().ToLowerInvariant();
+            if (savedEngine != "parakeet" && savedEngine != "ultra")
+            {
+                if (savedEngine == "canary")
+                    Log.LogWarning("Canary support was removed; switching the saved engine to Parakeet.");
+                else if (savedEngine == "nemotron")
+                    Log.LogWarning("Nemotron support was removed; switching the saved engine to Parakeet.");
+                else
+                    Log.LogWarning("Unsupported speech engine '" + savedEngine + "'; switching to Parakeet.");
+                SpeechEngine.Value = "parakeet";
+            }
+
+            ComputeDevice = Config.Bind("Recognition", "ComputeDevice", "auto",
+                "Speech computation device: auto, gpu, or cpu. Restart after changing it. GPU uses Vulkan; unsupported operations can fall back to CPU.");
             ModelFile = Config.Bind("Model", "Model", "large-v3",
                 "Which model from Mods/CzechSpeechEnhanced to use: large-v3 (best, ~4 GB VRAM), turbo (faster, for weaker PCs, ~2 GB VRAM), " +
                 "or a file name / full path. If it is missing, the best model found there is used.");
@@ -124,8 +124,8 @@ namespace CzechSpeechEnhanced
             SpeechThreshold = Config.Bind("Audio", "SpeechThreshold", 0f,
                 "Microphone level (RMS) that counts as speech. 0 = the game's value (0.002). Lower catches quieter whispering, " +
                 "but must stay above your room noise, otherwise sentences never end.");
-            EndSilenceSeconds = Config.Bind("Audio", "EndSilenceSeconds", 0.8f,
-                "Seconds of silence before finishing a sentence. Lower is faster but may split natural pauses. 0 = game default.");
+            EndSilenceSeconds = Config.Bind("Audio", "EndSilenceSeconds", 1.3f,
+                "Seconds of silence before finishing a sentence. Lower is faster but may split natural pauses. Minimum used by this mod is 1.3 s.");
             CleanTranscript = Config.Bind("Recognition", "CleanTranscript", true,
                 "Remove typical Whisper nonsense (\"Titulky vytvořil JohnyX\", repeated words, the prompt echoed back).");
             LogTranscripts = Config.Bind("Debug", "LogTranscripts", false,
@@ -143,12 +143,6 @@ namespace CzechSpeechEnhanced
                 Log.LogWarning("CzechSpeech is enabled too. Disable the original mod in SWYF Mod Hub and restart the game; CzechSpeechEnhanced will stay inactive to prevent conflicting patches.");
                 return;
             }
-            string otherMod = Path.Combine(Paths.GameRootPath, "Mods", OtherModId);
-            if (File.Exists(Path.Combine(otherMod, "mod.json")) && !File.Exists(Path.Combine(otherMod, "disabled")))
-            {
-                Log.LogWarning(OtherModId + " is enabled too. Disable it and restart; this mod is inactive to prevent conflicting speech patches.");
-                return;
-            }
 
             ResolveDevice();
             Speech.GraphicsCard = $"{UnityEngine.SystemInfo.graphicsDeviceName} " +
@@ -156,7 +150,10 @@ namespace CzechSpeechEnhanced
             _harmony = new Harmony(PluginGuid);
             _harmony.PatchAll(typeof(Plugin).Assembly);
             WarnIfModelAlreadyLoaded();
-            Log.LogInfo($"Selected speech engine: {SpeechEngine.Value}. " + (ParakeetBridge.Available ? "Runtime and model files found." : "Runtime or model files missing; using the game's Whisper. Install all files for the selected engine and restart."));
+            Log.LogInfo($"Selected speech engine: {SpeechEngine.Value}. " +
+                        (ParakeetBridge.Available
+                            ? "Runtime and model files found."
+                            : "Runtime or model files missing; using the game's Whisper. Install all files for the selected engine and restart."));
 
             // Which model is used is decided when the game loads it: only then do we know whether Whisper gets the GPU.
             string[] models = Directory.Exists(ModelFolder)
