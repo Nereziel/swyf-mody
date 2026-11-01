@@ -2,6 +2,8 @@
 
 Neoficiální **mody pro Scam With Your Friends (SWYF)** zaměřené na české a slovenské hráče. Repo obsahuje lepší **rozpoznávání české a slovenské řeči** pomocí Parakeet, opravu českého **TTS** a mod pro omezení herní telemetrie. Mody používají **BepInEx** a instalují se jako balíčky `.swyfmod`.
 
+**Web projektu:** https://nereziel.github.io/swyf-mody/
+
 Pokud hledáš **Scam With Your Friends mody**, **SWYF mody**, **český mod pro Scam With Your Friends**, lepší přepis češtiny nebo opravu české výslovnosti NPC, najdeš je zde.
 
 ## Nejdřív nainstaluj SWYF Mod Hub
