@@ -23,6 +23,7 @@ Dva neoficiální mody pro **Scam With Your Friends** zaměřené na české a s
 4. Restartuj hru.
 
 U `CzechSpeechEnhanced` si v Mod Hubu zvolíš **Parakeet TDT v3** nebo **Parakeet Ultra**. Potřebný model se stáhne automaticky.
+V Mod Hubu také nastavíš pauzu před dokončením věty: **1,3 až 3 sekundy**. Delší pauza dovolí přestávky v řeči, ale oddálí odeslání přepisu. Po změně restartuj hru.
 
 Konfigurace přepisu je v `BepInEx/config/nereziel.swyf.czechspeechenhanced.cfg`:
 
