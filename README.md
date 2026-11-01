@@ -24,6 +24,15 @@ Dva neoficiální mody pro **Scam With Your Friends** zaměřené na české a s
 
 U `CzechSpeechEnhanced` si v Mod Hubu zvolíš **Parakeet TDT v3** nebo **Parakeet Ultra**. Potřebný model se stáhne automaticky.
 
+Konfigurace přepisu je v `BepInEx/config/nereziel.swyf.czechspeechenhanced.cfg`:
+
+- `[General] Enabled`: zapnutí modu.
+- `[Recognition] Engine`, `ComputeDevice`, `LivePreview`: model, CPU/GPU a průběžný náhled (`on`/`off`).
+- `[Audio] NormalizeVolume`, `SpeechThreshold`, `EndSilenceSeconds`: hlasitost, práh řeči a délka ticha před odesláním věty (1,3–3 s).
+- `[Debug] LogTranscripts`: zápis rozpoznaného textu do logu.
+
+Staré volby Whisperu, čističe a nesouvisející sekce Privacy se při načtení automaticky odstraní. Zbývající nastavení se zachovají; staré `LivePreview = auto` se převede na `on`.
+
 ## Lokální sestavení
 
 Potřebuješ `.NET SDK` a nainstalovanou hru **Scam With Your Friends**.

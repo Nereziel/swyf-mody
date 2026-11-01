@@ -6,7 +6,6 @@
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <DebugType>portable</DebugType>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <GameDir Condition="'$(GameDir)' == ''">$(MSBuildProjectDirectory)\..\..\..</GameDir>
@@ -20,10 +19,9 @@
 
   <ItemGroup>
     <Compile Include="..\Plugin.cs" Link="Plugin.cs" />
+    <Compile Include="..\SpeechConfiguration.cs" Link="SpeechConfiguration.cs" />
     <Compile Include="..\Patches.cs" Link="Patches.cs" />
-    <Compile Include="..\SpeechTimingPatch.cs" Link="SpeechTimingPatch.cs" />
     <Compile Include="..\ParakeetBridge.cs" Link="ParakeetBridge.cs" />
-    <Compile Include="..\TranscriptCleaner.cs" Link="TranscriptCleaner.cs" />
   </ItemGroup>
 
   <ItemGroup>
