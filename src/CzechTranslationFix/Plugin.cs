@@ -9,7 +9,7 @@ using UnityEngine.Localization.Tables;
 
 namespace CzechTranslationFix
 {
-    [BepInPlugin("nereziel.swyf.czechtranslationfix", "Czech Translation Fix", "1.0.0")]
+    [BepInPlugin("nereziel.swyf.czechtranslationfix", "Czech Translation Fix", "1.0.1")]
     public sealed class Plugin : BaseUnityPlugin
     {
         private static Plugin _instance;
