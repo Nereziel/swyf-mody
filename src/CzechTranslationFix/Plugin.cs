@@ -22,13 +22,11 @@ namespace CzechTranslationFix
         {
             string directory = Path.GetDirectoryName(typeof(Plugin).Assembly.Location);
             if (string.IsNullOrEmpty(directory)) directory = Path.Combine(Paths.GameRootPath, "Mods", "CzechTranslationFix");
-            string file = Path.Combine(directory, "translations.json");
+
             try
             {
-                _translations = TranslationFile.Read(file);
-                int count = 0;
-                foreach (var table in _translations.Values) count += table.Count;
-                Logger.LogInfo($"Czech Translation Fix: loaded {count} overrides from {file}. Restart game after editing.");
+                _translations = LoadOverrides(directory, out int fileCount, out int count);
+                Logger.LogInfo($"Czech Translation Fix: loaded {count} overrides from {fileCount} file(s). Restart game after editing.");
                 if (count == 0) return;
                 if (FormatCache == null) throw new MissingFieldException(typeof(StringTableEntry).FullName, "m_FormatCache");
                 _instance = this;
@@ -43,8 +41,37 @@ namespace CzechTranslationFix
             {
                 _instance = null;
                 _harmony?.UnpatchSelf();
-                Logger.LogError($"Translation overrides disabled. Original localization retained. File: {file}\n{ex}");
+                Logger.LogError($"Translation overrides disabled. Original localization retained. Folder: {directory}\n{ex}");
             }
+        }
+
+        private static Dictionary<string, Dictionary<string, string>> LoadOverrides(string directory, out int fileCount, out int count)
+        {
+            var result = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+            string[] files = Directory.GetFiles(directory, "overrides*.json", SearchOption.TopDirectoryOnly);
+            Array.Sort(files, StringComparer.OrdinalIgnoreCase);
+            fileCount = files.Length;
+            count = 0;
+
+            foreach (string file in files)
+            {
+                var loaded = TranslationFile.Read(file);
+                foreach (var tablePair in loaded)
+                {
+                    if (!result.TryGetValue(tablePair.Key, out var target))
+                        result.Add(tablePair.Key, target = new Dictionary<string, string>(StringComparer.Ordinal));
+
+                    foreach (var entryPair in tablePair.Value)
+                    {
+                        if (target.ContainsKey(entryPair.Key))
+                            throw new FormatException($"Duplicate translation across override files: {tablePair.Key}/{entryPair.Key}.");
+                        target.Add(entryPair.Key, entryPair.Value);
+                        count++;
+                    }
+                }
+            }
+
+            return result;
         }
 
         private static void BeforeGetEntry(object __instance)
