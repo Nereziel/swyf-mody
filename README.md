@@ -1,8 +1,8 @@
-# Scam With Your Friends Mods (SWYF) – Czech/Slovak Speech, TTS Fix & Privacy
+# Scam With Your Friends mody (SWYF) – čeština, slovenština, TTS a soukromí
 
-Neoficiální **Scam With Your Friends mods / SWYF mods** pro Windows: lepší české a slovenské rozpoznávání řeči přes **Parakeet**, oprava českého **TTS** a omezení herní telemetrie. Mody používají **BepInEx** a instalují se jako `.swyfmod` balíčky.
+Neoficiální **mody pro Scam With Your Friends (SWYF)** zaměřené na české a slovenské hráče. Repo obsahuje lepší **rozpoznávání české a slovenské řeči** pomocí Parakeet, opravu českého **TTS** a mod pro omezení herní telemetrie. Mody používají **BepInEx** a instalují se jako balíčky `.swyfmod`.
 
-Unofficial **Scam With Your Friends mods** for Czech and Slovak players: Parakeet speech recognition, Czech TTS fixes and privacy/telemetry controls.
+Pokud hledáš **Scam With Your Friends mody**, **SWYF mody**, **český mod pro Scam With Your Friends**, lepší přepis češtiny nebo opravu české výslovnosti NPC, najdeš je zde.
 
 ## Nejdřív nainstaluj SWYF Mod Hub
 
@@ -12,7 +12,7 @@ Pro tyto mody je potřeba **SWYF Mod Hub od Dexe**:
 
 Mod Hub nainstaluje potřebný **BepInEx** a umí instalovat balíčky `.swyfmod`.
 
-## Scam With Your Friends mody v tomto repozitáři
+## Mody pro Scam With Your Friends v tomto repozitáři
 
 | Mod | Funkce |
 |---|---|
