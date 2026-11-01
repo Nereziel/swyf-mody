@@ -73,7 +73,7 @@ for /f %%H in ('git rev-parse HEAD') do set "LOCAL_HEAD=%%H"
 for /f %%H in ('git rev-parse origin/main') do set "REMOTE_HEAD=%%H"
 if /I not "!LOCAL_HEAD!"=="!REMOTE_HEAD!" (
     echo Lokalni HEAD neodpovida origin/main.
-    echo Nejdriw proved git pull a release spust znovu.
+    echo Nejdriv proved git pull a release spust znovu.
     goto :fail
 )
 
@@ -91,8 +91,6 @@ if not errorlevel 1 (
 
 if not exist "%DIST%" mkdir "%DIST%"
 del /q "%DIST%\*.swyfmod" >nul 2>&1
-del /q "%DIST%\CzechSpeechEnhanced-*.zip" >nul 2>&1
-del /q "%DIST%\CzechTTSFix-*.zip" >nul 2>&1
 
 echo.
 echo Sestavuji verejne .swyfmod balicky...
@@ -106,8 +104,8 @@ set /a COUNT=0
 for %%F in ("%DIST%\*.swyfmod") do (
     if exist "%%~fF" set /a COUNT+=1
 )
-if not "!COUNT!"=="2" (
-    echo Ocekavany pocet verejnych .swyfmod balicku je 2, ale nalezeno bylo !COUNT!.
+if not "!COUNT!"=="3" (
+    echo Ocekavany pocet verejnych .swyfmod balicku je 3, ale nalezeno bylo !COUNT!.
     goto :fail
 )
 
