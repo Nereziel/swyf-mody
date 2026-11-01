@@ -18,10 +18,11 @@ $dist = Join-Path $root 'dist'
 New-Item -ItemType Directory -Force -Path $CacheDir, $dist | Out-Null
 Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
 
-function Get-VerifiedArchive([string]$Name, [string]$Url, [string]$Hash) {
+function Get-VerifiedFile([string]$Name, [string]$Url, [string]$Hash) {
     $path = Join-Path $CacheDir $Name
     if (-not (Test-Path -LiteralPath $path) -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $Hash) {
         $ProgressPreference = 'SilentlyContinue'
+        Write-Output "Stahuji: $Name"
         Invoke-WebRequest $Url -OutFile $path
     }
     if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $Hash) { throw "Nesouhlasí kontrolní součet: $Name" }
@@ -37,6 +38,13 @@ function Add-ArchiveEntry($zip, $entry, [string]$name) {
     $target = $zip.CreateEntry($name)
     $inputStream = $entry.Open(); $outputStream = $target.Open()
     try { $inputStream.CopyTo($outputStream) } finally { $outputStream.Dispose(); $inputStream.Dispose() }
+}
+
+function Add-TextEntry($zip, [string]$text, [string]$entry) {
+    $target = $zip.CreateEntry($entry)
+    $stream = $target.Open()
+    $writer = New-Object System.IO.StreamWriter($stream, (New-Object System.Text.UTF8Encoding($false)))
+    try { $writer.Write($text) } finally { $writer.Dispose(); $stream.Dispose() }
 }
 
 function Build-Project([string]$projectDir) {
@@ -67,13 +75,70 @@ function Add-Licenses($zip) {
     }
 }
 
+function New-ManualPackage([string]$packagePath, $manifest, [string]$extraFile = '', [string]$extraRelativePath = '', [string]$extraNote = '') {
+    $out = Join-Path $dist "$($manifest.id)-$($manifest.version).zip"
+    if (Test-Path -LiteralPath $out) { Remove-Item -LiteralPath $out }
+
+    $source = [IO.Compression.ZipFile]::OpenRead($packagePath)
+    $target = [IO.Compression.ZipFile]::Open($out, [IO.Compression.ZipArchiveMode]::Create)
+    try {
+        foreach ($entry in $source.Entries) {
+            if ($entry.Name.Length -eq 0) { continue }
+            $name = $entry.FullName.Replace('\', '/')
+            if ($name -eq 'mod.json') {
+                $manualName = "$($manifest.id)/mod.json"
+            } elseif ($name.StartsWith('files/')) {
+                $manualName = "$($manifest.id)/" + $name.Substring(6)
+            } else {
+                continue
+            }
+            Add-ArchiveEntry $target $entry $manualName
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($extraFile)) {
+            Add-File $target $extraFile "$($manifest.id)/$extraRelativePath"
+        }
+
+        $note = @"
+RUČNÍ INSTALACE - $($manifest.name)
+========================================
+
+1. Hra už musí mít nainstalovaný základ pro mody (BepInEx + SWYF Mod Manager).
+   Nejjednodušší je jednou nainstalovat SWYF Mod Hub.
+
+2. Rozbal tento ZIP.
+
+3. Zkopíruj CELOU složku:
+   $($manifest.id)
+
+   do složky hry:
+   Mods
+
+4. Výsledná cesta musí vypadat takto:
+   ...\Scam With Your Friends\Mods\$($manifest.id)\mod.json
+
+5. Restartuj hru.
+
+$extraNote
+Pokud chceš jednodušší instalaci a automatické aktualizace, použij místo ZIPu balíček .swyfmod přes SWYF Mod Hub.
+"@
+        Add-TextEntry $target $note "$($manifest.id)/INSTALACE.txt"
+    } finally {
+        $target.Dispose()
+        $source.Dispose()
+    }
+
+    Write-Output "Ruční ZIP: $out"
+    return $out
+}
+
 function Build-Speech {
     $dir = Join-Path $root 'src\SpeechEnhanced'
     Build-Project $dir
     $pkg = Open-Package $dir
     try {
         Add-Licenses $pkg.Zip
-        $nemoPath = Get-VerifiedArchive 'nemo-speech-0.3.0-windows-x86_64-vulkan.zip' 'https://github.com/NVIDIA/NeMo-Speech.cpp/releases/download/v0.3.0/nemo-speech-0.3.0-windows-x86_64-vulkan.zip' '72b3b8b41bfe2be0320eff4e9d310594e4f99deefcde4a157799a039656963ce'
+        $nemoPath = Get-VerifiedFile 'nemo-speech-0.3.0-windows-x86_64-vulkan.zip' 'https://github.com/NVIDIA/NeMo-Speech.cpp/releases/download/v0.3.0/nemo-speech-0.3.0-windows-x86_64-vulkan.zip' '72b3b8b41bfe2be0320eff4e9d310594e4f99deefcde4a157799a039656963ce'
         $runtime = [IO.Compression.ZipFile]::OpenRead($nemoPath)
         try {
             foreach ($entry in $runtime.Entries) {
@@ -83,6 +148,14 @@ function Build-Speech {
             }
         } finally { $runtime.Dispose() }
     } finally { $pkg.Zip.Dispose() }
+
+    $defaultModel = $pkg.Manifest.downloads | Where-Object { $_.default -eq $true } | Select-Object -First 1
+    if (-not $defaultModel) { throw 'V manifestu CzechSpeechEnhanced chybí výchozí Parakeet model.' }
+    $modelName = [IO.Path]::GetFileName([string]$defaultModel.path)
+    $modelPath = Get-VerifiedFile $modelName ([string]$defaultModel.url) ([string]$defaultModel.sha256)
+    $manualNote = "Tento ZIP už obsahuje výchozí model Parakeet TDT v3, takže po zkopírování složky do Mods není potřeba model dál stahovat.`r`nParakeet Ultra v ručním ZIPu není; pro jeho snadnou instalaci použij .swyfmod přes SWYF Mod Hub.`r`n"
+    [void](New-ManualPackage $pkg.Path $pkg.Manifest $modelPath 'Parakeet/parakeet.q8.gguf' $manualNote)
+
     Write-Output "Balíček: $($pkg.Path)"
 }
 
@@ -91,6 +164,7 @@ function Build-Simple([string]$relativeDir) {
     Build-Project $dir
     $pkg = Open-Package $dir
     $pkg.Zip.Dispose()
+    [void](New-ManualPackage $pkg.Path $pkg.Manifest)
     Write-Output "Balíček: $($pkg.Path)"
 }
 
