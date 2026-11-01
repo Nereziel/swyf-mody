@@ -84,5 +84,3 @@ V repozitáři zůstává experimentální `PrivacyTelemetry`, ale není součá
 Kód vytvořený v tomto repozitáři je dostupný pod MIT licencí v rozsahu uvedeném v souboru `LICENSE`.
 
 Část speech kódu vychází z projektu [dexhauls/swyf-mods](https://github.com/dexhauls/swyf-mods). Použité externí runtime a modely mají vlastní licence.
-
-Model **NVIDIA Parakeet TDT 0.6B v3** je licencovaný pod **CC BY 4.0**. Attribution a licenční informace jsou v `licenses/Parakeet-ATTRIBUTION.txt` a `licenses/Parakeet-LICENSE.txt`. Tyto soubory se přibalují do speech balíčku společně s licencemi NeMo-Speech.
