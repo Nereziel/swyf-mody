@@ -95,7 +95,7 @@ del /q "%DIST%\CzechSpeechEnhanced-*.zip" >nul 2>&1
 del /q "%DIST%\CzechTTSFix-*.zip" >nul 2>&1
 
 echo.
-echo Sestavuji verejne mody ve formatu .swyfmod i .zip...
+echo Sestavuji verejne mody a vsechny varianty balicku...
 call "%~dp0build.cmd" -GameDir "%GAME_DIR%" -Mod All
 if errorlevel 1 (
     echo Build selhal. Release nebyl vytvoren.
@@ -115,8 +115,8 @@ set /a ZIPCOUNT=0
 for %%F in ("%DIST%\CzechSpeechEnhanced-*.zip" "%DIST%\CzechTTSFix-*.zip") do (
     if exist "%%~fF" set /a ZIPCOUNT+=1
 )
-if not "!ZIPCOUNT!"=="2" (
-    echo Ocekavany pocet rucnich ZIP balicku je 2, ale nalezeno bylo !ZIPCOUNT!.
+if not "!ZIPCOUNT!"=="3" (
+    echo Ocekavany pocet rucnich ZIP balicku je 3, ale nalezeno bylo !ZIPCOUNT!.
     goto :fail
 )
 
