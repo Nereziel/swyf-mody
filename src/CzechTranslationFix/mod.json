@@ -2,7 +2,7 @@
   "id": "CzechTranslationFix",
   "name": "Oprava českého překladu",
   "name_en": "Czech Translation Fix",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Nereziel",
   "description": "Doplňuje chybějící české texty a opravuje vybrané chybné překlady bez změny herních souborů.",
   "description_en": "Adds missing Czech localization strings and fixes selected incorrect translations without modifying game files.",
