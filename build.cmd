@@ -23,8 +23,7 @@ set "CODE=%errorlevel%"
 echo.
 if "%CODE%"=="0" (
     echo Build dokoncen.
-    echo V dist\ najdes .swyfmod pro Mod Hub a ZIPy pro rucni instalaci.
-    echo Speech vytvari ZIP s modelem i mensi ZIP bez modelu.
+    echo V dist\ najdes .swyfmod balicky pro SWYF Mod Hub.
 ) else (
     echo Build selhal s kodem %CODE%.
 )
