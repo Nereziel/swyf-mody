@@ -1,0 +1,42 @@
+name: Runner smoke test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/runner-smoke-test.yml
+
+jobs:
+  smoke-test:
+    runs-on: [self-hosted, Linux, X64, swyf]
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check runner tools
+        shell: bash
+        run: |
+          set -euxo pipefail
+          uname -a
+          dotnet --version
+          pwsh --version
+
+      - name: Check mounted game libraries
+        shell: bash
+        run: |
+          set -euxo pipefail
+          test -f "/game/Scam With Your Friends_Data/Managed/ScriptsAssDef.dll"
+          test -f "/game/Scam With Your Friends_Data/Managed/UnityEngine.dll"
+          test -f "/game/Scam With Your Friends_Data/Managed/UnityEngine.CoreModule.dll"
+          test -f "/game/Scam With Your Friends_Data/Managed/Newtonsoft.Json.dll"
+          test -f "/game/Scam With Your Friends_Data/Managed/MetaVoiceChat.Core.dll"
+          test -f "/game/Scam With Your Friends_Data/Managed/Kolkata.Speech.dll"
+          test -f "/game/Scam With Your Friends_Data/Managed/com.whisper.unity.dll"
+          test -f "/game/Scam With Your Friends_Data/Managed/Unity.Localization.dll"
+          test -f "/game/BepInEx/core/BepInEx.dll"
+          test -f "/game/BepInEx/core/0Harmony.dll"
+          echo "Runner environment and mounted DLLs are ready."
