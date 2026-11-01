@@ -22,7 +22,8 @@ call :run_ps -GameDir "%GAME_DIR%" -Mod "%MOD%"
 set "CODE=%errorlevel%"
 echo.
 if "%CODE%"=="0" (
-    echo Build dokoncen. Balicky jsou v dist\
+    echo Build dokoncen.
+    echo V dist\ najdes .swyfmod pro Mod Hub a .zip pro rucni instalaci do Mods.
 ) else (
     echo Build selhal s kodem %CODE%.
 )
