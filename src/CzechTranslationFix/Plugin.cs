@@ -29,13 +29,30 @@ namespace CzechTranslationFix
                 Logger.LogInfo($"Czech Translation Fix: loaded {count} overrides from {fileCount} file(s). Restart game after editing.");
                 if (count == 0) return;
                 if (FormatCache == null) throw new MissingFieldException(typeof(StringTableEntry).FullName, "m_FormatCache");
+
                 _instance = this;
                 _harmony = new Harmony("nereziel.swyf.czechtranslationfix");
-                // This generic method may share code with asset tables on Mono.
-                // Accept object and explicitly guard StringTable in the prefix.
-                var target = AccessTools.DeclaredMethod(typeof(DetailedLocalizationTable<StringTableEntry>), "GetEntry", new[] { typeof(long) });
-                if (target == null) throw new MissingMethodException("StringTable.GetEntry(long)");
-                _harmony.Patch(target, prefix: new HarmonyMethod(typeof(Plugin), nameof(BeforeGetEntry)));
+                var prefix = new HarmonyMethod(typeof(Plugin), nameof(BeforeGetEntry));
+                int patched = 0;
+
+                // Unity Localization can look entries up either by numeric id or by string key.
+                // Patch both paths so direct lookups such as DropDownOn are overridden as well.
+                var longTarget = AccessTools.DeclaredMethod(typeof(DetailedLocalizationTable<StringTableEntry>), "GetEntry", new[] { typeof(long) });
+                if (longTarget != null)
+                {
+                    _harmony.Patch(longTarget, prefix: prefix);
+                    patched++;
+                }
+
+                var stringTarget = AccessTools.DeclaredMethod(typeof(DetailedLocalizationTable<StringTableEntry>), "GetEntry", new[] { typeof(string) });
+                if (stringTarget != null)
+                {
+                    _harmony.Patch(stringTarget, prefix: prefix);
+                    patched++;
+                }
+
+                if (patched == 0) throw new MissingMethodException("StringTable.GetEntry(long/string)");
+                Logger.LogInfo($"Czech Translation Fix: patched {patched} localization lookup path(s).");
             }
             catch (Exception ex)
             {
