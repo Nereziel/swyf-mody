@@ -22,16 +22,16 @@ function Get-VerifiedFile([string]$Name, [string]$Url, [string]$Hash) {
     $path = Join-Path $CacheDir $Name
     if (-not (Test-Path -LiteralPath $path) -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $Hash) {
         $ProgressPreference = 'SilentlyContinue'
-        Write-Output "Stahuji: $Name"
+        Write-Host "Stahuji: $Name"
         Invoke-WebRequest $Url -OutFile $path
     }
     if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $Hash) { throw "Nesouhlasí kontrolní součet: $Name" }
     return $path
 }
 
-function Add-File($zip, [string]$path, [string]$entry) {
+function Add-File($zip, [string]$path, [string]$entry, [IO.Compression.CompressionLevel]$compression = [IO.Compression.CompressionLevel]::Optimal) {
     if (-not (Test-Path -LiteralPath $path)) { throw "Chybí soubor: $path" }
-    [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $path, $entry, [IO.Compression.CompressionLevel]::Optimal)
+    [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $path, $entry, $compression)
 }
 
 function Add-ArchiveEntry($zip, $entry, [string]$name) {
@@ -43,8 +43,12 @@ function Add-ArchiveEntry($zip, $entry, [string]$name) {
 function Add-TextEntry($zip, [string]$text, [string]$entry) {
     $target = $zip.CreateEntry($entry)
     $stream = $target.Open()
-    $writer = New-Object System.IO.StreamWriter($stream, (New-Object System.Text.UTF8Encoding($false)))
-    try { $writer.Write($text) } finally { $writer.Dispose(); $stream.Dispose() }
+    try {
+        $bytes = [Text.Encoding]::UTF8.GetBytes($text)
+        $stream.Write($bytes, 0, $bytes.Length)
+    } finally {
+        $stream.Dispose()
+    }
 }
 
 function Build-Project([string]$projectDir) {
@@ -96,7 +100,8 @@ function New-ManualPackage([string]$packagePath, $manifest, [string]$extraFile =
         }
 
         if (-not [string]::IsNullOrWhiteSpace($extraFile)) {
-            Add-File $target $extraFile "$($manifest.id)/$extraRelativePath"
+            # GGUF model is already compact; storing it without another deflate pass makes ZIP creation much faster.
+            Add-File $target $extraFile "$($manifest.id)/$extraRelativePath" ([IO.Compression.CompressionLevel]::NoCompression)
         }
 
         $note = @"
@@ -128,7 +133,7 @@ Pokud chceš jednodušší instalaci a automatické aktualizace, použij místo 
         $source.Dispose()
     }
 
-    Write-Output "Ruční ZIP: $out"
+    Write-Host "Ruční ZIP: $out"
     return $out
 }
 
