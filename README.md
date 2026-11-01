@@ -16,8 +16,10 @@ Mod Hub nainstaluje potřebný **BepInEx** a umí instalovat balíčky `.swyfmod
 
 | Mod | Funkce |
 |---|---|
-| **CzechSpeechEnhanced** | Lepší rozpoznávání češtiny a slovenštiny pomocí NVIDIA Parakeet TDT v3 nebo Parakeet Ultra. |
+| **CzechSpeechEnhanced** | Nahrazuje herní Whisper pro přepis mikrofonu modelem NVIDIA Parakeet TDT v3 nebo Parakeet Ultra a zlepšuje rozpoznávání češtiny a slovenštiny. |
 | **CzechTTSFix** | Opravuje zpracování českého textu pro herní TTS, aby NPC správně používala diakritiku a interpunkci. |
+
+**Co je Parakeet?** Parakeet je model pro automatický převod mluvené řeči na text (ASR – Automatic Speech Recognition). Ve `CzechSpeechEnhanced` přebírá přepis hráčova mikrofonu místo herního Whisperu a používá se hlavně kvůli lepšímu přepisu češtiny a slovenštiny.
 
 Speech mod čeká přibližně **1,3 sekundy ticha** před ukončením věty, aby krátká přirozená pauza při mluvení nerozdělila jednu větu na dvě.
 
