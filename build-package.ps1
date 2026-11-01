@@ -119,6 +119,7 @@ switch ($Mod) {
         # Public/user-facing packages only. PrivacyTelemetry stays available as an advanced explicit build.
         Build-Speech
         Build-Simple 'src\CzechTTSFix'
+        Build-Translation
     }
     'Speech' { Build-Speech }
     'TTS' { Build-Simple 'src\CzechTTSFix' }
