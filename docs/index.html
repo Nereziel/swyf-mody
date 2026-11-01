@@ -5,90 +5,42 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0a0f1d">
   <title>Scam With Your Friends mody – čeština, Parakeet a české TTS</title>
-  <meta name="description" content="Dva jednoduché CZ/SK mody pro Scam With Your Friends: Parakeet místo herního Whisperu pro lepší přepis řeči a oprava českého TTS pro NPC.">
+  <meta name="description" content="Dva CZ/SK mody pro Scam With Your Friends: Parakeet místo Whisperu pro lepší přepis řeči a oprava českého TTS. Instalace přes .swyfmod nebo ruční ZIP.">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
   <link rel="canonical" href="https://nereziel.github.io/swyf-mody/">
-
   <meta property="og:type" content="website">
   <meta property="og:locale" content="cs_CZ">
-  <meta property="og:site_name" content="SWYF CZ/SK mody">
   <meta property="og:title" content="Scam With Your Friends mody – CZ/SK">
   <meta property="og:description" content="Parakeet místo Whisperu pro lepší přepis češtiny a slovenštiny + oprava českého TTS.">
   <meta property="og:url" content="https://nereziel.github.io/swyf-mody/">
-
   <script type="application/ld+json">
   {
-    "@context": "https://schema.org",
-    "@type": "SoftwareSourceCode",
-    "name": "SWYF CZ/SK mody",
-    "description": "Mody pro Scam With Your Friends: Parakeet jako náhrada herního Whisperu pro přepis řeči a oprava českého TTS.",
-    "url": "https://nereziel.github.io/swyf-mody/",
-    "codeRepository": "https://github.com/Nereziel/swyf-mody",
-    "programmingLanguage": "C#",
-    "runtimePlatform": "Windows / BepInEx",
-    "inLanguage": "cs"
+    "@context":"https://schema.org",
+    "@type":"SoftwareSourceCode",
+    "name":"SWYF CZ/SK mody",
+    "description":"Mody pro Scam With Your Friends: Parakeet jako náhrada herního Whisperu pro přepis řeči a oprava českého TTS.",
+    "url":"https://nereziel.github.io/swyf-mody/",
+    "codeRepository":"https://github.com/Nereziel/swyf-mody",
+    "programmingLanguage":"C#",
+    "runtimePlatform":"Windows / BepInEx",
+    "inLanguage":"cs"
   }
   </script>
-
   <style>
-    :root{
-      color-scheme:dark;
-      --bg:#080c16;
-      --panel:#101725;
-      --panel2:#151e30;
-      --text:#f7f9fc;
-      --muted:#aab4c6;
-      --line:rgba(255,255,255,.10);
-      --blue:#77a8ff;
-      --violet:#9a82ef;
-      --green:#7ee7b7;
-    }
+    :root{color-scheme:dark;--bg:#080c16;--panel:#101725;--panel2:#151e30;--text:#f7f9fc;--muted:#aab4c6;--line:rgba(255,255,255,.10);--blue:#77a8ff;--violet:#9a82ef;--green:#7ee7b7}
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at 15% 0,rgba(119,168,255,.16),transparent 28rem),
-        radial-gradient(circle at 90% 5%,rgba(154,130,239,.12),transparent 24rem),
-        var(--bg);
-      line-height:1.6;
-    }
-    a{color:inherit}
-    .wrap{width:min(980px,calc(100% - 32px));margin:auto}
-    header{display:flex;justify-content:space-between;align-items:center;padding:24px 0}
-    .brand{text-decoration:none;font-weight:850;letter-spacing:.02em}
-    .brand span{color:var(--blue)}
-    .github{color:var(--muted);text-decoration:none;font-size:.94rem}
-    .github:hover{color:var(--text)}
-    .hero{text-align:center;padding:78px 0 56px}
-    .pill{display:inline-block;padding:7px 11px;border:1px solid var(--line);border-radius:999px;color:#d7e4ff;background:rgba(255,255,255,.035);font-size:.82rem;font-weight:700}
-    h1{font-size:clamp(2.5rem,7vw,5rem);line-height:1;letter-spacing:-.055em;margin:22px auto 18px;max-width:880px}
-    .gradient{background:linear-gradient(95deg,#fff,#a9c7ff 58%,#c8b7ff);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .lead{max-width:720px;margin:0 auto;color:var(--muted);font-size:clamp(1.05rem,2vw,1.22rem)}
-    .actions{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin-top:30px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:12px;text-decoration:none;font-weight:800;border:1px solid var(--line)}
-    .btn.primary{background:linear-gradient(135deg,#6599ff,#886ee4);border-color:transparent;color:#fff}
-    .btn.secondary{background:rgba(255,255,255,.04)}
-    section{padding:54px 0}
-    h2{font-size:clamp(1.75rem,4vw,2.4rem);letter-spacing:-.035em;margin:0 0 22px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .card{border:1px solid var(--line);border-radius:18px;background:linear-gradient(150deg,rgba(255,255,255,.055),rgba(255,255,255,.02));padding:25px}
-    .icon{width:46px;height:46px;display:grid;place-items:center;border-radius:13px;background:var(--panel2);border:1px solid var(--line);font-weight:900;color:#cfe0ff;margin-bottom:22px}
-    .card h3{margin:0 0 8px;font-size:1.25rem}
-    .card p{margin:0;color:var(--muted)}
-    .simple{border:1px solid var(--line);border-radius:20px;background:var(--panel);padding:26px}
-    .steps{display:grid;gap:17px;counter-reset:step}
-    .step{display:grid;grid-template-columns:38px 1fr;gap:13px;color:var(--muted)}
-    .step:before{counter-increment:step;content:counter(step);width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--panel2);border:1px solid var(--line);color:var(--text);font-weight:850}
-    .step strong{display:block;color:var(--text);margin-bottom:2px}
-    .download-note{margin-top:22px;padding:17px;border-radius:14px;background:rgba(119,168,255,.07);border:1px solid rgba(119,168,255,.18);color:var(--muted)}
-    .download-note strong{color:var(--text)}
-    .tip{margin-top:16px;color:var(--muted);font-size:.92rem}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 15% 0,rgba(119,168,255,.16),transparent 28rem),radial-gradient(circle at 90% 5%,rgba(154,130,239,.12),transparent 24rem),var(--bg);line-height:1.6}
+    a{color:inherit}.wrap{width:min(960px,calc(100% - 32px));margin:auto}
+    header{display:flex;justify-content:space-between;align-items:center;padding:24px 0}.brand{text-decoration:none;font-weight:850}.brand span{color:var(--blue)}.github{color:var(--muted);text-decoration:none}.github:hover{color:var(--text)}
+    .hero{text-align:center;padding:74px 0 48px}.pill{display:inline-block;padding:7px 11px;border:1px solid var(--line);border-radius:999px;color:#d7e4ff;background:rgba(255,255,255,.035);font-size:.82rem;font-weight:700}
+    h1{font-size:clamp(2.5rem,7vw,4.8rem);line-height:1;letter-spacing:-.055em;margin:22px auto 18px;max-width:850px}.gradient{background:linear-gradient(95deg,#fff,#a9c7ff 58%,#c8b7ff);-webkit-background-clip:text;background-clip:text;color:transparent}.lead{max-width:700px;margin:0 auto;color:var(--muted);font-size:clamp(1.05rem,2vw,1.2rem)}
+    .actions{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin-top:28px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:12px;text-decoration:none;font-weight:800;border:1px solid var(--line)}.btn.primary{background:linear-gradient(135deg,#6599ff,#886ee4);border-color:transparent}.btn.secondary{background:rgba(255,255,255,.04)}
+    section{padding:48px 0}h2{font-size:clamp(1.7rem,4vw,2.35rem);letter-spacing:-.035em;margin:0 0 20px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card,.install{border:1px solid var(--line);border-radius:18px;background:linear-gradient(150deg,rgba(255,255,255,.055),rgba(255,255,255,.02));padding:24px}.icon{width:46px;height:46px;display:grid;place-items:center;border-radius:13px;background:var(--panel2);border:1px solid var(--line);font-weight:900;color:#cfe0ff;margin-bottom:20px}.card h3,.install h3{margin:0 0 8px;font-size:1.22rem}.card p,.install p{margin:0;color:var(--muted)}
+    .install-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.install.recommended{border-color:rgba(119,168,255,.28)}.label{display:inline-block;margin-bottom:14px;padding:5px 9px;border-radius:999px;background:rgba(126,231,183,.09);border:1px solid rgba(126,231,183,.18);color:#a7f3d0;font-size:.76rem;font-weight:800}
+    ol{margin:14px 0 0;padding-left:22px;color:var(--muted)}li+li{margin-top:8px}strong{color:var(--text)}code{background:#080d17;border:1px solid var(--line);border-radius:6px;padding:2px 6px;color:#dce8ff}.path{display:block;margin-top:12px;padding:12px 14px;white-space:normal;word-break:break-word}
+    .note{margin-top:18px;padding:15px 16px;border-radius:13px;background:rgba(119,168,255,.07);border:1px solid rgba(119,168,255,.18);color:var(--muted)}.note strong{color:var(--text)}
     footer{border-top:1px solid var(--line);padding:28px 0 38px;color:var(--muted);font-size:.88rem;text-align:center}
-    code{background:#080d17;border:1px solid var(--line);border-radius:6px;padding:2px 6px;color:#dce8ff}
-    @media(max-width:720px){.grid{grid-template-columns:1fr}.hero{padding-top:50px}.github{display:none}}
-    @media(max-width:500px){.wrap{width:min(100% - 22px,980px)}h1{font-size:2.55rem}.btn{width:100%}.hero{padding-bottom:36px}.card,.simple{padding:20px}section{padding:42px 0}}
+    @media(max-width:720px){.grid,.install-grid{grid-template-columns:1fr}.hero{padding-top:50px}.github{display:none}}@media(max-width:500px){.wrap{width:min(100% - 22px,960px)}h1{font-size:2.5rem}.btn{width:100%}.card,.install{padding:20px}section{padding:40px 0}}
   </style>
 </head>
 <body>
@@ -102,47 +54,60 @@
       <section class="hero">
         <span class="pill">Mody pro Scam With Your Friends</span>
         <h1><span class="gradient">Lepší čeština a slovenština</span><br>ve hře</h1>
-        <p class="lead">Dva jednoduché mody: jeden zlepší přepis toho, co říkáš do mikrofonu, druhý opraví českou výslovnost NPC.</p>
+        <p class="lead">Jeden mod zlepší přepis toho, co říkáš do mikrofonu. Druhý opraví české TTS, které používají NPC.</p>
         <div class="actions">
           <a class="btn primary" href="https://github.com/Nereziel/swyf-mody/releases/latest">Stáhnout mody</a>
-          <a class="btn secondary" href="https://dexhauls.github.io/swyf-mods/">Nainstalovat SWYF Mod Hub</a>
+          <a class="btn secondary" href="https://dexhauls.github.io/swyf-mods/">SWYF Mod Hub</a>
         </div>
       </section>
 
       <section>
-        <h2>Co jednotlivé mody dělají?</h2>
+        <h2>Co mody dělají?</h2>
         <div class="grid">
           <article class="card">
             <div class="icon">🎙</div>
             <h3>CzechSpeechEnhanced</h3>
-            <p>Hra používá <strong>Whisper</strong> k převodu tvého hlasu na text. Tento mod ho při přepisu mikrofonu nahradí modelem <strong>Parakeet</strong>, který je použitý kvůli lepšímu rozpoznávání češtiny a slovenštiny.</p>
+            <p>Hra používá <strong>Whisper</strong> k převodu hlasu na text. Tento mod ho při přepisu mikrofonu nahradí modelem <strong>Parakeet</strong>, který lépe zvládá češtinu a slovenštinu.</p>
           </article>
           <article class="card">
             <div class="icon">🔊</div>
             <h3>CzechTTSFix</h3>
-            <p>Opravuje český text před tím, než ho hra nechá přečíst NPC. Díky tomu se lépe zachová <strong>diakritika, interpunkce a česká výslovnost</strong>.</p>
+            <p>Opravuje český text před přečtením NPC, aby se lépe zachovala <strong>diakritika, interpunkce a česká výslovnost</strong>.</p>
           </article>
         </div>
       </section>
 
       <section>
         <h2>Jak to nainstalovat?</h2>
-        <div class="simple">
-          <div class="steps">
-            <div class="step"><div><strong>1. Nainstaluj SWYF Mod Hub</strong>Ten připraví BepInEx a postará se o instalaci modů.</div></div>
-            <div class="step"><div><strong>2. Stáhni požadovaný mod</strong>Na stránce se stažením vyber <code>.swyfmod</code> nebo obyčejný <code>.zip</code>.</div></div>
-            <div class="step"><div><strong>3. Otevři balíček v Mod Hubu</strong>Mod Hub ho nainstaluje. Potom restartuj hru.</div></div>
-          </div>
+        <div class="install-grid">
+          <article class="install recommended">
+            <span class="label">Nejjednodušší</span>
+            <h3>Přes `.swyfmod`</h3>
+            <ol>
+              <li>Nainstaluj <a href="https://dexhauls.github.io/swyf-mods/"><strong>SWYF Mod Hub</strong></a>.</li>
+              <li>Stáhni soubor <code>.swyfmod</code>.</li>
+              <li>Nainstaluj ho přes Mod Hub.</li>
+              <li>Restartuj hru.</li>
+            </ol>
+            <div class="note">U <strong>CzechSpeechEnhanced</strong> Mod Hub automaticky stáhne i zvolený model Parakeet.</div>
+          </article>
 
-          <div class="download-note">
-            <strong>Jaký soubor mám stáhnout?</strong><br>
-            <code>.swyfmod</code> je doporučená varianta. Pokud tento formát nechceš používat, stáhni <code>.zip</code> – obsah je stejný a SWYF Mod Hub umí ZIP nainstalovat také.
-          </div>
+          <article class="install">
+            <span class="label">Ruční instalace</span>
+            <h3>Přes `.zip`</h3>
+            <ol>
+              <li>Stáhni ZIP požadovaného modu.</li>
+              <li>ZIP rozbal.</li>
+              <li>Celou složku uvnitř zkopíruj do složky hry <code>Mods</code>.</li>
+              <li>Restartuj hru.</li>
+            </ol>
+            <code class="path">...\Scam With Your Friends\Mods\CzechSpeechEnhanced\mod.json</code>
+            <div class="note">Hra už musí mít nainstalovaný základ pro mody – <strong>BepInEx + SWYF Mod Manager</strong>. ZIP obsahuje také <code>INSTALACE.txt</code>. U speech modu je už přibalený výchozí <strong>Parakeet TDT v3</strong>.</div>
+          </article>
+        </div>
 
-          <div class="actions" style="justify-content:flex-start;margin-bottom:0">
-            <a class="btn primary" href="https://github.com/Nereziel/swyf-mody/releases/latest">Přejít ke stažení</a>
-          </div>
-          <p class="tip">U CzechSpeechEnhanced si Mod Hub při instalaci stáhne i zvolený model Parakeet.</p>
+        <div class="actions">
+          <a class="btn primary" href="https://github.com/Nereziel/swyf-mody/releases/latest">Přejít ke stažení</a>
         </div>
       </section>
     </main>
