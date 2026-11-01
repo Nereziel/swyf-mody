@@ -1,16 +1,8 @@
 # Scam With Your Friends mody (SWYF) – čeština, slovenština a TTS
 
-Neoficiální **mody pro Scam With Your Friends (SWYF)** zaměřené na české a slovenské hráče. Repo obsahuje lepší **rozpoznávání české a slovenské řeči** pomocí Parakeet a opravu českého **TTS**. Mody používají **BepInEx** a instalují se jako balíčky `.swyfmod`.
+Neoficiální **mody pro Scam With Your Friends (SWYF)** zaměřené na české a slovenské hráče. Repo obsahuje lepší **rozpoznávání české a slovenské řeči** pomocí Parakeet a opravu českého **TTS**.
 
 **Web projektu:** https://nereziel.github.io/swyf-mody/
-
-## Nejdřív nainstaluj SWYF Mod Hub
-
-Pro instalaci je potřeba **SWYF Mod Hub od Dexe**:
-
-**https://dexhauls.github.io/swyf-mods/**
-
-Mod Hub nainstaluje potřebný **BepInEx** a umí instalovat balíčky `.swyfmod`.
 
 ## Dostupné mody
 
@@ -19,17 +11,19 @@ Mod Hub nainstaluje potřebný **BepInEx** a umí instalovat balíčky `.swyfmod
 | **CzechSpeechEnhanced** | Nahrazuje herní Whisper pro přepis mikrofonu modelem NVIDIA Parakeet TDT v3 nebo Parakeet Ultra a zlepšuje rozpoznávání češtiny a slovenštiny. |
 | **CzechTTSFix** | Opravuje zpracování českého textu pro herní TTS, aby NPC správně používala diakritiku a interpunkci. |
 
-**Co je Parakeet?** Parakeet je model pro automatický převod mluvené řeči na text (ASR – Automatic Speech Recognition). Ve `CzechSpeechEnhanced` přebírá přepis hráčova mikrofonu místo herního Whisperu a používá se hlavně kvůli lepšímu přepisu češtiny a slovenštiny.
+**Co je Parakeet?** Parakeet je model pro automatický převod mluvené řeči na text. Ve `CzechSpeechEnhanced` přebírá přepis hráčova mikrofonu místo herního Whisperu a používá se hlavně kvůli lepšímu přepisu češtiny a slovenštiny.
 
 Speech mod čeká přibližně **1,3 sekundy ticha** před ukončením věty, aby krátká přirozená pauza při mluvení nerozdělila jednu větu na dvě.
 
 ## Instalace
 
 1. Nainstaluj [SWYF Mod Hub](https://dexhauls.github.io/swyf-mods/).
-2. Stáhni požadovaný `.swyfmod` z [GitHub Releases](https://github.com/Nereziel/swyf-mody/releases).
-3. Nainstaluj ho přes SWYF Mod Hub.
+2. Na stránce [Stažení](https://github.com/Nereziel/swyf-mody/releases/latest) stáhni požadovaný mod jako `.swyfmod` nebo `.zip`.
+3. Otevři balíček přes SWYF Mod Hub.
 4. U `CzechSpeechEnhanced` případně vyber Parakeet nebo Parakeet Ultra a způsob výpočtu.
 5. Restartuj hru.
+
+`.swyfmod` je doporučená varianta. ZIP obsahuje stejný balíček a SWYF Mod Hub ho umí nainstalovat také.
 
 ## Lokální sestavení
 
@@ -49,7 +43,7 @@ Speech
 TTS
 ```
 
-`All` sestaví oba veřejné mody. Výsledné balíčky vzniknou v `dist/` jako `.swyfmod`.
+`All` sestaví oba veřejné mody. Výsledné `.swyfmod` balíčky vzniknou v `dist/`.
 
 Přímo přes PowerShell:
 
@@ -71,7 +65,7 @@ Potom například:
 release.cmd 1.3.1
 ```
 
-`release.cmd` sestaví a nahraje pouze dva veřejné balíčky: `CzechSpeechEnhanced` a `CzechTTSFix`.
+`release.cmd` sestaví dva veřejné mody a do release nahraje u každého obě varianty: `.swyfmod` i `.zip`.
 
 ## Pokročilé
 
