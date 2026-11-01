@@ -93,7 +93,7 @@ if not exist "%DIST%" mkdir "%DIST%"
 del /q "%DIST%\*.swyfmod" >nul 2>&1
 
 echo.
-echo Sestavuji vsechny mody...
+echo Sestavuji verejne mody...
 call "%~dp0build.cmd" -GameDir "%GAME_DIR%" -Mod All
 if errorlevel 1 (
     echo Build selhal. Release nebyl vytvoren.
@@ -104,8 +104,8 @@ set /a COUNT=0
 for %%F in ("%DIST%\*.swyfmod") do (
     if exist "%%~fF" set /a COUNT+=1
 )
-if not "!COUNT!"=="3" (
-    echo Ocekavany pocet balicku je 3, ale nalezeno bylo !COUNT!.
+if not "!COUNT!"=="2" (
+    echo Ocekavany pocet verejnych balicku je 2, ale nalezeno bylo !COUNT!.
     echo Release nebyl vytvoren.
     goto :fail
 )
@@ -113,7 +113,7 @@ if not "!COUNT!"=="3" (
 if "!CREATE_RELEASE!"=="1" (
     echo.
     echo Vytvarim GitHub Release %TAG%...
-    gh release create "%TAG%" --repo "%REPO%" --target main --title "SWYF mody %TAG%" --generate-notes
+    gh release create "%TAG%" --repo "%REPO%" --target main --title "SWYF CZ/SK mody %TAG%" --generate-notes
     if errorlevel 1 (
         echo Vytvoreni GitHub Release selhalo.
         goto :fail
