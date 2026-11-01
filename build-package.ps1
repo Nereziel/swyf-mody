@@ -96,9 +96,9 @@ function Build-Simple([string]$relativeDir) {
 
 switch ($Mod) {
     'All' {
+        # Public/user-facing packages only. PrivacyTelemetry stays available as an advanced explicit build.
         Build-Speech
         Build-Simple 'src\CzechTTSFix'
-        Build-Simple 'src\PrivacyTelemetry'
     }
     'Speech' { Build-Speech }
     'TTS' { Build-Simple 'src\CzechTTSFix' }
