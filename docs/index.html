@@ -36,6 +36,7 @@
       --muted:#aab4c6;
       --line:rgba(255,255,255,.10);
       --blue:#77a8ff;
+      --warn:#ffd18a;
     }
     *{box-sizing:border-box}
     body{
@@ -73,6 +74,8 @@
     .num{width:24px;height:24px;display:grid;place-items:center;border-radius:7px;background:var(--panel2);border:1px solid var(--line);color:var(--text);font-size:.78rem;font-weight:850}
     .arrow{color:#58657a}
     .note{margin-top:10px;color:var(--muted);font-size:.88rem}
+    .warning{margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,209,138,.28);background:rgba(255,209,138,.07);color:#e8d4b5;font-size:.88rem}
+    .warning strong{color:var(--warn)}
     .buttons{display:flex;gap:9px;flex-direction:column;min-width:190px}
     .btn{display:flex;align-items:center;justify-content:center;min-height:43px;padding:0 15px;border-radius:11px;text-decoration:none;font-weight:800;border:1px solid var(--line);font-size:.92rem}
     .btn.primary{background:linear-gradient(135deg,#6599ff,#886ee4);border-color:transparent}
@@ -131,6 +134,7 @@
             <div class="step"><span class="num">3</span><span>Nainstaluj a restartuj hru</span></div>
           </div>
           <div class="note">U CzechSpeechEnhanced si v Mod Hubu vybereš Parakeet TDT v3 nebo Ultra. Potřebný model se stáhne automaticky.</div>
+          <div class="warning"><strong>Pozor:</strong> tyto mody nejsou kompatibilní s modem <strong>Lepší čeština</strong>. Nepoužívej je současně.</div>
         </div>
         <div class="buttons">
           <a class="btn primary" href="https://github.com/Nereziel/swyf-mody/releases/latest">Stáhnout mody</a>
