@@ -81,7 +81,7 @@ set "CREATE_RELEASE=1"
 gh release view "%TAG%" --repo "%REPO%" >nul 2>&1
 if not errorlevel 1 (
     echo Release %TAG% uz existuje.
-    set /p "REPLACE=Nahradit v nem .swyfmod soubory? [y/N]: "
+    set /p "REPLACE=Nahradit v nem balicky .swyfmod a .zip? [y/N]: "
     if /I not "!REPLACE!"=="Y" if /I not "!REPLACE!"=="ANO" (
         echo Release zrusen.
         goto :ok
@@ -91,6 +91,8 @@ if not errorlevel 1 (
 
 if not exist "%DIST%" mkdir "%DIST%"
 del /q "%DIST%\*.swyfmod" >nul 2>&1
+del /q "%DIST%\CzechSpeechEnhanced-*.zip" >nul 2>&1
+del /q "%DIST%\CzechTTSFix-*.zip" >nul 2>&1
 
 echo.
 echo Sestavuji verejne mody...
@@ -110,6 +112,20 @@ if not "!COUNT!"=="2" (
     goto :fail
 )
 
+echo Vytvarim take ZIP varianty...
+for %%F in ("%DIST%\*.swyfmod") do (
+    if exist "%%~fF" copy /y "%%~fF" "%DIST%\%%~nF.zip" >nul
+)
+
+set /a ZIPCOUNT=0
+for %%F in ("%DIST%\CzechSpeechEnhanced-*.zip" "%DIST%\CzechTTSFix-*.zip") do (
+    if exist "%%~fF" set /a ZIPCOUNT+=1
+)
+if not "!ZIPCOUNT!"=="2" (
+    echo Vytvoreni ZIP variant selhalo.
+    goto :fail
+)
+
 if "!CREATE_RELEASE!"=="1" (
     echo.
     echo Vytvarim GitHub Release %TAG%...
@@ -122,7 +138,7 @@ if "!CREATE_RELEASE!"=="1" (
 
 echo.
 echo Nahravam balicky...
-for %%F in ("%DIST%\*.swyfmod") do (
+for %%F in ("%DIST%\*.swyfmod" "%DIST%\CzechSpeechEnhanced-*.zip" "%DIST%\CzechTTSFix-*.zip") do (
     if exist "%%~fF" (
         echo   %%~nxF
         gh release upload "%TAG%" "%%~fF" --repo "%REPO%" --clobber
