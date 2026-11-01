@@ -1,0 +1,55 @@
+{
+  "sources": {
+    "shared": {
+      "path": "D:\\Hry\\Steam\\steamapps\\common\\Scam With Your Friends\\Scam With Your Friends_Data\\StreamingAssets\\aa\\StandaloneWindows64\\localization-assets-shared_assets_all.bundle",
+      "sha256": "5cb06409cfff62db5e04a9067ffab79ac5c42265b901451d76289cdbf0bece25"
+    },
+    "en": {
+      "path": "D:\\Hry\\Steam\\steamapps\\common\\Scam With Your Friends\\Scam With Your Friends_Data\\StreamingAssets\\aa\\StandaloneWindows64\\localization-string-tables-english(en)_assets_all.bundle",
+      "sha256": "93512bfbd9f11aa0be957461a86ab491b92120fe372c24da5ed757cbcabc37b9"
+    },
+    "cs": {
+      "path": "D:\\Hry\\Steam\\steamapps\\common\\Scam With Your Friends\\Scam With Your Friends_Data\\StreamingAssets\\aa\\StandaloneWindows64\\localization-string-tables-czech(cs)_assets_all.bundle",
+      "sha256": "4902495b66f851b9d9f0dd682a960529044a6a1ca9a9f1a46d09d3924073c305"
+    }
+  },
+  "tables": {
+    "Commands": {
+      "keys": 39,
+      "en_entries": 39,
+      "cs_entries": 0,
+      "missing_en": 0,
+      "missing_cs": 39,
+      "empty_cs": 0,
+      "replacement_character_cs": 0
+    },
+    "Controls": {
+      "keys": 296,
+      "en_entries": 296,
+      "cs_entries": 0,
+      "missing_en": 0,
+      "missing_cs": 296,
+      "empty_cs": 0,
+      "replacement_character_cs": 0
+    },
+    "DemoStringTable": {
+      "keys": 24,
+      "en_entries": 24,
+      "cs_entries": 0,
+      "missing_en": 0,
+      "missing_cs": 24,
+      "empty_cs": 0,
+      "replacement_character_cs": 0
+    },
+    "Menu": {
+      "keys": 3462,
+      "en_entries": 3462,
+      "cs_entries": 3416,
+      "missing_en": 0,
+      "missing_cs": 46,
+      "empty_cs": 0,
+      "replacement_character_cs": 0
+    }
+  },
+  "total_keys": 3821
+}
