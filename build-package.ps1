@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)][string]$GameDir,
-    [ValidateSet('All','Speech','TTS','Privacy')][string]$Mod = 'All',
+    [ValidateSet('All','Speech','TTS','Translation','Privacy')][string]$Mod = 'All',
     [string]$CacheDir
 )
 $ErrorActionPreference = 'Stop'
@@ -97,6 +97,17 @@ function Build-Simple([string]$relativeDir) {
     Write-Output "Balíček: $($pkg.Path)"
 }
 
+function Build-Translation {
+    $dir = Join-Path $root 'src\CzechTranslationFix'
+    Build-Project $dir
+    $pkg = Open-Package $dir
+    try {
+        Add-File $pkg.Zip (Join-Path $dir 'translations.json') 'files/translations.json'
+        Add-File $pkg.Zip (Join-Path $dir 'README.txt') 'files/README.txt'
+    } finally { $pkg.Zip.Dispose() }
+    Write-Output "Balíček: $($pkg.Path)"
+}
+
 switch ($Mod) {
     'All' {
         # Public/user-facing packages only. PrivacyTelemetry stays available as an advanced explicit build.
@@ -105,5 +116,6 @@ switch ($Mod) {
     }
     'Speech' { Build-Speech }
     'TTS' { Build-Simple 'src\CzechTTSFix' }
+    'Translation' { Build-Translation }
     'Privacy' { Build-Simple 'src\PrivacyTelemetry' }
 }

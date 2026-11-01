@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <GameDir Condition="'$(GameDir)' == ''">D:\Hry\Steam\steamapps\common\Scam With Your Friends</GameDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../src/CzechTranslationFix/TranslationFile.cs" Link="TranslationFile.cs" />
+    <!-- Unity's stripped JSON assembly cannot run under desktop .NET. -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+</Project>

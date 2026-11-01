@@ -1,0 +1,13 @@
+{
+  "id": "CzechTranslationFix",
+  "name": "Vlastní český překlad",
+  "name_en": "Czech Translation Fix",
+  "version": "1.0.0",
+  "author": "Nereziel",
+  "description": "Načítá vlastní české texty ze souboru translations.json. Překlady doplní uživatel; původní herní soubory zůstávají zachované. Po úpravě textů restartuj hru.",
+  "description_en": "Loads user-written Czech overrides from translations.json without changing game files. Fill in your own translations and restart the game after editing.",
+  "icon": "E8D2",
+  "tags": [ "Čeština", "Překlad" ],
+  "tags_en": [ "Czech", "Translation" ],
+  "dll": "CzechTranslationFix.dll"
+}

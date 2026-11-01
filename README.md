@@ -83,6 +83,28 @@ release.cmd 1.3.1
 
 ## Pokročilé
 
+### Vlastní opravy českého překladu
+
+Samostatný mod **CzechTranslationFix** načítá uživatelské opravy z UTF-8 souboru
+`Mods/CzechTranslationFix/translations.json`. Balíček obsahuje 3821 klíčů s anglickým
+a původním českým textem. Doplň pouze pole `text`; `null` a prázdné řetězce se ignorují.
+Po změně restartuj hru. Před aktualizací modu si vlastní soubor zálohuj.
+Podrobný postup: [návod](src/CzechTranslationFix/README.txt).
+
+```powershell
+.\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod Translation
+```
+
+Vznikne `dist/CzechTranslationFix-1.0.0.swyfmod`. Tento samostatný balíček není součástí
+`All` ani automatického veřejného release. Mod mění české lokalizační tabulky v paměti;
+vlastní opravené překlady neobsahuje. Funkčnost je nutné ověřit v běžící hře.
+
+Test načítání souboru a šablony:
+
+```powershell
+dotnet run --project tests/CzechTranslationFix -- src/CzechTranslationFix/translations.json
+```
+
 V repozitáři zůstává experimentální `PrivacyTelemetry`, ale není součástí běžného buildu `All` ani veřejného release. Ruční build:
 
 ```powershell

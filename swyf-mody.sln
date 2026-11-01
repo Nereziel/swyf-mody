@@ -8,12 +8,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CzechTTSFix", "src\CzechTTS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrivacyTelemetry", "src\PrivacyTelemetry\PrivacyTelemetry.csproj", "{4C2A6199-E29A-490A-B20A-93C08BD470D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CzechTranslationFix", "src\CzechTranslationFix\CzechTranslationFix.csproj", "{E8811894-943C-4DCE-9E2A-EB2D1FD91824}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E8811894-943C-4DCE-9E2A-EB2D1FD91824}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8811894-943C-4DCE-9E2A-EB2D1FD91824}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8811894-943C-4DCE-9E2A-EB2D1FD91824}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8811894-943C-4DCE-9E2A-EB2D1FD91824}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A6E95617-695D-46E9-A4A8-F787D2F9D321}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A6E95617-695D-46E9-A4A8-F787D2F9D321}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6E95617-695D-46E9-A4A8-F787D2F9D321}.Release|Any CPU.ActiveCfg = Release|Any CPU
