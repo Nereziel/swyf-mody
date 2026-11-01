@@ -2,11 +2,6 @@ name: Build mods on self-hosted runner
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/build-self-hosted.yml
 
 jobs:
   build:
