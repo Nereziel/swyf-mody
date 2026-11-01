@@ -3,69 +3,258 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
   <title>Scam With Your Friends mody (SWYF) – čeština, slovenština, TTS a soukromí</title>
-  <meta name="description" content="České a slovenské mody pro Scam With Your Friends (SWYF): lepší rozpoznávání řeči přes Parakeet, oprava českého TTS a omezení telemetrie. Instalace přes .swyfmod.">
+  <meta name="description" content="České a slovenské mody pro Scam With Your Friends (SWYF): lepší rozpoznávání řeči přes Parakeet, oprava českého TTS a omezení telemetrie. Instalace přes SWYF Mod Hub.">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <link rel="canonical" href="https://nereziel.github.io/swyf-mody/">
+
   <meta property="og:type" content="website">
   <meta property="og:locale" content="cs_CZ">
-  <meta property="og:title" content="Scam With Your Friends mody (SWYF)">
-  <meta property="og:description" content="Mody pro české a slovenské hráče Scam With Your Friends: Parakeet speech recognition, české TTS a privacy mod.">
+  <meta property="og:site_name" content="SWYF mody">
+  <meta property="og:title" content="Scam With Your Friends mody – čeština, TTS a soukromí">
+  <meta property="og:description" content="Mody pro české a slovenské hráče Scam With Your Friends: Parakeet rozpoznávání řeči, české TTS a privacy mod.">
   <meta property="og:url" content="https://nereziel.github.io/swyf-mody/">
   <meta name="twitter:card" content="summary">
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareSourceCode",
-    "name": "Scam With Your Friends mody (SWYF)",
-    "description": "Neoficiální mody pro Scam With Your Friends pro české a slovenské hráče: Parakeet rozpoznávání řeči, oprava českého TTS a privacy/telemetry mod.",
-    "codeRepository": "https://github.com/Nereziel/swyf-mody",
-    "programmingLanguage": "C#",
-    "runtimePlatform": "BepInEx / Windows",
-    "inLanguage": "cs",
-    "license": "https://github.com/Nereziel/swyf-mody/blob/main/LICENSE"
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "Scam With Your Friends mody (SWYF)",
+        "url": "https://nereziel.github.io/swyf-mody/",
+        "inLanguage": "cs"
+      },
+      {
+        "@type": "SoftwareSourceCode",
+        "name": "SWYF mody",
+        "description": "Neoficiální mody pro Scam With Your Friends pro české a slovenské hráče: Parakeet rozpoznávání řeči, oprava českého TTS a privacy/telemetry mod.",
+        "codeRepository": "https://github.com/Nereziel/swyf-mody",
+        "programmingLanguage": "C#",
+        "runtimePlatform": "BepInEx / Windows",
+        "inLanguage": "cs",
+        "license": "https://github.com/Nereziel/swyf-mody/blob/main/LICENSE"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Jak nainstalovat mody do Scam With Your Friends?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Nejprve nainstalujte SWYF Mod Hub od Dexe, který nainstaluje BepInEx a podporuje balíčky .swyfmod. Potom stáhněte mod z GitHub Releases, nainstalujte ho přes Mod Hub a restartujte hru."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Který mod zlepšuje české a slovenské rozpoznávání řeči?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "CzechSpeechEnhanced používá Parakeet TDT v3 nebo Parakeet Ultra pro lepší přepis češtiny a slovenštiny."
+            }
+          }
+        ]
+      }
+    ]
   }
   </script>
+
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:900px;margin:0 auto;padding:40px 20px;line-height:1.6;color:#171717}h1{line-height:1.15}a{color:#0969da}.mods{display:grid;gap:14px;margin:24px 0}.mod{border:1px solid #d0d7de;border-radius:10px;padding:16px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}.actions a{padding:10px 14px;border:1px solid #0969da;border-radius:8px;text-decoration:none;font-weight:600}code{background:#f6f8fa;padding:2px 5px;border-radius:4px}
+    :root{
+      color-scheme:dark;
+      --bg:#080b14;
+      --surface:#0f1525;
+      --surface-2:#141c30;
+      --text:#f7f8fb;
+      --muted:#a7b0c3;
+      --line:rgba(255,255,255,.09);
+      --accent:#77a8ff;
+      --accent-2:#9f7aea;
+      --good:#6ee7b7;
+      --shadow:0 20px 70px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 15% -10%,rgba(119,168,255,.22),transparent 30rem),
+        radial-gradient(circle at 90% 5%,rgba(159,122,234,.15),transparent 28rem),
+        var(--bg);
+      line-height:1.65;
+    }
+    a{color:inherit}
+    .wrap{width:min(1120px,calc(100% - 36px));margin:0 auto}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 0;gap:20px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:800;letter-spacing:.02em}
+    .mark{width:38px;height:38px;border:1px solid var(--line);border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(119,168,255,.2),rgba(159,122,234,.15));box-shadow:inset 0 1px rgba(255,255,255,.08)}
+    .brand small{display:block;color:var(--muted);font-weight:600;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase}
+    .nav{display:flex;gap:18px;align-items:center}
+    .nav a{color:var(--muted);text-decoration:none;font-size:.94rem}
+    .nav a:hover{color:var(--text)}
+    .hero{padding:72px 0 54px;text-align:center}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:999px;color:#d8e4ff;font-size:.82rem;font-weight:700;letter-spacing:.04em}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 18px var(--good)}
+    h1{font-size:clamp(2.6rem,7vw,5.6rem);line-height:.98;letter-spacing:-.055em;margin:24px auto 20px;max-width:950px}
+    .gradient{background:linear-gradient(95deg,#fff 15%,#a9c7ff 54%,#cab4ff 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .lead{max-width:780px;margin:0 auto;color:var(--muted);font-size:clamp(1.03rem,2.3vw,1.25rem)}
+    .actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:32px 0 26px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:0 18px;border-radius:13px;text-decoration:none;font-weight:800;border:1px solid var(--line);transition:.18s ease}
+    .btn.primary{background:linear-gradient(135deg,#6e9fff,#8d6ee8);border-color:transparent;color:white;box-shadow:0 12px 30px rgba(91,123,230,.24)}
+    .btn.secondary{background:rgba(255,255,255,.045)}
+    .btn:hover{transform:translateY(-2px);filter:brightness(1.07)}
+    .facts{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .fact{padding:7px 11px;border:1px solid var(--line);border-radius:10px;color:var(--muted);font-size:.82rem;background:rgba(255,255,255,.025)}
+    section{padding:64px 0}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:28px;margin-bottom:24px}
+    .section-head h2{font-size:clamp(1.8rem,4vw,2.7rem);letter-spacing:-.035em;margin:0}
+    .section-head p{color:var(--muted);max-width:530px;margin:0}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .card{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:20px;padding:24px;background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.018));box-shadow:var(--shadow);min-height:250px}
+    .card:before{content:"";position:absolute;inset:-1px auto auto -1px;width:120px;height:120px;background:radial-gradient(circle,rgba(119,168,255,.16),transparent 70%);pointer-events:none}
+    .icon{width:46px;height:46px;display:grid;place-items:center;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.055);font-weight:900;color:#cfe0ff;margin-bottom:38px}
+    .card h3{margin:0 0 8px;font-size:1.18rem;letter-spacing:-.02em}
+    .card p{margin:0;color:var(--muted);font-size:.95rem}
+    .tag{display:inline-block;margin-top:18px;padding:5px 9px;border-radius:999px;background:rgba(110,231,183,.09);border:1px solid rgba(110,231,183,.18);color:#a7f3d0;font-size:.76rem;font-weight:700}
+    .install{display:grid;grid-template-columns:.88fr 1.12fr;gap:24px;align-items:stretch}
+    .panel{border:1px solid var(--line);border-radius:22px;background:var(--surface);padding:26px}
+    .panel h2,.panel h3{margin-top:0;letter-spacing:-.03em}
+    .steps{display:grid;gap:14px;counter-reset:steps}
+    .step{display:grid;grid-template-columns:38px 1fr;gap:13px;align-items:start;color:var(--muted)}
+    .step:before{counter-increment:steps;content:counter(steps);width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-weight:800}
+    .step strong{color:var(--text);display:block;margin-bottom:2px}
+    .codebox{height:100%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(145deg,#0f1728,#0c1220)}
+    .codebox code{display:block;padding:14px 16px;border-radius:12px;background:#080c15;border:1px solid var(--line);color:#cfe0ff;overflow:auto;white-space:nowrap}
+    .faq{display:grid;gap:10px}
+    details{border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.025);padding:16px 18px}
+    summary{cursor:pointer;font-weight:750}
+    details p{color:var(--muted);margin:12px 0 2px}
+    footer{border-top:1px solid var(--line);margin-top:40px;padding:28px 0 40px;color:var(--muted);font-size:.88rem;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    .muted-link{color:#c4cee1;text-decoration:none}.muted-link:hover{text-decoration:underline}
+    @media(max-width:820px){.grid{grid-template-columns:1fr}.install{grid-template-columns:1fr}.section-head{display:block}.section-head p{margin-top:10px}.nav{display:none}.hero{padding-top:48px}.card{min-height:0}.icon{margin-bottom:24px}}
+    @media(max-width:520px){.wrap{width:min(100% - 24px,1120px)}h1{font-size:2.65rem}.hero{padding-bottom:30px}.btn{width:100%}.actions{gap:9px}section{padding:48px 0}.panel,.card{padding:20px}}
   </style>
 </head>
 <body>
-  <main>
-    <h1>Scam With Your Friends mody (SWYF)</h1>
-    <p>Neoficiální <strong>mody pro Scam With Your Friends</strong> určené hlavně českým a slovenským hráčům. Najdeš zde lepší <strong>rozpoznávání češtiny a slovenštiny</strong>, opravu českého TTS a mod omezující telemetrii.</p>
-    <p>Pokud hledáš <strong>SWYF mody</strong>, <strong>český mod pro Scam With Your Friends</strong>, lepší přepis češtiny nebo správnou českou výslovnost NPC, jsi na správném místě.</p>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="SWYF mody – domů">
+        <span class="mark">S</span>
+        <span>SWYF MODY<small>Scam With Your Friends</small></span>
+      </a>
+      <nav class="nav" aria-label="Hlavní navigace">
+        <a href="#mody">Mody</a>
+        <a href="#instalace">Instalace</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://github.com/Nereziel/swyf-mody">GitHub</a>
+      </nav>
+    </header>
 
-    <div class="actions">
-      <a href="https://github.com/Nereziel/swyf-mody/releases">Stáhnout mody</a>
-      <a href="https://dexhauls.github.io/swyf-mods/">Nainstalovat SWYF Mod Hub</a>
-      <a href="https://github.com/Nereziel/swyf-mody">Zdrojový kód na GitHubu</a>
-    </div>
-
-    <h2>Dostupné mody pro Scam With Your Friends</h2>
-    <div class="mods">
-      <section class="mod">
-        <h3>CzechSpeechEnhanced</h3>
-        <p>Lepší rozpoznávání české a slovenské řeči pomocí NVIDIA Parakeet TDT v3 nebo Parakeet Ultra. Mod používá delší pauzu před ukončením věty, aby přirozené přestávky při mluvení nerozdělovaly jednu větu na více částí.</p>
+    <main>
+      <section class="hero">
+        <div class="eyebrow"><span class="dot"></span> Neoficiální české a slovenské SWYF mody</div>
+        <h1><span class="gradient">Scam With Your Friends</span><br>mody pro CZ/SK hráče</h1>
+        <p class="lead">Lepší rozpoznávání češtiny a slovenštiny pomocí Parakeet, opravené české TTS a možnost omezit herní telemetrii. Instalace přes SWYF Mod Hub.</p>
+        <div class="actions">
+          <a class="btn primary" href="https://github.com/Nereziel/swyf-mody/releases">Stáhnout mody →</a>
+          <a class="btn secondary" href="https://dexhauls.github.io/swyf-mods/">Nainstalovat SWYF Mod Hub</a>
+        </div>
+        <div class="facts" aria-label="Vlastnosti projektu">
+          <span class="fact">3 samostatné mody</span>
+          <span class="fact">Čeština + slovenština</span>
+          <span class="fact">Windows / BepInEx</span>
+          <span class="fact">.swyfmod balíčky</span>
+        </div>
       </section>
-      <section class="mod">
-        <h3>CzechTTSFix</h3>
-        <p>Opravuje český text pro herní TTS, aby NPC správně používaly diakritiku a lépe zpracovávaly interpunkci.</p>
-      </section>
-      <section class="mod">
-        <h3>PrivacyTelemetry</h3>
-        <p>Blokuje známou analytiku hry a omezuje vybraná diagnostická data odesílaná ve feedbacku.</p>
-      </section>
-    </div>
 
-    <h2>Jak nainstalovat SWYF mody</h2>
-    <ol>
-      <li>Nainstaluj <a href="https://dexhauls.github.io/swyf-mods/">SWYF Mod Hub od Dexe</a>. Ten nainstaluje BepInEx a umí pracovat s balíčky <code>.swyfmod</code>.</li>
-      <li>Stáhni požadovaný mod z <a href="https://github.com/Nereziel/swyf-mody/releases">GitHub Releases</a>.</li>
-      <li>Nainstaluj <code>.swyfmod</code> přes SWYF Mod Hub a restartuj Scam With Your Friends.</li>
-    </ol>
+      <section id="mody">
+        <div class="section-head">
+          <div><h2>Dostupné mody</h2></div>
+          <p>Každý mod lze nainstalovat samostatně. Speech mod nabízí volbu mezi Parakeet TDT v3 a Parakeet Ultra.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <div class="icon">ASR</div>
+            <h3>CzechSpeechEnhanced</h3>
+            <p>Lepší rozpoznávání české a slovenské řeči pomocí Parakeet TDT v3 nebo Parakeet Ultra. Krátké přirozené pauzy méně často rozdělí jednu větu na dvě.</p>
+            <span class="tag">Čeština / slovenština</span>
+          </article>
+          <article class="card">
+            <div class="icon">TTS</div>
+            <h3>CzechTTSFix</h3>
+            <p>Opravuje český text pro herní TTS, aby NPC správně zachovala diakritiku a lépe pracovala s interpunkcí.</p>
+            <span class="tag">České TTS</span>
+          </article>
+          <article class="card">
+            <div class="icon">PRV</div>
+            <h3>PrivacyTelemetry</h3>
+            <p>Blokuje známou analytiku hry a omezuje vybraná diagnostická data odesílaná ve feedbacku.</p>
+            <span class="tag">Soukromí</span>
+          </article>
+        </div>
+      </section>
 
-    <p><small>Neoficiální fanouškovský projekt. Není spojený s vývojáři hry Scam With Your Friends.</small></p>
-  </main>
+      <section id="instalace">
+        <div class="install">
+          <div class="panel">
+            <h2>Instalace ve 3 krocích</h2>
+            <div class="steps">
+              <div class="step"><div><strong>Nainstaluj SWYF Mod Hub</strong>Mod Hub od Dexe nainstaluje BepInEx a obsluhuje balíčky <code>.swyfmod</code>.</div></div>
+              <div class="step"><div><strong>Stáhni požadovaný mod</strong>Aktuální balíčky najdeš na stránce GitHub Releases.</div></div>
+              <div class="step"><div><strong>Nainstaluj a restartuj hru</strong>Otevři balíček přes SWYF Mod Hub a potom restartuj Scam With Your Friends.</div></div>
+            </div>
+          </div>
+          <div class="panel codebox">
+            <div>
+              <h3>Potřebuješ nejdřív Mod Hub</h3>
+              <p style="color:var(--muted)">Bez něj nebudeš muset BepInEx ani strukturu modů řešit ručně.</p>
+            </div>
+            <div>
+              <code>https://dexhauls.github.io/swyf-mods/</code>
+              <div class="actions" style="justify-content:flex-start;margin-bottom:0">
+                <a class="btn primary" href="https://dexhauls.github.io/swyf-mods/">Otevřít SWYF Mod Hub</a>
+                <a class="btn secondary" href="https://github.com/Nereziel/swyf-mody/releases">GitHub Releases</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq">
+        <div class="section-head">
+          <div><h2>Časté otázky</h2></div>
+          <p>Krátké odpovědi pro hráče, kteří hledají české nebo slovenské mody pro Scam With Your Friends.</p>
+        </div>
+        <div class="faq">
+          <details open>
+            <summary>Jak nainstalovat mody do Scam With Your Friends?</summary>
+            <p>Nainstaluj SWYF Mod Hub od Dexe, stáhni požadovaný <code>.swyfmod</code> z GitHub Releases, nainstaluj ho přes Mod Hub a restartuj hru.</p>
+          </details>
+          <details>
+            <summary>Který mod zlepšuje české a slovenské rozpoznávání řeči?</summary>
+            <p><strong>CzechSpeechEnhanced</strong>. Používá Parakeet TDT v3 nebo Parakeet Ultra a je určený pro lepší přepis češtiny a slovenštiny.</p>
+          </details>
+          <details>
+            <summary>Musím instalovat všechny tři mody?</summary>
+            <p>Ne. CzechSpeechEnhanced, CzechTTSFix a PrivacyTelemetry jsou samostatné a můžeš použít jen ty, které chceš.</p>
+          </details>
+          <details>
+            <summary>Je projekt oficiální?</summary>
+            <p>Ne. Jde o neoficiální fanouškovský projekt, který není spojený s vývojáři hry Scam With Your Friends.</p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Neoficiální fanouškovský projekt pro Scam With Your Friends.</span>
+      <span><a class="muted-link" href="https://github.com/Nereziel/swyf-mody">Zdrojový kód</a> · <a class="muted-link" href="https://github.com/Nereziel/swyf-mody/blob/main/LICENSE">Licence</a></span>
+    </footer>
+  </div>
 </body>
 </html>
