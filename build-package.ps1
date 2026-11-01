@@ -29,26 +29,15 @@ function Get-VerifiedFile([string]$Name, [string]$Url, [string]$Hash) {
     return $path
 }
 
-function Add-File($zip, [string]$path, [string]$entry, [IO.Compression.CompressionLevel]$compression = [IO.Compression.CompressionLevel]::Optimal) {
+function Add-File($zip, [string]$path, [string]$entry) {
     if (-not (Test-Path -LiteralPath $path)) { throw "Chybí soubor: $path" }
-    [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $path, $entry, $compression)
+    [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $path, $entry, [IO.Compression.CompressionLevel]::Optimal)
 }
 
 function Add-ArchiveEntry($zip, $entry, [string]$name) {
     $target = $zip.CreateEntry($name)
     $inputStream = $entry.Open(); $outputStream = $target.Open()
     try { $inputStream.CopyTo($outputStream) } finally { $outputStream.Dispose(); $inputStream.Dispose() }
-}
-
-function Add-TextEntry($zip, [string]$text, [string]$entry) {
-    $target = $zip.CreateEntry($entry)
-    $stream = $target.Open()
-    try {
-        $bytes = [Text.Encoding]::UTF8.GetBytes($text)
-        $stream.Write($bytes, 0, $bytes.Length)
-    } finally {
-        $stream.Dispose()
-    }
 }
 
 function Build-Project([string]$projectDir) {
@@ -75,74 +64,10 @@ function Open-Package([string]$projectDir) {
 function Add-Licenses($zip) {
     $licenseDir = Join-Path $root 'licenses'
     if (Test-Path -LiteralPath $licenseDir) {
-        foreach ($file in Get-ChildItem -LiteralPath $licenseDir -File) { Add-File $zip $file.FullName "files/licenses/$($file.Name)" }
-    }
-}
-
-function New-ManualPackage(
-    [string]$packagePath,
-    $manifest,
-    [string]$suffix = '',
-    [string]$extraFile = '',
-    [string]$extraRelativePath = '',
-    [string]$extraNote = ''
-) {
-    $nameSuffix = if ([string]::IsNullOrWhiteSpace($suffix)) { '' } else { "-$suffix" }
-    $out = Join-Path $dist "$($manifest.id)-$($manifest.version)$nameSuffix.zip"
-    if (Test-Path -LiteralPath $out) { Remove-Item -LiteralPath $out }
-
-    $source = [IO.Compression.ZipFile]::OpenRead($packagePath)
-    $target = [IO.Compression.ZipFile]::Open($out, [IO.Compression.ZipArchiveMode]::Create)
-    try {
-        foreach ($entry in $source.Entries) {
-            if ($entry.Name.Length -eq 0) { continue }
-            $name = $entry.FullName.Replace('\', '/')
-            if ($name -eq 'mod.json') {
-                $manualName = "$($manifest.id)/mod.json"
-            } elseif ($name.StartsWith('files/')) {
-                $manualName = "$($manifest.id)/" + $name.Substring(6)
-            } else {
-                continue
-            }
-            Add-ArchiveEntry $target $entry $manualName
+        foreach ($file in Get-ChildItem -LiteralPath $licenseDir -File) {
+            Add-File $zip $file.FullName "files/licenses/$($file.Name)"
         }
-
-        if (-not [string]::IsNullOrWhiteSpace($extraFile)) {
-            # GGUF is already compact; storing it avoids wasting time on another deflate pass.
-            Add-File $target $extraFile "$($manifest.id)/$extraRelativePath" ([IO.Compression.CompressionLevel]::NoCompression)
-        }
-
-        $note = @"
-RUČNÍ INSTALACE - $($manifest.name)
-========================================
-
-1. Hra už musí mít nainstalovaný základ pro mody (BepInEx + SWYF Mod Manager).
-   Nejjednodušší je jednou nainstalovat SWYF Mod Hub.
-
-2. Rozbal tento ZIP.
-
-3. Zkopíruj CELOU složku:
-   $($manifest.id)
-
-   do složky hry:
-   Mods
-
-4. Výsledná cesta musí vypadat takto:
-   ...\Scam With Your Friends\Mods\$($manifest.id)\mod.json
-
-5. Restartuj hru.
-
-$extraNote
-Pokud chceš nejjednodušší instalaci a automatické stažení modelu, použij balíček .swyfmod přes SWYF Mod Hub.
-"@
-        Add-TextEntry $target $note "$($manifest.id)/INSTALACE.txt"
-    } finally {
-        $target.Dispose()
-        $source.Dispose()
     }
-
-    Write-Host "Ruční ZIP: $out"
-    return $out
 }
 
 function Build-Speech {
@@ -161,45 +86,6 @@ function Build-Speech {
             }
         } finally { $runtime.Dispose() }
     } finally { $pkg.Zip.Dispose() }
-
-    $defaultModel = $pkg.Manifest.downloads | Where-Object { $_.default -eq $true } | Select-Object -First 1
-    $ultraModel = $pkg.Manifest.downloads | Where-Object { $_.id -eq 'parakeet-ultra' } | Select-Object -First 1
-    if (-not $defaultModel) { throw 'V manifestu CzechSpeechEnhanced chybí výchozí Parakeet model.' }
-
-    $noModelNote = @"
-Tento ZIP MODEL NEOBSAHUJE. Stáhni si jeden z modelů ručně:
-
-Parakeet TDT v3 (doporučeno / výchozí):
-$([string]$defaultModel.url)
-
-Ulož ho jako:
-...\Scam With Your Friends\Mods\CzechSpeechEnhanced\Parakeet\parakeet.q8.gguf
-
-Parakeet Ultra (volitelné):
-$([string]$ultraModel.url)
-
-Ulož ho jako:
-...\Scam With Your Friends\Mods\CzechSpeechEnhanced\Parakeet\parakeet-ultra.q8.gguf
-
-Pokud použiješ Ultra, po prvním spuštění nastav v:
-...\Scam With Your Friends\BepInEx\config\nereziel.swyf.czechspeechenhanced.cfg
-v sekci [Recognition]:
-Engine = ultra
-
-"@
-    [void](New-ManualPackage $pkg.Path $pkg.Manifest 'no-model' '' '' $noModelNote)
-
-    $modelName = [IO.Path]::GetFileName([string]$defaultModel.path)
-    $modelPath = Get-VerifiedFile $modelName ([string]$defaultModel.url) ([string]$defaultModel.sha256)
-    $withModelNote = @"
-Tento ZIP už obsahuje výchozí model Parakeet TDT v3. Po zkopírování složky do Mods není potřeba model dál stahovat.
-
-Parakeet Ultra v tomto ZIPu není. Pokud ho chceš použít, můžeš ho stáhnout zde:
-$([string]$ultraModel.url)
-
-"@
-    [void](New-ManualPackage $pkg.Path $pkg.Manifest 'with-model' $modelPath 'Parakeet/parakeet.q8.gguf' $withModelNote)
-
     Write-Output "Balíček: $($pkg.Path)"
 }
 
@@ -208,7 +94,6 @@ function Build-Simple([string]$relativeDir) {
     Build-Project $dir
     $pkg = Open-Package $dir
     $pkg.Zip.Dispose()
-    [void](New-ManualPackage $pkg.Path $pkg.Manifest)
     Write-Output "Balíček: $($pkg.Path)"
 }
 
