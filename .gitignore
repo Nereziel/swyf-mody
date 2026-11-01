@@ -2,6 +2,7 @@
 **/obj/
 dist/
 .cache/
+runner-libs/
 *.swyfmod
 *.gguf
 *.bin
