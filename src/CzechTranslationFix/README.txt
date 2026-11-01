@@ -1,7 +1,7 @@
-Czech Translation Fix 1.0.0
+Czech Translation Fix 1.0.2
 ===========================
 
-Instalace: otevři CzechTranslationFix-1.0.0.swyfmod v SWYF Mod Hubu.
+Instalace: otevři CzechTranslationFix-1.0.2.swyfmod v SWYF Mod Hubu.
 
 Mod doplňuje chybějící české texty a opravuje vybrané chybné nebo slepené
 překlady. Původní herní soubory se nemění; opravy se aplikují pouze v paměti

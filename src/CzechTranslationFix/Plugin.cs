@@ -9,7 +9,7 @@ using UnityEngine.Localization.Tables;
 
 namespace CzechTranslationFix
 {
-    [BepInPlugin("nereziel.swyf.czechtranslationfix", "Czech Translation Fix", "1.0.1")]
+    [BepInPlugin("nereziel.swyf.czechtranslationfix", "Czech Translation Fix", "1.0.2")]
     public sealed class Plugin : BaseUnityPlugin
     {
         private static Plugin _instance;
@@ -20,11 +20,11 @@ namespace CzechTranslationFix
 
         private void Awake()
         {
-            string directory = Path.GetDirectoryName(typeof(Plugin).Assembly.Location);
-            if (string.IsNullOrEmpty(directory)) directory = Path.Combine(Paths.GameRootPath, "Mods", "CzechTranslationFix");
-
+            string directory = "(not resolved)";
             try
             {
+                directory = TranslationPaths.ResolveDirectory(typeof(Plugin).Assembly.Location, Paths.GameRootPath);
+                Logger.LogInfo($"Czech Translation Fix: reading overrides from {directory}.");
                 _translations = LoadOverrides(directory, out int fileCount, out int count);
                 Logger.LogInfo($"Czech Translation Fix: loaded {count} overrides from {fileCount} file(s). Restart game after editing.");
                 if (count == 0) return;

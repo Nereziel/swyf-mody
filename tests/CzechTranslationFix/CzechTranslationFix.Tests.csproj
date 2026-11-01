@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../src/CzechTranslationFix/TranslationFile.cs" Link="TranslationFile.cs" />
+    <Compile Include="../../src/CzechTranslationFix/TranslationPaths.cs" Link="TranslationPaths.cs" />
     <!-- Unity's stripped JSON assembly cannot run under desktop .NET. -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>

@@ -23,6 +23,14 @@ namespace CzechTranslationFix
 
         private static void Main(string[] args)
         {
+            string root = Path.Combine(Path.GetTempPath(), "swyf-path-test");
+            string fallback = Path.Combine(root, "Mods", "CzechTranslationFix");
+            Check(TranslationPaths.ResolveDirectory("", root) == fallback, "Byte-loaded assembly path failed.");
+            Check(TranslationPaths.ResolveDirectory(null, root) == fallback, "Null assembly path failed.");
+            Check(TranslationPaths.ResolveDirectory(" ", root) == fallback, "Blank assembly path failed.");
+            string normal = Path.Combine(root, "BepInEx", "plugins", "translation");
+            Check(TranslationPaths.ResolveDirectory(Path.Combine(normal, "CzechTranslationFix.dll"), root) == normal,
+                "Normal plugin path changed.");
             var template = TranslationFile.Read(args[0]);
             Check(template.Count == 0, "Shipped template must not change any translation.");
             var data = TranslationFile.Parse((JArray)JToken.Parse("""
