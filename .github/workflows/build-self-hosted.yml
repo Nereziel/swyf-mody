@@ -19,17 +19,33 @@ jobs:
           test -f "/game/Scam With Your Friends_Data/Managed/ScriptsAssDef.dll"
           test -f "/game/BepInEx/core/BepInEx.dll"
 
+      - name: Test CzechTranslationFix parser
+        shell: pwsh
+        run: |
+          dotnet run --project tests/CzechTranslationFix -- src/CzechTranslationFix/translations.json
+          if ($LASTEXITCODE -ne 0) { throw "CzechTranslationFix tests failed." }
+
       - name: Build all public mods
         shell: pwsh
         run: |
+          Remove-Item -LiteralPath dist -Recurse -Force -ErrorAction SilentlyContinue
           ./build-package.ps1 -GameDir "/game" -Mod All
+          if ($LASTEXITCODE -ne 0) { throw "Build failed." }
 
-      - name: List packages
-        shell: bash
+      - name: Verify packages
+        shell: pwsh
         run: |
-          set -euxo pipefail
-          ls -lah dist
-          find dist -maxdepth 1 -type f -name '*.swyfmod' -print
+          $expected = @(
+            "CzechSpeechEnhanced-$((Get-Content src/SpeechEnhanced/mod.json -Raw | ConvertFrom-Json).version).swyfmod",
+            "CzechTTSFix-$((Get-Content src/CzechTTSFix/mod.json -Raw | ConvertFrom-Json).version).swyfmod",
+            "CzechTranslationFix-$((Get-Content src/CzechTranslationFix/mod.json -Raw | ConvertFrom-Json).version).swyfmod"
+          )
+          $actual = @(Get-ChildItem dist -Filter '*.swyfmod' -File)
+          if ($actual.Count -ne 3) { throw "Expected 3 public packages, found $($actual.Count)." }
+          foreach ($name in $expected) {
+            if (-not (Test-Path (Join-Path dist $name))) { throw "Missing package: $name" }
+            Write-Host "OK: $name"
+          }
 
       - name: Upload mod packages
         uses: actions/upload-artifact@v4
@@ -37,3 +53,4 @@ jobs:
           name: swyf-mod-packages
           path: dist/*.swyfmod
           if-no-files-found: error
+          retention-days: 7
