@@ -13,6 +13,8 @@ Dva neoficiální mody pro **Scam With Your Friends** zaměřené na české a s
 
 **Parakeet** je model pro převod mluvené řeči na text. Hra standardně používá Whisper; `CzechSpeechEnhanced` použije místo něj Parakeet TDT v3 nebo Parakeet Ultra.
 
+> **Pozor:** tyto mody nejsou kompatibilní s modem **Lepší čeština**. Nepoužívej je současně.
+
 ## Instalace
 
 1. Nainstaluj [SWYF Mod Hub](https://dexhauls.github.io/swyf-mods/).
