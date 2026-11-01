@@ -79,8 +79,16 @@ function Add-Licenses($zip) {
     }
 }
 
-function New-ManualPackage([string]$packagePath, $manifest, [string]$extraFile = '', [string]$extraRelativePath = '', [string]$extraNote = '') {
-    $out = Join-Path $dist "$($manifest.id)-$($manifest.version).zip"
+function New-ManualPackage(
+    [string]$packagePath,
+    $manifest,
+    [string]$suffix = '',
+    [string]$extraFile = '',
+    [string]$extraRelativePath = '',
+    [string]$extraNote = ''
+) {
+    $nameSuffix = if ([string]::IsNullOrWhiteSpace($suffix)) { '' } else { "-$suffix" }
+    $out = Join-Path $dist "$($manifest.id)-$($manifest.version)$nameSuffix.zip"
     if (Test-Path -LiteralPath $out) { Remove-Item -LiteralPath $out }
 
     $source = [IO.Compression.ZipFile]::OpenRead($packagePath)
@@ -100,7 +108,7 @@ function New-ManualPackage([string]$packagePath, $manifest, [string]$extraFile =
         }
 
         if (-not [string]::IsNullOrWhiteSpace($extraFile)) {
-            # GGUF model is already compact; storing it without another deflate pass makes ZIP creation much faster.
+            # GGUF is already compact; storing it avoids wasting time on another deflate pass.
             Add-File $target $extraFile "$($manifest.id)/$extraRelativePath" ([IO.Compression.CompressionLevel]::NoCompression)
         }
 
@@ -125,7 +133,7 @@ RUČNÍ INSTALACE - $($manifest.name)
 5. Restartuj hru.
 
 $extraNote
-Pokud chceš jednodušší instalaci a automatické aktualizace, použij místo ZIPu balíček .swyfmod přes SWYF Mod Hub.
+Pokud chceš nejjednodušší instalaci a automatické stažení modelu, použij balíček .swyfmod přes SWYF Mod Hub.
 "@
         Add-TextEntry $target $note "$($manifest.id)/INSTALACE.txt"
     } finally {
@@ -155,11 +163,42 @@ function Build-Speech {
     } finally { $pkg.Zip.Dispose() }
 
     $defaultModel = $pkg.Manifest.downloads | Where-Object { $_.default -eq $true } | Select-Object -First 1
+    $ultraModel = $pkg.Manifest.downloads | Where-Object { $_.id -eq 'parakeet-ultra' } | Select-Object -First 1
     if (-not $defaultModel) { throw 'V manifestu CzechSpeechEnhanced chybí výchozí Parakeet model.' }
+
+    $noModelNote = @"
+Tento ZIP MODEL NEOBSAHUJE. Stáhni si jeden z modelů ručně:
+
+Parakeet TDT v3 (doporučeno / výchozí):
+$([string]$defaultModel.url)
+
+Ulož ho jako:
+...\Scam With Your Friends\Mods\CzechSpeechEnhanced\Parakeet\parakeet.q8.gguf
+
+Parakeet Ultra (volitelné):
+$([string]$ultraModel.url)
+
+Ulož ho jako:
+...\Scam With Your Friends\Mods\CzechSpeechEnhanced\Parakeet\parakeet-ultra.q8.gguf
+
+Pokud použiješ Ultra, po prvním spuštění nastav v:
+...\Scam With Your Friends\BepInEx\config\nereziel.swyf.czechspeechenhanced.cfg
+v sekci [Recognition]:
+Engine = ultra
+
+"@
+    [void](New-ManualPackage $pkg.Path $pkg.Manifest 'no-model' '' '' $noModelNote)
+
     $modelName = [IO.Path]::GetFileName([string]$defaultModel.path)
     $modelPath = Get-VerifiedFile $modelName ([string]$defaultModel.url) ([string]$defaultModel.sha256)
-    $manualNote = "Tento ZIP už obsahuje výchozí model Parakeet TDT v3, takže po zkopírování složky do Mods není potřeba model dál stahovat.`r`nParakeet Ultra v ručním ZIPu není; pro jeho snadnou instalaci použij .swyfmod přes SWYF Mod Hub.`r`n"
-    [void](New-ManualPackage $pkg.Path $pkg.Manifest $modelPath 'Parakeet/parakeet.q8.gguf' $manualNote)
+    $withModelNote = @"
+Tento ZIP už obsahuje výchozí model Parakeet TDT v3. Po zkopírování složky do Mods není potřeba model dál stahovat.
+
+Parakeet Ultra v tomto ZIPu není. Pokud ho chceš použít, můžeš ho stáhnout zde:
+$([string]$ultraModel.url)
+
+"@
+    [void](New-ManualPackage $pkg.Path $pkg.Manifest 'with-model' $modelPath 'Parakeet/parakeet.q8.gguf' $withModelNote)
 
     Write-Output "Balíček: $($pkg.Path)"
 }
