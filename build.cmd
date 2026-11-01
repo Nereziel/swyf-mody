@@ -14,7 +14,7 @@ if not defined GAME_DIR (
 )
 
 echo.
-echo Dostupne mody: All, Speech, TTS, Privacy
+echo Dostupne mody: All, Speech, TTS
 set /p "MOD=Co sestavit [All]: "
 if not defined MOD set "MOD=All"
 
