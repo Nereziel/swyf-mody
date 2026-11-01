@@ -1,6 +1,6 @@
-# Scam With Your Friends mody (SWYF) – čeština, slovenština a TTS
+# Scam With Your Friends mody (SWYF) – CZ/SK
 
-Dva neoficiální mody pro **Scam With Your Friends** zaměřené na české a slovenské hráče.
+Tři neoficiální mody pro **Scam With Your Friends** zaměřené na češtinu a slovenštinu.
 
 **Web projektu:** https://nereziel.github.io/swyf-mody/
 
@@ -9,11 +9,12 @@ Dva neoficiální mody pro **Scam With Your Friends** zaměřené na české a s
 | Mod | Funkce |
 |---|---|
 | **CzechSpeechEnhanced** | Nahrazuje herní Whisper při přepisu mikrofonu modelem NVIDIA Parakeet a zlepšuje rozpoznávání češtiny a slovenštiny. |
-| **CzechTTSFix** | Opravuje český text pro herní TTS, aby NPC lépe zachovala diakritiku, interpunkci a českou výslovnost. |
+| **CzechTTSFix** | Opravuje zpracování českého textu pro Pocket TTS, aby se zachovala diakritika a text se správně připravil pro český hlas. |
+| **CzechTranslationFix** | Doplňuje chybějící české texty a opravuje chybné, slepené nebo nepřirozené překlady v české lokalizaci hry. |
 
 **Parakeet** je model pro převod mluvené řeči na text. Hra standardně používá Whisper; `CzechSpeechEnhanced` použije místo něj Parakeet TDT v3 nebo Parakeet Ultra.
 
-> **Pozor:** tyto mody nejsou kompatibilní s modem **Lepší čeština**. Nepoužívej je současně.
+> **Pozor:** `CzechTranslationFix` nepoužívej současně s modem **Lepší čeština**. Oba mody upravují českou lokalizaci.
 
 ## Instalace
 
@@ -22,23 +23,13 @@ Dva neoficiální mody pro **Scam With Your Friends** zaměřené na české a s
 3. Nainstaluj ho přes SWYF Mod Hub.
 4. Restartuj hru.
 
-U `CzechSpeechEnhanced` si v Mod Hubu zvolíš **Parakeet TDT v3** nebo **Parakeet Ultra**. Potřebný model se stáhne automaticky.
-V Mod Hubu také nastavíš pauzu před dokončením věty: **1,3 až 3 sekundy**. Delší pauza dovolí přestávky v řeči, ale oddálí odeslání přepisu. Po změně restartuj hru.
+U `CzechSpeechEnhanced` si v Mod Hubu zvolíš **Parakeet TDT v3** nebo **Parakeet Ultra**. Potřebný model se stáhne automaticky. Pauzu před dokončením věty lze nastavit na **1,3 až 3 sekundy**.
 
-Konfigurace přepisu je v `BepInEx/config/nereziel.swyf.czechspeechenhanced.cfg`:
-
-- `[General] Enabled`: zapnutí modu.
-- `[Recognition] Engine`, `ComputeDevice`, `LivePreview`: model, CPU/GPU a průběžný náhled (`on`/`off`).
-- `[Audio] NormalizeVolume`, `SpeechThreshold`, `EndSilenceSeconds`: hlasitost, práh řeči a délka ticha před odesláním věty (1,3–3 s).
-- `[Debug] LogTranscripts`: zápis rozpoznaného textu do logu.
-
-Staré volby Whisperu, čističe a nesouvisející sekce Privacy se při načtení automaticky odstraní. Zbývající nastavení se zachovají; staré `LivePreview = auto` se převede na `on`.
+`CzechTranslationFix` používá překlady přibalené v souborech `overrides*.json`. Velký `translations.json` v repozitáři slouží pouze jako referenční export pro kontrolu lokalizace a za běhu se nenačítá.
 
 ## Lokální sestavení
 
 Potřebuješ `.NET SDK` a nainstalovanou hru **Scam With Your Friends**.
-
-Spusť:
 
 ```text
 build.cmd
@@ -50,13 +41,15 @@ Běžné volby:
 All
 Speech
 TTS
+Translation
 ```
 
-`All` vytvoří v `dist/` dva veřejné balíčky:
+`All` vytvoří v `dist/` všechny tři veřejné balíčky:
 
 ```text
 CzechSpeechEnhanced-1.3.1.swyfmod
 CzechTTSFix-1.0.0.swyfmod
+CzechTranslationFix-1.0.2.swyfmod
 ```
 
 Přímo přes PowerShell:
@@ -65,47 +58,31 @@ Přímo přes PowerShell:
 .\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod All
 ```
 
-## Vytvoření GitHub Release
+## GitHub Actions
 
-Pro automatický release je potřeba [GitHub CLI](https://cli.github.com/). Poprvé se přihlas:
+Workflow **Build mods on self-hosted runner** se spouští pouze ručně přes `Actions → Run workflow`. Na self-hosted runneru sestaví všechny tři veřejné mody a uloží `.swyfmod` jako workflow artifact.
 
-```text
-gh auth login
-```
+Workflow **Build and release mods** se také spouští pouze ručně. Zadáš společný tag releasu, například `v2026.11.01`, workflow sestaví všechny tři mody a vytvoří nebo aktualizuje jeden společný GitHub Release se třemi `.swyfmod` soubory. Verze jednotlivých modů se berou přímo z jejich `mod.json`.
 
-Potom například:
+Jeden společný release je záměr: stránka `releases/latest` tak vždy obsahuje všechny aktuální veřejné mody na jednom místě, i když mají každý vlastní verzi.
 
-```text
-release.cmd 1.3.1
-```
+Lokální alternativa přes GitHub CLI zůstává dostupná přes `release.cmd`.
 
-`release.cmd` sestaví oba veřejné `.swyfmod` balíčky a nahraje je do GitHub Release.
+## CzechTranslationFix
 
-## Pokročilé
+Runtime překlady jsou rozdělené do `src/CzechTranslationFix/overrides*.json`. Mod je načítá z vlastní složky v `Mods/CzechTranslationFix`, aplikuje je pouze na české lokalizační tabulky a původní soubory hry nemění.
 
-### Vlastní opravy českého překladu
+Podrobnosti jsou v [návodu k CzechTranslationFix](src/CzechTranslationFix/README.txt).
 
-Samostatný mod **CzechTranslationFix** načítá uživatelské opravy z UTF-8 souboru
-`Mods/CzechTranslationFix/translations.json`. Balíček obsahuje 3821 klíčů s anglickým
-a původním českým textem. Doplň pouze pole `text`; `null` a prázdné řetězce se ignorují.
-Po změně restartuj hru. Před aktualizací modu si vlastní soubor zálohuj.
-Podrobný postup: [návod](src/CzechTranslationFix/README.txt).
-
-```powershell
-.\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod Translation
-```
-
-Vznikne `dist/CzechTranslationFix-1.0.0.swyfmod`. Tento samostatný balíček není součástí
-`All` ani automatického veřejného release. Mod mění české lokalizační tabulky v paměti;
-vlastní opravené překlady neobsahuje. Funkčnost je nutné ověřit v běžící hře.
-
-Test načítání souboru a šablony:
+Test referenčního exportu a parseru:
 
 ```powershell
 dotnet run --project tests/CzechTranslationFix -- src/CzechTranslationFix/translations.json
 ```
 
-V repozitáři zůstává experimentální `PrivacyTelemetry`, ale není součástí běžného buildu `All` ani veřejného release. Ruční build:
+## Pokročilé
+
+Experimentální `PrivacyTelemetry` není součástí běžného buildu `All` ani veřejného release. Ruční build:
 
 ```powershell
 .\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod Privacy
