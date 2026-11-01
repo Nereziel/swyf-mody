@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nereziel.github.io/swyf-mody/sitemap.xml
