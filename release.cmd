@@ -81,7 +81,7 @@ set "CREATE_RELEASE=1"
 gh release view "%TAG%" --repo "%REPO%" >nul 2>&1
 if not errorlevel 1 (
     echo Release %TAG% uz existuje.
-    set /p "REPLACE=Nahradit v nem balicky .swyfmod a .zip? [y/N]: "
+    set /p "REPLACE=Nahradit v nem .swyfmod soubory? [y/N]: "
     if /I not "!REPLACE!"=="Y" if /I not "!REPLACE!"=="ANO" (
         echo Release zrusen.
         goto :ok
@@ -95,28 +95,19 @@ del /q "%DIST%\CzechSpeechEnhanced-*.zip" >nul 2>&1
 del /q "%DIST%\CzechTTSFix-*.zip" >nul 2>&1
 
 echo.
-echo Sestavuji verejne mody a vsechny varianty balicku...
+echo Sestavuji verejne .swyfmod balicky...
 call "%~dp0build.cmd" -GameDir "%GAME_DIR%" -Mod All
 if errorlevel 1 (
     echo Build selhal. Release nebyl vytvoren.
     goto :fail
 )
 
-set /a SWYFCOUNT=0
+set /a COUNT=0
 for %%F in ("%DIST%\*.swyfmod") do (
-    if exist "%%~fF" set /a SWYFCOUNT+=1
+    if exist "%%~fF" set /a COUNT+=1
 )
-if not "!SWYFCOUNT!"=="2" (
-    echo Ocekavany pocet .swyfmod balicku je 2, ale nalezeno bylo !SWYFCOUNT!.
-    goto :fail
-)
-
-set /a ZIPCOUNT=0
-for %%F in ("%DIST%\CzechSpeechEnhanced-*.zip" "%DIST%\CzechTTSFix-*.zip") do (
-    if exist "%%~fF" set /a ZIPCOUNT+=1
-)
-if not "!ZIPCOUNT!"=="3" (
-    echo Ocekavany pocet rucnich ZIP balicku je 3, ale nalezeno bylo !ZIPCOUNT!.
+if not "!COUNT!"=="2" (
+    echo Ocekavany pocet verejnych .swyfmod balicku je 2, ale nalezeno bylo !COUNT!.
     goto :fail
 )
 
@@ -132,7 +123,7 @@ if "!CREATE_RELEASE!"=="1" (
 
 echo.
 echo Nahravam balicky...
-for %%F in ("%DIST%\*.swyfmod" "%DIST%\CzechSpeechEnhanced-*.zip" "%DIST%\CzechTTSFix-*.zip") do (
+for %%F in ("%DIST%\*.swyfmod") do (
     if exist "%%~fF" (
         echo   %%~nxF
         gh release upload "%TAG%" "%%~fF" --repo "%REPO%" --clobber
