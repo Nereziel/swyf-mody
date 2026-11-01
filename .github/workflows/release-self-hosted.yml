@@ -1,0 +1,153 @@
+name: Build and release mods
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Společný release tag, např. v2026.11.01"
+        required: true
+        type: string
+      prerelease:
+        description: "Označit jako prerelease"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: [self-hosted, Linux, X64, swyf]
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify mounted game libraries
+        shell: bash
+        run: |
+          set -euxo pipefail
+          test -f "/game/Scam With Your Friends_Data/Managed/ScriptsAssDef.dll"
+          test -f "/game/BepInEx/core/BepInEx.dll"
+
+      - name: Test CzechTranslationFix parser
+        shell: pwsh
+        run: |
+          dotnet run --project tests/CzechTranslationFix -- src/CzechTranslationFix/translations.json
+          if ($LASTEXITCODE -ne 0) { throw "CzechTranslationFix tests failed." }
+
+      - name: Build all public mods
+        shell: pwsh
+        run: |
+          Remove-Item -LiteralPath dist -Recurse -Force -ErrorAction SilentlyContinue
+          ./build-package.ps1 -GameDir "/game" -Mod All
+          if ($LASTEXITCODE -ne 0) { throw "Build failed." }
+
+      - name: Verify three packages
+        shell: pwsh
+        run: |
+          $expected = @(
+            "CzechSpeechEnhanced-$((Get-Content src/SpeechEnhanced/mod.json -Raw | ConvertFrom-Json).version).swyfmod",
+            "CzechTTSFix-$((Get-Content src/CzechTTSFix/mod.json -Raw | ConvertFrom-Json).version).swyfmod",
+            "CzechTranslationFix-$((Get-Content src/CzechTranslationFix/mod.json -Raw | ConvertFrom-Json).version).swyfmod"
+          )
+          $actual = @(Get-ChildItem dist -Filter '*.swyfmod' -File)
+          if ($actual.Count -ne 3) { throw "Expected 3 public packages, found $($actual.Count)." }
+          foreach ($name in $expected) {
+            if (-not (Test-Path (Join-Path dist $name))) { throw "Missing package: $name" }
+            Write-Host "OK: $name"
+          }
+
+      - name: Save build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: swyf-mod-packages-${{ inputs.tag }}
+          path: dist/*.swyfmod
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Create or update GitHub release
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = $env:RELEASE_TAG.Trim()
+          if ([string]::IsNullOrWhiteSpace($tag)) { throw 'Release tag is empty.' }
+
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'swyf-release-workflow'
+          }
+          $repoApi = "$env:GITHUB_API_URL/repos/$env:GITHUB_REPOSITORY"
+          $prerelease = $env:PRERELEASE -eq 'true'
+
+          $speech = Get-Content src/SpeechEnhanced/mod.json -Raw | ConvertFrom-Json
+          $tts = Get-Content src/CzechTTSFix/mod.json -Raw | ConvertFrom-Json
+          $translation = Get-Content src/CzechTranslationFix/mod.json -Raw | ConvertFrom-Json
+          $title = "SWYF CZ/SK mody $tag"
+          $body = @(
+            '## Balíčky'
+            ''
+            "- **CzechSpeechEnhanced $($speech.version)** – lepší CZ/SK přepis řeči přes Parakeet"
+            "- **CzechTTSFix $($tts.version)** – oprava českého Pocket TTS"
+            "- **CzechTranslationFix $($translation.version)** – oprava české lokalizace"
+            ''
+            '## Instalace'
+            ''
+            'Stáhni požadovaný `.swyfmod` a nainstaluj ho přes SWYF Mod Hub.'
+            ''
+            '> CzechTranslationFix nepoužívej současně s modem **Lepší čeština**.'
+          ) -join "`n"
+
+          $encodedTag = [Uri]::EscapeDataString($tag)
+          $release = $null
+          try {
+            $release = Invoke-RestMethod -Method Get -Uri "$repoApi/releases/tags/$encodedTag" -Headers $headers
+            Write-Host "Release $tag already exists; replacing .swyfmod assets."
+          }
+          catch {
+            $status = 0
+            if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
+              $status = [int]$_.Exception.Response.StatusCode
+            }
+            if ($status -ne 404) { throw }
+
+            $payload = @{
+              tag_name = $tag
+              target_commitish = 'main'
+              name = $title
+              body = $body
+              draft = $false
+              prerelease = $prerelease
+              generate_release_notes = $true
+            } | ConvertTo-Json
+            $release = Invoke-RestMethod -Method Post -Uri "$repoApi/releases" -Headers $headers -ContentType 'application/json' -Body $payload
+            Write-Host "Created release $tag."
+          }
+
+          foreach ($asset in @($release.assets)) {
+            if ($asset.name -like '*.swyfmod') {
+              Write-Host "Deleting old asset $($asset.name)"
+              Invoke-RestMethod -Method Delete -Uri "$repoApi/releases/assets/$($asset.id)" -Headers $headers
+            }
+          }
+
+          $uploadUrl = $release.upload_url -replace '\{\?name,label\}$', ''
+          foreach ($file in Get-ChildItem dist -Filter '*.swyfmod' -File | Sort-Object Name) {
+            $name = $file.Name
+            $encodedName = [Uri]::EscapeDataString($name)
+            Write-Host "Uploading $name"
+            Invoke-RestMethod -Method Post -Uri "${uploadUrl}?name=$encodedName" -Headers $headers -ContentType 'application/octet-stream' -InFile $file.FullName | Out-Null
+          }
+
+          Write-Host "Release ready: $($release.html_url)"
