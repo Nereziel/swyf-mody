@@ -102,7 +102,13 @@ function Build-Translation {
     Build-Project $dir
     $pkg = Open-Package $dir
     try {
-        Add-File $pkg.Zip (Join-Path $dir 'translations.json') 'files/translations.json'
+        $overrides = Get-ChildItem -LiteralPath $dir -Filter 'overrides*.json' -File | Sort-Object Name
+        if (-not $overrides) { throw 'CzechTranslationFix neobsahuje žádné overrides*.json.' }
+        foreach ($file in $overrides) {
+            # Validate JSON during packaging so a malformed override cannot silently ship.
+            $null = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+            Add-File $pkg.Zip $file.FullName "files/$($file.Name)"
+        }
         Add-File $pkg.Zip (Join-Path $dir 'README.txt') 'files/README.txt'
     } finally { $pkg.Zip.Dispose() }
     Write-Output "Balíček: $($pkg.Path)"
