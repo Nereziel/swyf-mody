@@ -11,7 +11,7 @@ namespace CzechSpeechEnhanced
     {
         public const string PluginGuid = "nereziel.swyf.czechspeechenhanced";
         public const string PluginName = "CzechSpeechEnhanced";
-        public const string PluginVersion = "1.3.2";
+        public const string PluginVersion = "1.3.3";
         internal const string ModId = "CzechSpeechEnhanced";
         internal static ManualLogSource Log;
         internal static ConfigEntry<bool> Enabled;
