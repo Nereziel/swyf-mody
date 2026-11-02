@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace CzechTranslationFix
@@ -26,8 +27,17 @@ namespace CzechTranslationFix
         private static void ValidateReference(string path)
         {
             var input = (JArray)JToken.Parse(File.ReadAllText(path));
-            Check(input.Count == 3821, "Incomplete localization reference export.");
+            string directory = Path.GetDirectoryName(Path.GetFullPath(path));
+            string manifestPath = Path.Combine(directory, "manifest.json");
+            Check(File.Exists(manifestPath), "Localization reference manifest is missing.");
+            var manifest = (JObject)JToken.Parse(File.ReadAllText(manifestPath));
+            Check(manifest["total_keys"]?.Type == JTokenType.Integer, "Reference manifest has no total_keys.");
+            int expectedTotal = (int)manifest["total_keys"];
+            Check(input.Count == expectedTotal, "Incomplete localization reference export.");
 
+            var expectedTables = manifest["tables"] as JObject;
+            Check(expectedTables != null, "Reference manifest has no table statistics.");
+            var actualTableCounts = new Dictionary<string, int>(StringComparer.Ordinal);
             var keys = new HashSet<string>(StringComparer.Ordinal);
             foreach (JToken token in input)
             {
@@ -40,8 +50,20 @@ namespace CzechTranslationFix
                 Check(row["cs"] != null && (row["cs"].Type == JTokenType.String || row["cs"].Type == JTokenType.Null),
                     "Reference row has invalid Czech text.");
 
-                string id = (string)row["table"] + "\u001f" + (string)row["key"];
-                Check(keys.Add(id), "Duplicate reference table/key: " + (string)row["table"] + "/" + (string)row["key"]);
+                string table = (string)row["table"];
+                actualTableCounts[table] = actualTableCounts.TryGetValue(table, out int tableCount) ? tableCount + 1 : 1;
+                string id = table + "\u001f" + (string)row["key"];
+                Check(keys.Add(id), "Duplicate reference table/key: " + table + "/" + (string)row["key"]);
+            }
+
+            Check(actualTableCounts.Count == expectedTables.Properties().Count(), "Reference table count differs from manifest.");
+            foreach (JProperty tableProperty in expectedTables.Properties())
+            {
+                Check(tableProperty.Value["keys"]?.Type == JTokenType.Integer,
+                    "Reference manifest table has no key count: " + tableProperty.Name);
+                int expectedKeys = (int)tableProperty.Value["keys"];
+                Check(actualTableCounts.TryGetValue(tableProperty.Name, out int actualKeys) && actualKeys == expectedKeys,
+                    $"Reference table {tableProperty.Name} has {actualKeys} keys; manifest expects {expectedKeys}.");
             }
         }
 
@@ -147,13 +169,7 @@ namespace CzechTranslationFix
                     "[{\"table\":\"Menu\",\"id\":\"1\",\"key\":\"one\",\"en\":\"One\",\"cs\":\"Jedna\"}]");
                 File.WriteAllText(Path.Combine(referenceDir, "manifest.json"),
                     "{\"total_keys\":1,\"tables\":{\"Menu\":{\"keys\":1}}}");
-                bool manifestDriven = true;
-                try { ValidateReference(referencePath); }
-                catch (Exception ex) when (ex.Message == "Incomplete localization reference export.")
-                {
-                    manifestDriven = false;
-                }
-                Check(manifestDriven, "Reference validation ignores manifest total_keys.");
+                ValidateReference(referencePath);
             }
             finally
             {
