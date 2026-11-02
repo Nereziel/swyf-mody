@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'docs/**'
+      - 'gameversion.txt'
   workflow_dispatch:
 
 permissions:
@@ -33,10 +34,40 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
+      - name: Render verified game version
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = (Get-Content gameversion.txt -Raw).Trim()
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            throw 'gameversion.txt is empty.'
+          }
+
+          Remove-Item -LiteralPath _site -Recurse -Force -ErrorAction SilentlyContinue
+          Copy-Item -LiteralPath docs -Destination _site -Recurse
+          Copy-Item -LiteralPath gameversion.txt -Destination _site/gameversion.txt
+
+          $indexPath = '_site/index.html'
+          $html = Get-Content -LiteralPath $indexPath -Raw
+          $pattern = 'Ověřeno pro verzi hry <strong>[^<]+</strong>\.'
+          $replacement = "Ověřeno pro verzi hry <strong>$version</strong>."
+          $rendered = [regex]::Replace($html, $pattern, $replacement, 1)
+
+          if ($rendered -notmatch [regex]::Escape($replacement)) {
+            throw 'Game version marker was not rendered in docs/index.html.'
+          }
+
+          [IO.File]::WriteAllText(
+            $indexPath,
+            $rendered,
+            [Text.UTF8Encoding]::new($false)
+          )
+          Write-Host "Website verified game version: $version"
+
       - name: Upload website
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          path: docs
+          path: _site
 
       - name: Deploy website
         id: deployment
