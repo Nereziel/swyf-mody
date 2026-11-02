@@ -65,31 +65,29 @@ Přímo přes PowerShell:
 
 ### GitHub Actions
 
-Workflow **Build mods on self-hosted runner** se spouští pouze ručně přes `Actions → Run workflow`. Na self-hosted runneru sestaví všechny tři veřejné mody s oprávněním pouze pro čtení repozitáře a uloží `.swyfmod` jako workflow artifact.
+Workflow **Build mods on self-hosted runner** se spouští pouze ručně přes `Actions → Run workflow`. Na self-hosted runneru otestuje překladové podklady, sestaví všechny tři veřejné mody s oprávněním pouze pro čtení repozitáře a uloží `.swyfmod` jako workflow artifact.
 
 Workflow **Build and release mods** se také spouští pouze ručně. Build proběhne na self-hosted runneru bez zapisovacích práv k repozitáři; samotné vytvoření GitHub Release a upload balíčků pak proběhne na GitHub-hosted runneru. Pro novější build použij nový release tag.
 
 Jeden společný release je záměr: stránka `releases/latest` tak obsahuje všechny aktuální veřejné mody na jednom místě, i když mají každý vlastní verzi.
 
-Lokální alternativa přes GitHub CLI zůstává dostupná přes `release.cmd`.
-
 ### CzechTranslationFix
 
-Runtime překlady jsou v `src/CzechTranslationFix/overrides*.json`. Velký `translations.json` je pouze referenční export a za běhu se nenačítá.
+Runtime překlady jsou v `src/CzechTranslationFix/overrides*.json`. Kanonický referenční export původní anglické a české lokalizace je v `localization/original/en-cs.json`; za běhu se nenačítá a do `.swyfmod` se nepřibaluje.
 
 Podrobnosti jsou v [návodu k CzechTranslationFix](src/CzechTranslationFix/README.txt).
 
 Test parseru, referenčního exportu a všech runtime override souborů:
 
 ```powershell
-dotnet run --project tests/CzechTranslationFix -- src/CzechTranslationFix/translations.json
+dotnet run --project tests/CzechTranslationFix -- localization/original/en-cs.json src/CzechTranslationFix
 ```
 
-Test také odmítne duplicitní kombinace `table/key` napříč různými `overrides*.json`.
+Test také odmítne duplicitní kombinace `table/key` napříč různými `overrides*.json` a ověří, že každý runtime override odpovídá existujícímu klíči v referenčním exportu.
 
 ### PrivacyTelemetry
 
-Experimentální `PrivacyTelemetry` není součástí běžného buildu `All` ani veřejného release. Ruční build:
+Experimentální `PrivacyTelemetry` zůstává v repozitáři, ale není součástí běžného buildu `All` ani veřejného release. Ruční build:
 
 ```powershell
 .\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod Privacy
