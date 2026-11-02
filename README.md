@@ -2,6 +2,8 @@
 
 Jednoduché mody pro **Scam With Your Friends**, které zlepšují hraní v češtině a slovenštině.
 
+**Ověřeno pro verzi hry:** `0.1.95-swyf`
+
 Pokud ti hra špatně rozumí, české hlasy čtou text divně nebo jsou v menu chybné překlady, vyber si jen mod, který řeší právě tvůj problém. **Nemusíš instalovat všechny tři.**
 
 **Web projektu:** https://nereziel.github.io/swyf-mody/
