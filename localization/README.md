@@ -2,7 +2,7 @@
 
 Export z lokální instalace hry ze dne 2026-11-01. Texty nejsou opravené ani normalizované.
 
-Kanonický zdroj je `original/en-cs.json`. Obsahuje anglický a český text vedle sebe spolu s tabulkou, klíčem a číselným ID. `original/manifest.json` uchovává zdrojové soubory, SHA-256 a počty položek.
+Kanonický zdroj je `original/en-cs.json`. Obsahuje anglický a český text vedle sebe spolu s tabulkou, klíčem a číselným ID. `original/manifest.json` uchovává relativní cesty ke zdrojovým souborům, SHA-256 a počty položek.
 
 | Tabulka | Anglické položky | České položky | Chybějící české položky |
 |---|---:|---:|---:|
@@ -20,9 +20,10 @@ Herní soubory se při exportu nemění. Texty pocházejí ze hry a nejsou autor
 
 ## Opakování exportu
 
-Python s balíčkem `UnityPy==1.25.4`:
+Nainstaluj přesně připnutou verzi UnityPy a spusť export:
 
 ```powershell
+python -m pip install -r tools/requirements.txt
 python tools/extract-localization.py 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' localization/original
 ```
 

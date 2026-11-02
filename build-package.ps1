@@ -9,7 +9,16 @@ if ([string]::IsNullOrWhiteSpace($root)) {
     $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 if ([string]::IsNullOrWhiteSpace($CacheDir)) {
-    $CacheDir = Join-Path $root '.cache'
+    if (-not [string]::IsNullOrWhiteSpace($env:XDG_CACHE_HOME)) {
+        $cacheBase = $env:XDG_CACHE_HOME
+    } elseif (-not [string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) {
+        $cacheBase = $env:LOCALAPPDATA
+    } elseif (-not [string]::IsNullOrWhiteSpace($env:HOME)) {
+        $cacheBase = Join-Path $env:HOME '.cache'
+    } else {
+        $cacheBase = Join-Path $root '.cache'
+    }
+    $CacheDir = Join-Path $cacheBase 'swyf-mody'
 }
 $game = (Resolve-Path -LiteralPath $GameDir).Path
 $managed = Join-Path $game 'Scam With Your Friends_Data\Managed'
@@ -114,10 +123,13 @@ function Build-Translation {
 
 switch ($Mod) {
     'All' {
-        # Public/user-facing packages only. PrivacyTelemetry stays available as an advanced explicit build.
         Build-Speech
         Build-Simple 'src\CzechTTSFix'
         Build-Translation
+        # Keep the experimental mod compiling so game updates cannot silently rot it,
+        # but do not create a fourth public package.
+        Build-Project (Join-Path $root 'src\PrivacyTelemetry')
+        Write-Output 'Ověřeno sestavení: PrivacyTelemetry (bez veřejného balíčku)'
     }
     'Speech' { Build-Speech }
     'TTS' { Build-Simple 'src\CzechTTSFix' }

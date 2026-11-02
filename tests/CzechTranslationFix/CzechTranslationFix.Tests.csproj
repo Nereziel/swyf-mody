@@ -2,7 +2,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <GameDir Condition="'$(GameDir)' == ''">D:\Hry\Steam\steamapps\common\Scam With Your Friends</GameDir>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../src/CzechTranslationFix/TranslationFile.cs" Link="TranslationFile.cs" />
