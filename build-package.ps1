@@ -56,8 +56,6 @@ function Open-Package([string]$projectDir) {
     Add-File $zip $manifestPath 'mod.json'
     $bin = Join-Path $projectDir 'bin\Release'
     Add-File $zip (Join-Path $bin $manifest.dll) "files/$($manifest.dll)"
-    $pdb = [IO.Path]::ChangeExtension((Join-Path $bin $manifest.dll), '.pdb')
-    if (Test-Path -LiteralPath $pdb) { Add-File $zip $pdb "files/$([IO.Path]::GetFileName($pdb))" }
     return @{ Zip = $zip; Path = $out; Manifest = $manifest }
 }
 
