@@ -12,7 +12,8 @@ jako plugin. Všechny tyto soubory se při startu načítají společně.
 
 Kanonický referenční export původní anglické a české lokalizace je v repozitáři
 v localization/original/en-cs.json. Slouží pouze pro kontrolu dalších aktualizací
-hry, za běhu se nenačítá a do .swyfmod se nepřibaluje.
+hry, za běhu se nenačítá a do .swyfmod se nepřibaluje. Může být starší než
+některé novější runtime override klíče.
 
 Každá aktivní položka obsahuje:
   table   název lokalizační tabulky
@@ -25,8 +26,8 @@ zapíše do BepInEx/LogOutput.log.
 
 Pokud dva override soubory obsahují stejnou kombinaci table/key, mod překlady
 při startu raději vypne a chybu zapíše do logu. CI stejnou duplicitu kontroluje
-ještě před sestavením veřejného balíčku a ověřuje, že override klíče existují
-v referenčním exportu.
+ještě před sestavením veřejného balíčku. Referenční export se kontroluje
+samostatně, ale nevynucuje se úplná shoda jeho klíčů s runtime override soubory.
 
 Mod mění pouze české StringTable. Neopravuje texty v obrázcích, pevně zapsané
 texty mimo lokalizační tabulky ani generované dialogy NPC.
