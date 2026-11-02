@@ -2,7 +2,7 @@
 
 Jednoduché mody pro **Scam With Your Friends**, které zlepšují hraní v češtině a slovenštině.
 
-**Ověřeno pro verzi hry:** `0.1.95-swyf`
+**Poslední ověřená verze hry:** viz [`gameversion.txt`](gameversion.txt).
 
 Pokud ti hra špatně rozumí, české hlasy čtou text divně nebo jsou v menu chybné překlady, vyber si jen mod, který řeší právě tvůj problém. **Nemusíš instalovat všechny tři.**
 
@@ -72,6 +72,8 @@ Přímo přes PowerShell:
 Workflow **Build mods on self-hosted runner** se spouští pouze ručně přes `Actions → Run workflow`. Na self-hosted runneru spustí testy Speech i TranslationFix, sestaví tři veřejné mody, ověří také kompilaci PrivacyTelemetry a uloží pouze tři veřejné `.swyfmod` jako workflow artifact.
 
 Workflow **Build and release mods** se také spouští pouze ručně. Build proběhne na self-hosted runneru bez zapisovacích práv k repozitáři; samotné vytvoření GitHub Release a upload balíčků pak proběhne na GitHub-hosted runneru. Pro novější build použij nový release tag.
+
+Soubor [`gameversion.txt`](gameversion.txt) je jediný zdroj pro poslední ověřenou verzi hry. Jeho změna automaticky spustí Pages deploy a stejnou hodnotu převezme i příští ručně spuštěný release.
 
 Jeden společný release je záměr: stránka `releases/latest` tak obsahuje všechny aktuální veřejné mody na jednom místě, i když mají každý vlastní verzi.
 
