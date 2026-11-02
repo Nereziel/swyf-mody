@@ -25,3 +25,7 @@ jobs:
       - name: Test package hardening
         shell: pwsh
         run: ./tests/Hardening/Test-Packages.ps1
+
+      - name: Test Pages metadata rendering
+        shell: pwsh
+        run: ./tests/Hardening/Test-Pages.ps1
