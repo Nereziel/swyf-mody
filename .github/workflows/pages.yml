@@ -49,12 +49,13 @@ jobs:
 
           $indexPath = '_site/index.html'
           $html = Get-Content -LiteralPath $indexPath -Raw
-          $pattern = 'Ověřeno pro verzi hry <strong>[^<]+</strong>\.'
-          $replacement = "Ověřeno pro verzi hry <strong>$version</strong>."
-          $rendered = [regex]::Replace($html, $pattern, $replacement, 1)
+          if (-not $html.Contains('__GAME_VERSION__')) {
+            throw 'Game version placeholder is missing from docs/index.html.'
+          }
 
-          if ($rendered -notmatch [regex]::Escape($replacement)) {
-            throw 'Game version marker was not rendered in docs/index.html.'
+          $rendered = $html.Replace('__GAME_VERSION__', $version)
+          if ($rendered.Contains('__GAME_VERSION__')) {
+            throw 'Game version placeholder was not fully rendered.'
           }
 
           [IO.File]::WriteAllText(
