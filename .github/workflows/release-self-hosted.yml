@@ -35,6 +35,11 @@ jobs:
       contents: write
 
     steps:
+      - name: Checkout release scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
       - name: Download verified packages
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -98,24 +103,6 @@ jobs:
             Write-Host "Tag $tag matches build commit $env:BUILD_SHA."
           }
 
-          $title = "SWYF CZ/SK mody $tag"
-          $managedEnd = '> Tyto mody nejsou kompatibilní s modem **Lepší čeština**. Nepoužívej je současně.'
-          $body = @(
-            "**Poslední ověřená verze hry:** ``$env:GAME_VERSION``"
-            ''
-            '## Balíčky'
-            ''
-            "- **CzechSpeechEnhanced $env:SPEECH_VERSION** – lepší CZ/SK přepis řeči přes Parakeet"
-            "- **CzechTTSFix $env:TTS_VERSION** – oprava českého Pocket TTS"
-            "- **CzechTranslationFix $env:TRANSLATION_VERSION** – oprava české lokalizace"
-            ''
-            '## Instalace'
-            ''
-            'Stáhni požadovaný `.swyfmod` a nainstaluj ho přes SWYF Mod Hub.'
-            ''
-            $managedEnd
-          ) -join "`n"
-
           $release = $null
           $existingRelease = $false
           try {
@@ -126,26 +113,17 @@ jobs:
             if ((Get-StatusCode $_) -ne 404) { throw }
           }
 
+          $existingBody = if ($existingRelease) { [string]$release.body } else { '' }
+          $body = ./tools/format-release-body.ps1 `
+            -GameVersion $env:GAME_VERSION `
+            -SpeechVersion $env:SPEECH_VERSION `
+            -TtsVersion $env:TTS_VERSION `
+            -TranslationVersion $env:TRANSLATION_VERSION `
+            -ExistingBody $existingBody
+          $title = "SWYF CZ/SK mody $tag"
+
           if ($existingRelease) {
             if (-not $tagRef) { throw "Release $tag exists, but its Git tag could not be resolved." }
-
-            if (-not [string]::IsNullOrWhiteSpace([string]$release.body)) {
-              $existingLines = @([string]$release.body -split "`r?`n")
-              $managedEndIndex = -1
-              for ($i = 0; $i -lt $existingLines.Count; $i++) {
-                if ($existingLines[$i] -eq $managedEnd) {
-                  $managedEndIndex = $i
-                  break
-                }
-              }
-              if ($managedEndIndex -ge 0 -and ($managedEndIndex + 1) -lt $existingLines.Count) {
-                $suffix = ($existingLines[($managedEndIndex + 1)..($existingLines.Count - 1)] -join "`n").Trim()
-                if (-not [string]::IsNullOrWhiteSpace($suffix)) {
-                  $body = "$body`n`n$suffix"
-                }
-              }
-            }
-
             $updatePayload = @{
               name = $title
               body = $body
