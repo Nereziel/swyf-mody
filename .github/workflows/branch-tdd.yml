@@ -9,9 +9,9 @@ permissions:
   contents: read
 
 jobs:
-  speech-test:
+  tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - name: Checkout branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -19,3 +19,5 @@ jobs:
           persist-credentials: false
       - name: Run speech audio test
         run: dotnet run --project tests/SpeechEnhanced/SpeechEnhanced.Tests.csproj
+      - name: Run translation checks
+        run: dotnet run --project tests/CzechTranslationFix -- localization/original/en-cs.json src/CzechTranslationFix
