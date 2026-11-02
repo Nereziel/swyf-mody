@@ -23,7 +23,31 @@ namespace CzechTranslationFix
             Check(rejected, "Invalid input accepted: " + json);
         }
 
-        private static int ValidateOverrides(string directory)
+        private static HashSet<string> LoadReference(string path)
+        {
+            var input = (JArray)JToken.Parse(File.ReadAllText(path));
+            Check(input.Count == 3821, "Incomplete localization reference export.");
+
+            var keys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (JToken token in input)
+            {
+                Check(token is JObject, "Reference export contains a non-object row.");
+                var row = (JObject)token;
+                Check(row["table"]?.Type == JTokenType.String, "Reference row has no table.");
+                Check(row["id"]?.Type == JTokenType.String, "Reference row has no string ID.");
+                Check(row["key"]?.Type == JTokenType.String, "Reference row has no key.");
+                Check(row["en"]?.Type == JTokenType.String, "Reference row has no English text.");
+                Check(row["cs"] != null && (row["cs"].Type == JTokenType.String || row["cs"].Type == JTokenType.Null),
+                    "Reference row has invalid Czech text.");
+
+                string id = (string)row["table"] + "\u001f" + (string)row["key"];
+                Check(keys.Add(id), "Duplicate reference table/key: " + (string)row["table"] + "/" + (string)row["key"]);
+            }
+
+            return keys;
+        }
+
+        private static int ValidateOverrides(string directory, HashSet<string> referenceKeys = null)
         {
             string[] files = Directory.GetFiles(directory, "overrides*.json", SearchOption.TopDirectoryOnly);
             Array.Sort(files, StringComparer.OrdinalIgnoreCase);
@@ -41,6 +65,9 @@ namespace CzechTranslationFix
                         string id = tablePair.Key + "\u001f" + entryPair.Key;
                         Check(seen.Add(id),
                             $"Duplicate runtime override across files: {tablePair.Key}/{entryPair.Key} ({Path.GetFileName(file)})." );
+                        if (referenceKeys != null)
+                            Check(referenceKeys.Contains(id),
+                                $"Runtime override is missing from reference export: {tablePair.Key}/{entryPair.Key} ({Path.GetFileName(file)})." );
                         count++;
                     }
                 }
@@ -52,7 +79,8 @@ namespace CzechTranslationFix
 
         private static void Main(string[] args)
         {
-            if (args.Length != 1) throw new ArgumentException("Expected path to translations.json.");
+            if (args.Length != 2)
+                throw new ArgumentException("Expected path to localization/original/en-cs.json and CzechTranslationFix directory.");
 
             string root = Path.Combine(Path.GetTempPath(), "swyf-path-test");
             string fallback = Path.Combine(root, "Mods", "CzechTranslationFix");
@@ -62,9 +90,6 @@ namespace CzechTranslationFix
             string normal = Path.Combine(root, "BepInEx", "plugins", "translation");
             Check(TranslationPaths.ResolveDirectory(Path.Combine(normal, "CzechTranslationFix.dll"), root) == normal,
                 "Normal plugin path changed.");
-
-            var template = TranslationFile.Read(args[0]);
-            Check(template.Count == 0, "Shipped template must not change any translation.");
 
             var data = TranslationFile.Parse((JArray)JToken.Parse("""
                 [
@@ -82,14 +107,6 @@ namespace CzechTranslationFix
             Reject("[{\"table\":\"Menu\",\"key\":\"a\",\"cs\":\"x\"}]");
             Reject("[{\"table\":\"\",\"key\":\"a\",\"text\":\"x\"}]");
             Reject("[null]");
-
-            var input = (JArray)JToken.Parse(File.ReadAllText(args[0]));
-            Check(input.Count == 3821, "Incomplete template.");
-            foreach (JObject row in input)
-            {
-                Check(row["text"].Type == JTokenType.Null && row["original_en"].Type == JTokenType.String,
-                    "Template lost original English or has a prefilled translation.");
-            }
 
             string temp = Path.Combine(AppContext.BaseDirectory, "invalid.json");
             foreach (string invalid in new[] {
@@ -126,9 +143,9 @@ namespace CzechTranslationFix
                 Directory.Delete(duplicateDir, true);
             }
 
-            string overrideDirectory = Path.GetDirectoryName(Path.GetFullPath(args[0]));
-            int runtimeOverrides = ValidateOverrides(overrideDirectory);
-            Console.WriteLine($"PASS: {_checks} parser/template/runtime-override checks. Runtime overrides: {runtimeOverrides}. No gameplay exercised.");
+            var referenceKeys = LoadReference(args[0]);
+            int runtimeOverrides = ValidateOverrides(args[1], referenceKeys);
+            Console.WriteLine($"PASS: {_checks} parser/reference/runtime-override checks. Runtime overrides: {runtimeOverrides}. No gameplay exercised.");
         }
     }
 }
