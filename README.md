@@ -14,7 +14,7 @@ Tři neoficiální mody pro **Scam With Your Friends** zaměřené na češtinu 
 
 **Parakeet** je model pro převod mluvené řeči na text. Hra standardně používá Whisper; `CzechSpeechEnhanced` použije místo něj Parakeet TDT v3 nebo Parakeet Ultra.
 
-> **Pozor:** `CzechTranslationFix` nepoužívej současně s modem **Lepší čeština**. Oba mody upravují českou lokalizaci.
+> **Pozor:** tyto mody nejsou kompatibilní s modem **Lepší čeština**. Nepoužívej je současně.
 
 ## Instalace
 
@@ -49,7 +49,7 @@ Translation
 ```text
 CzechSpeechEnhanced-1.3.1.swyfmod
 CzechTTSFix-1.0.0.swyfmod
-CzechTranslationFix-1.0.2.swyfmod
+CzechTranslationFix-1.0.3.swyfmod
 ```
 
 Přímo přes PowerShell:
@@ -60,13 +60,13 @@ Přímo přes PowerShell:
 
 ## GitHub Actions
 
-Workflow **Build mods on self-hosted runner** se spouští pouze ručně přes `Actions → Run workflow`. Na self-hosted runneru sestaví všechny tři veřejné mody a uloží `.swyfmod` jako workflow artifact.
+Workflow **Build mods on self-hosted runner** se spouští pouze ručně přes `Actions → Run workflow`. Na self-hosted runneru sestaví všechny tři veřejné mody s oprávněním pouze pro čtení repozitáře a uloží `.swyfmod` jako workflow artifact.
 
-Workflow **Build and release mods** se také spouští pouze ručně. Zadáš společný tag releasu, například `v2026.11.01`, workflow sestaví všechny tři mody a vytvoří nebo aktualizuje jeden společný GitHub Release se třemi `.swyfmod` soubory. Verze jednotlivých modů se berou přímo z jejich `mod.json`.
+Workflow **Build and release mods** se také spouští pouze ručně. Build proběhne na self-hosted runneru bez zapisovacích práv k repozitáři; samotné vytvoření GitHub Release a upload balíčků pak proběhne na GitHub-hosted runneru. Zadáš společný tag releasu, například `v2026.11.02`.
 
-Jeden společný release je záměr: stránka `releases/latest` tak vždy obsahuje všechny aktuální veřejné mody na jednom místě, i když mají každý vlastní verzi.
+Jeden společný release je záměr: stránka `releases/latest` tak vždy obsahuje všechny aktuální veřejné mody na jednom místě, i když mají každý vlastní verzi. Existující tag lze znovu použít pouze pro stejný commit; pro novější build použij nový tag.
 
-Lokální alternativa přes GitHub CLI zůstává dostupná přes `release.cmd`.
+Lokální alternativa přes GitHub CLI zůstává dostupná přes `release.cmd` a používá stejné pravidlo pro existující tag.
 
 ## CzechTranslationFix
 
@@ -74,11 +74,13 @@ Runtime překlady jsou rozdělené do `src/CzechTranslationFix/overrides*.json`.
 
 Podrobnosti jsou v [návodu k CzechTranslationFix](src/CzechTranslationFix/README.txt).
 
-Test referenčního exportu a parseru:
+Test referenčního exportu, parseru a všech runtime override souborů:
 
 ```powershell
 dotnet run --project tests/CzechTranslationFix -- src/CzechTranslationFix/translations.json
 ```
+
+Test mimo jiné odmítne duplicitní kombinaci `table/key` napříč různými `overrides*.json`.
 
 ## Pokročilé
 
