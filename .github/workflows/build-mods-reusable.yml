@@ -95,6 +95,8 @@ jobs:
           $ErrorActionPreference = 'Stop'
           ./tests/Hardening/Test-Metadata.ps1
           ./tests/Hardening/Test-Packages.ps1
+          ./tests/Hardening/Test-ReleaseBody.ps1
+          ./tests/Hardening/Test-Pages.ps1
 
       - name: Test CzechSpeechEnhanced audio processing
         shell: pwsh
