@@ -17,7 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Plugin.cs" />
-    <Compile Include="..\PrivacyPatches.cs" Link="PrivacyPatches.cs" />
+    <Compile Include="PrivacyPatches.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json" HintPath="$(ManagedDir)\Newtonsoft.Json.dll" Private="false" />
