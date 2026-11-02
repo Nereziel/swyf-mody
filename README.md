@@ -52,7 +52,7 @@ Translation
 `All` vytvoří v `dist/` všechny tři veřejné balíčky:
 
 ```text
-CzechSpeechEnhanced-1.3.1.swyfmod
+CzechSpeechEnhanced-1.3.2.swyfmod
 CzechTTSFix-1.0.0.swyfmod
 CzechTranslationFix-1.0.3.swyfmod
 ```
