@@ -29,6 +29,7 @@ jobs:
       speech_version: ${{ steps.metadata.outputs.speech_version }}
       tts_version: ${{ steps.metadata.outputs.tts_version }}
       translation_version: ${{ steps.metadata.outputs.translation_version }}
+      game_version: ${{ steps.metadata.outputs.game_version }}
 
     steps:
       - name: Checkout requested commit
@@ -44,10 +45,13 @@ jobs:
           $speech = (Get-Content src/SpeechEnhanced/mod.json -Raw | ConvertFrom-Json).version
           $tts = (Get-Content src/CzechTTSFix/mod.json -Raw | ConvertFrom-Json).version
           $translation = (Get-Content src/CzechTranslationFix/mod.json -Raw | ConvertFrom-Json).version
+          $gameVersion = (Get-Content gameversion.txt -Raw).Trim()
+          if ([string]::IsNullOrWhiteSpace($gameVersion)) { throw 'gameversion.txt is empty.' }
           "commit_sha=$sha" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           "speech_version=$speech" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           "tts_version=$tts" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           "translation_version=$translation" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "game_version=$gameVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Verify mounted game libraries
         shell: bash
@@ -129,10 +133,12 @@ jobs:
           SPEECH_VERSION: ${{ needs.build.outputs.speech_version }}
           TTS_VERSION: ${{ needs.build.outputs.tts_version }}
           TRANSLATION_VERSION: ${{ needs.build.outputs.translation_version }}
+          GAME_VERSION: ${{ needs.build.outputs.game_version }}
         run: |
           $ErrorActionPreference = 'Stop'
           $tag = $env:RELEASE_TAG.Trim()
           if ([string]::IsNullOrWhiteSpace($tag)) { throw 'Release tag is empty.' }
+          if ([string]::IsNullOrWhiteSpace($env:GAME_VERSION)) { throw 'Game version is empty.' }
 
           function Get-StatusCode($record) {
             if ($record.Exception.Response -and $record.Exception.Response.StatusCode) {
@@ -176,7 +182,7 @@ jobs:
 
           $title = "SWYF CZ/SK mody $tag"
           $body = @(
-            '**Ověřeno pro verzi hry:** `0.1.95-swyf`'
+            "**Ověřeno pro verzi hry:** ``$env:GAME_VERSION``"
             ''
             '## Balíčky'
             ''
