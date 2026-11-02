@@ -40,6 +40,7 @@ mkdir "%OUT_BEPINEX%" >nul 2>nul
 call :copydll "%MANAGED%" "%OUT_MANAGED%" "ScriptsAssDef.dll"
 call :copydll "%MANAGED%" "%OUT_MANAGED%" "UnityEngine.dll"
 call :copydll "%MANAGED%" "%OUT_MANAGED%" "UnityEngine.CoreModule.dll"
+call :copydll "%MANAGED%" "%OUT_MANAGED%" "UnityEngine.UIElementsModule.dll"
 call :copydll "%MANAGED%" "%OUT_MANAGED%" "Newtonsoft.Json.dll"
 call :copydll "%MANAGED%" "%OUT_MANAGED%" "MetaVoiceChat.Core.dll"
 call :copydll "%MANAGED%" "%OUT_MANAGED%" "Kolkata.Speech.dll"
