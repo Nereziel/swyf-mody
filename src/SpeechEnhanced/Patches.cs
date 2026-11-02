@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Whisper;
@@ -50,6 +51,9 @@ namespace CzechSpeechEnhanced
     [HarmonyPatch(typeof(WhisperVcPipeline), "OnEnable")]
     internal static class WhisperVcPipeline_OnEnable_Patch
     {
+        private sealed class OriginalSettings { internal float Threshold, EndSilence; }
+        private static readonly ConditionalWeakTable<WhisperVcPipeline, OriginalSettings> Originals =
+            new ConditionalWeakTable<WhisperVcPipeline, OriginalSettings>();
         private static readonly AccessTools.FieldRef<WhisperVcPipeline, float> Threshold =
             AccessTools.FieldRefAccess<WhisperVcPipeline, float>("speechRmsThreshold");
         private static readonly AccessTools.FieldRef<WhisperVcPipeline, float> EndSilence =
@@ -57,16 +61,29 @@ namespace CzechSpeechEnhanced
 
         private static void Postfix(WhisperVcPipeline __instance)
         {
-            EndSilence(__instance) = Plugin.EndSilenceSeconds.Value;
-            if (Plugin.SpeechThreshold.Value > 0f)
-                Threshold(__instance) = Plugin.SpeechThreshold.Value;
+            Apply(__instance);
         }
+
+        internal static void Apply(WhisperVcPipeline pipeline)
+        {
+            var original = Originals.GetValue(pipeline, p => new OriginalSettings
+                { Threshold = Threshold(p), EndSilence = EndSilence(p) });
+            bool selected = ParakeetBridge.Available;
+            EndSilence(pipeline) = selected ? Plugin.EndSilenceSeconds.Value : original.EndSilence;
+            Threshold(pipeline) = selected && Plugin.SpeechThreshold.Value > 0f ? Plugin.SpeechThreshold.Value : original.Threshold;
+        }
+    }
+
+    [HarmonyPatch(typeof(WhisperVcPipeline), "ApplyRecognitionPreference")]
+    internal static class WhisperVcPipeline_Preference_Patch
+    {
+        private static void Postfix(WhisperVcPipeline __instance) => WhisperVcPipeline_OnEnable_Patch.Apply(__instance);
     }
 
     [HarmonyPatch(typeof(WhisperVcPipeline), "QueueInference")]
     internal static class WhisperVcPipeline_QueueInference_Patch
     {
-        private static bool Prefix(bool isFinal) => isFinal || Plugin.LivePreview.Value != "off";
+        private static bool Prefix(bool isFinal) => !ParakeetBridge.Available || isFinal || Plugin.LivePreview.Value != "off";
     }
 
     [HarmonyPatch(typeof(WhisperVcPipeline), "NormalizeTranscript")]

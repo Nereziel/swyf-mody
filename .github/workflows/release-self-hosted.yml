@@ -62,6 +62,12 @@ jobs:
           dotnet run --project tests/SpeechEnhanced/SpeechEnhanced.Tests.csproj
           if ($LASTEXITCODE -ne 0) { throw "CzechSpeechEnhanced tests failed." }
 
+      - name: Test Parakeet selection and switching
+        shell: pwsh
+        run: |
+          dotnet run --project tests/SpeechMenu
+          if ($LASTEXITCODE -ne 0) { throw "Parakeet menu tests failed." }
+
       - name: Test CzechTranslationFix parser
         shell: pwsh
         run: |

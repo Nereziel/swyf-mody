@@ -14,7 +14,7 @@ namespace CzechSpeechEnhanced
                 Plugin.Enabled = config.Bind("General", "Enabled", true,
                     "Zapnout přepis mikrofonu pomocí Parakeetu. Po změně restartuj hru.");
                 Plugin.SpeechEngine = config.Bind("Recognition", "Engine", "parakeet",
-                    "Model přepisu: parakeet = Parakeet TDT v3, ultra = Parakeet Ultra. Model stáhni přes Mod Hub. Po změně restartuj hru.");
+                    "Poslední zvolený Parakeet a preference prvního spuštění: parakeet nebo ultra. Model přepínej za běhu v herním nastavení rozpoznávání řeči; stáhni přes Mod Hub.");
                 Plugin.SpeechEngine.Value = (Plugin.SpeechEngine.Value ?? "").Trim().ToLowerInvariant();
                 if (Plugin.SpeechEngine.Value != "parakeet" && Plugin.SpeechEngine.Value != "ultra")
                     Plugin.SpeechEngine.Value = "parakeet";

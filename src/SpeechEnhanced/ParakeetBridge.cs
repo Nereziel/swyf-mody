@@ -16,96 +16,91 @@ namespace CzechSpeechEnhanced
     internal static class ParakeetBridge
     {
         [ThreadStatic] internal static bool Bypass;
-        private static readonly SemaphoreSlim Gate = new SemaphoreSlim(1, 1);
+        private static readonly SerialWork Work = new SerialWork();
         private static readonly HttpClient Client = new HttpClient(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(60) };
         private static Process process;
         private static string endpoint;
-        private static bool disabled;
-        private static bool forceCpu;
+        private static volatile string disabledEngine;
+        private static string processKey;
+        private static string cpuEngine;
+        private static volatile bool stopping;
 
         private static string Folder => Path.Combine(BepInEx.Paths.GameRootPath, "Mods", Plugin.ModId, "Parakeet");
         private static string Exe => Path.Combine(Folder, "bin", "nemo-speech.exe");
         private static string Device => (Plugin.ComputeDevice.Value ?? "auto").Trim().ToLowerInvariant();
 
-        private static string Engine
+        internal static bool Available
         {
             get
             {
-                string engine = (Plugin.SpeechEngine.Value ?? "parakeet").Trim().ToLowerInvariant();
-                if (engine == "parakeet" || engine == "ultra") return engine;
-
-                Plugin.Log.LogWarning("Unsupported speech engine '" + engine + "'; switching to Parakeet.");
-                Plugin.SpeechEngine.Value = "parakeet";
-                return "parakeet";
+                string engine = SpeechMenu.SelectedEngine;
+                return !stopping && engine != null && disabledEngine != engine && SpeechMenu.Installed(engine);
             }
         }
-
-        private static string Model => Path.Combine(Folder, Engine == "ultra" ? "parakeet-ultra.q8.gguf" : "parakeet.q8.gguf");
-
-        internal static bool Available => !disabled && File.Exists(Exe) && File.Exists(Model);
 
         internal static async Task<WhisperResult> Transcribe(float[] samples, int frequency, int channels, Func<Task<WhisperResult>> fallbackCall)
         {
-            try
+            // Snapshot before awaiting: queued requests retain the model they were issued for.
+            string engine = SpeechMenu.SelectedEngine;
+            WhisperResult result = await Work.Run(async () =>
             {
-                await Gate.WaitAsync().ConfigureAwait(false);
-                try
+                if (stopping || engine == null || disabledEngine == engine) return null;
+                for (int attempt = 0; attempt < 2; attempt++)
                 {
-                    await EnsureServer().ConfigureAwait(false);
-                    using (var form = new MultipartFormDataContent())
+                    if (stopping) return null;
+                    bool cpu = Device == "cpu" || cpuEngine == engine || attempt == 1;
+                    try
                     {
-                        var audio = new ByteArrayContent(Wav(samples, frequency, channels));
-                        audio.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("audio/wav");
-                        form.Add(audio, "file", "speech.wav");
-
-                        using (var response = await Client.PostAsync(endpoint + "/v1/audio/transcriptions", form).ConfigureAwait(false))
+                        await EnsureServer(engine, cpu).ConfigureAwait(false);
+                        using (var form = new MultipartFormDataContent())
                         {
-                            string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            response.EnsureSuccessStatusCode();
-                            var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                            if (data == null || !data.TryGetValue("text", out string text) || text == null)
-                                throw new Exception("Missing text in ASR response");
-
-                            Plugin.Log.LogInfo(Engine + " completed transcription.");
-                            return new WhisperResult(new List<WhisperSegment> { new WhisperSegment(0, text, 0, 0) }, 0);
+                            var audio = new ByteArrayContent(Wav(samples, frequency, channels));
+                            audio.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("audio/wav");
+                            form.Add(audio, "file", "speech.wav");
+                            using (var response = await Client.PostAsync(endpoint + "/v1/audio/transcriptions", form).ConfigureAwait(false))
+                            {
+                                string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                response.EnsureSuccessStatusCode();
+                                var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+                                if (data == null || !data.TryGetValue("text", out string text) || text == null)
+                                    throw new Exception("Missing text in ASR response");
+                                Plugin.Log.LogInfo(engine + " completed transcription.");
+                                return new WhisperResult(new List<WhisperSegment> { new WhisperSegment(0, text, 0, 0) }, 0);
+                            }
                         }
                     }
+                    catch (Exception e)
+                    {
+                        StopCore();
+                        if (stopping) return null;
+                        if (!cpu)
+                        {
+                            cpuEngine = engine;
+                            Plugin.Log.LogWarning(engine + " failed on selected device; retrying on CPU: " + e.Message);
+                            continue;
+                        }
+                        disabledEngine = engine;
+                        Plugin.Log.LogError(engine + " failed; using native Whisper for this request. Reselect Parakeet to retry: " + e.Message);
+                        break;
+                    }
                 }
-                finally
-                {
-                    Gate.Release();
-                }
-            }
-            catch (Exception e)
-            {
-                if (!forceCpu && Device != "cpu")
-                {
-                    forceCpu = true;
-                    Stop();
-                    Plugin.Log.LogWarning(Engine + " failed on the selected device; retrying on CPU: " + e.Message);
-                    return await Transcribe(samples, frequency, channels, fallbackCall).ConfigureAwait(false);
-                }
-
-                disabled = true;
-                Stop();
-                Plugin.Log.LogError(Engine + " failed, switching to the game's Whisper: " + e.Message);
-                Task<WhisperResult> fallback;
-                try
-                {
-                    Bypass = true;
-                    fallback = fallbackCall();
-                }
-                finally
-                {
-                    Bypass = false;
-                }
-                return await fallback.ConfigureAwait(false);
-            }
+                return null;
+            }).ConfigureAwait(false);
+            if (result != null) return result;
+            if (stopping) return new WhisperResult(new List<WhisperSegment>(), 0);
+            Task<WhisperResult> fallback;
+            try { Bypass = true; fallback = fallbackCall(); }
+            finally { Bypass = false; }
+            return await fallback.ConfigureAwait(false);
         }
 
-        private static async Task EnsureServer()
+        private static async Task EnsureServer(string engine, bool forceCpu)
         {
-            if (process != null && !process.HasExited) return;
+            string chosen = forceCpu ? "cpu" : Device == "gpu" ? "gpu" : "auto";
+            string key = engine + ":" + chosen;
+            if (process != null && !process.HasExited && processKey == key) return;
+            StopCore();
+            if (!SpeechMenu.Installed(engine)) throw new FileNotFoundException("Parakeet model or runtime is incomplete: " + engine);
 
             var listener = new TcpListener(IPAddress.Loopback, 0);
             listener.Start();
@@ -113,7 +108,6 @@ namespace CzechSpeechEnhanced
             listener.Stop();
             endpoint = "http://127.0.0.1:" + port;
 
-            string chosen = forceCpu ? "cpu" : Device == "cpu" || Device == "gpu" ? Device : "auto";
             string nemoDevice = chosen == "cpu" ? "cpu" : chosen == "gpu" ? "vulkan:0" : "auto";
 
             var start = new ProcessStartInfo
@@ -122,18 +116,20 @@ namespace CzechSpeechEnhanced
                 WorkingDirectory = Path.GetDirectoryName(Exe),
                 Arguments = "serve --host 127.0.0.1 --port " + port +
                             " --no-ui --no-warmup --device " + nemoDevice +
-                            " --asr-model \"" + Model + "\"",
+                            " --asr-model \"" + ParakeetModels.ModelPath(Folder, engine) + "\"",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden
             };
 
             process = Process.Start(start);
-            if (process == null) throw new Exception("Could not start " + Engine + " server");
+            processKey = key;
+            if (process == null) throw new Exception("Could not start " + engine + " server");
+            if (stopping) { StopCore(); throw new OperationCanceledException("Game is shutting down."); }
 
             for (int i = 0; i < 120; i++)
             {
-                if (process.HasExited) throw new Exception(Engine + " server exited: " + process.ExitCode);
+                if (process.HasExited) throw new Exception(engine + " server exited: " + process.ExitCode);
                 try
                 {
                     using (var r = await Client.GetAsync(endpoint + "/health").ConfigureAwait(false))
@@ -141,7 +137,7 @@ namespace CzechSpeechEnhanced
                         if (r.IsSuccessStatusCode)
                         {
                             string detail = await r.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            Plugin.Log.LogInfo(Engine + " server ready; requested device=" + chosen + "; health=" + detail);
+                            Plugin.Log.LogInfo(engine + " server ready; requested device=" + chosen + "; health=" + detail);
                             return;
                         }
                     }
@@ -152,7 +148,7 @@ namespace CzechSpeechEnhanced
                 await Task.Delay(500).ConfigureAwait(false);
             }
 
-            throw new TimeoutException(Engine + " server did not start");
+            throw new TimeoutException(engine + " server did not start");
         }
 
         private static byte[] Wav(float[] samples, int rate, int channels)
@@ -187,16 +183,43 @@ namespace CzechSpeechEnhanced
 
         internal static void Stop()
         {
+            stopping = true;
+            _ = Work.Run(() => { StopCore(); return Task.FromResult(0); });
+        }
+
+        internal static void Activate() => stopping = false;
+
+        internal static void Quit()
+        {
+            // Application shutdown cannot wait for an outstanding HTTP request.
+            stopping = true;
+            StopCore();
+        }
+
+        internal static void SelectionChanged()
+        {
+            _ = Work.AfterCurrent(() =>
+            {
+                // Reset after the in-flight request; its failure must not undo a new choice.
+                disabledEngine = null;
+                cpuEngine = null;
+                if (SpeechMenu.SelectedEngine == null) StopCore();
+            });
+        }
+
+        private static void StopCore()
+        {
+            Process old = Interlocked.Exchange(ref process, null);
+            processKey = null;
             try
             {
-                if (process != null && !process.HasExited) process.Kill();
+                if (old != null && !old.HasExited) old.Kill();
             }
             catch (Exception)
             {
             }
 
-            if (process != null) process.Dispose();
-            process = null;
+            old?.Dispose();
         }
     }
 }

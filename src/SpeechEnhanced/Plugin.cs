@@ -11,7 +11,7 @@ namespace CzechSpeechEnhanced
     {
         public const string PluginGuid = "nereziel.swyf.czechspeechenhanced";
         public const string PluginName = "CzechSpeechEnhanced";
-        public const string PluginVersion = "1.3.3";
+        public const string PluginVersion = "1.4.0";
         internal const string ModId = "CzechSpeechEnhanced";
         internal static ManualLogSource Log;
         internal static ConfigEntry<bool> Enabled;
@@ -50,16 +50,21 @@ namespace CzechSpeechEnhanced
 
             _harmony = new Harmony(PluginGuid);
             _harmony.PatchAll(typeof(Plugin).Assembly);
+            ParakeetBridge.Activate();
+            SpeechMenu.Initialize(Config);
             Log.LogInfo($"{PluginName} {PluginVersion} loaded. Parakeet engine={SpeechEngine.Value}, compute={ComputeDevice.Value}. " +
                         (ParakeetBridge.Available
                             ? "Runtime and model files found."
-                            : "Runtime or model missing. Install the selected model with Mod Hub and restart; the game keeps its own recognition until then."));
+                            : "Parakeet is not selected or its runtime/model is incomplete; the game uses its selected native recognizer."));
         }
 
         private void OnDestroy()
         {
+            SpeechMenu.Dispose();
             ParakeetBridge.Stop();
             _harmony?.UnpatchSelf();
         }
+
+        private void OnApplicationQuit() => ParakeetBridge.Quit();
     }
 }

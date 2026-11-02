@@ -27,7 +27,9 @@ Pokud ti hra špatně rozumí, české hlasy čtou text divně nebo jsou v menu 
 3. Otevři ho v [SWYF Mod Hubu](https://dexhauls.github.io/swyf-mods/) a nainstaluj.
 4. Restartuj hru.
 
-U `CzechSpeechEnhanced` si v [SWYF Mod Hubu](https://dexhauls.github.io/swyf-mods/) můžeš vybrat **Parakeet TDT v3** nebo **Parakeet Ultra**. Potřebný model se stáhne automaticky, takže ho nemusíš hledat ani instalovat ručně.
+Model **Parakeet TDT v3** nebo **Parakeet Ultra** nejprve stáhni přes [SWYF Mod Hub](https://dexhauls.github.io/swyf-mods/). Od `CzechSpeechEnhanced 1.4.0` ho pak vybíráš přímo v herním **nastavení rozpoznávání řeči**, vedle Whisperu a Moonshine. Přepnutí nepotřebuje restart hry; první přepis novým modelem může trvat déle kvůli jeho načtení.
+
+Při první inicializaci integrace mod automaticky vybere kompletně stažený Parakeet (respektuje dosavadní volbu TDT/Ultra, pokud je dostupná). Další spuštění zachovají tvoji volbu, i když se vrátíš na Whisper nebo Moonshine. Chybějící nebo neúplný model se zobrazí jako nedostupný. Mod kontroluje potřebné runtime soubory, velikost modelu a hlavičku GGUF; nejde o kontrolní součet celého modelu. Nově stažený model se zpřístupní při dalším otevření nabídky modelů.
 
 ## Pro vývojáře a pokročilé
 
@@ -54,7 +56,7 @@ Translation
 `All` vytvoří v `dist/` všechny tři veřejné balíčky a navíc ověří, že experimentální `PrivacyTelemetry` stále jde zkompilovat. PrivacyTelemetry se do veřejného `dist/` nepřidává.
 
 ```text
-CzechSpeechEnhanced-1.3.3.swyfmod
+CzechSpeechEnhanced-1.4.0.swyfmod
 CzechTTSFix-1.0.0.swyfmod
 CzechTranslationFix-1.0.3.swyfmod
 ```

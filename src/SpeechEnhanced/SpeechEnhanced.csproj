@@ -23,6 +23,9 @@
     <Compile Include="AudioProcessing.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="ParakeetBridge.cs" />
+    <Compile Include="ParakeetModels.cs" />
+    <Compile Include="SerialWork.cs" />
+    <Compile Include="SpeechMenu.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,6 +35,7 @@
     <Reference Include="0Harmony" HintPath="$(BepInExDir)\core\0Harmony.dll" Private="false" />
     <Reference Include="UnityEngine" HintPath="$(ManagedDir)\UnityEngine.dll" Private="false" />
     <Reference Include="UnityEngine.CoreModule" HintPath="$(ManagedDir)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="UnityEngine.UIElementsModule" HintPath="$(ManagedDir)\UnityEngine.UIElementsModule.dll" Private="false" />
     <Reference Include="ScriptsAssDef" HintPath="$(ManagedDir)\ScriptsAssDef.dll" Private="false" />
     <Reference Include="MetaVoiceChat.Core" HintPath="$(ManagedDir)\MetaVoiceChat.Core.dll" Private="false" />
     <Reference Include="Kolkata.Speech" HintPath="$(ManagedDir)\Kolkata.Speech.dll" Private="false" />
