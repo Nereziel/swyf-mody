@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: hardening-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -33,8 +37,8 @@ jobs:
       - name: Render actual website
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Stop'
           ./tools/render-pages.ps1 -Root $PWD.Path -OutputDir (Join-Path $PWD.Path '_site-test')
-          if ($LASTEXITCODE -ne 0) { throw "Actual website rendering failed." }
           $html = Get-Content _site-test/index.html -Raw -Encoding UTF8
           foreach ($expected in @(
             '0.1.95-swyf',
