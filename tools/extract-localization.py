@@ -21,7 +21,8 @@ def main():
     parser.add_argument("game_dir", type=Path)
     parser.add_argument("output_dir", type=Path)
     args = parser.parse_args()
-    source = args.game_dir / "Scam With Your Friends_Data/StreamingAssets/aa/StandaloneWindows64"
+    source_relative = Path("Scam With Your Friends_Data/StreamingAssets/aa/StandaloneWindows64")
+    source = args.game_dir / source_relative
     output = args.output_dir
     output.mkdir(parents=True, exist_ok=True)
     for obsolete in ("en.json", "cs.json", "en-cs.txt"):
@@ -37,8 +38,9 @@ def main():
     trees = {}
     manifest = {}
     for locale, name in names.items():
-        path = source / name
-        manifest[locale] = {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        relative = source_relative / name
+        path = args.game_dir / relative
+        manifest[locale] = {"path": relative.as_posix(), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
         env = UnityPy.load(str(path))
         trees[locale] = {
             obj.path_id: obj.read_typetree()
@@ -90,7 +92,8 @@ def main():
             recovered = {r["id"]: r[locale] for r in exported if r["table"] == table and r[locale] is not None}
             assert recovered == entries, (locale, table)
     for locale, name in names.items():
-        assert hashlib.sha256((source / name).read_bytes()).hexdigest() == manifest[locale]["sha256"]
+        path = args.game_dir / source_relative / name
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == manifest[locale]["sha256"]
     print(json.dumps({"total_keys": len(rows), "tables": stats}, ensure_ascii=True, indent=2))
 
 
