@@ -49,7 +49,7 @@ TTS
 Translation
 ```
 
-`All` vytvoří v `dist/` všechny tři veřejné balíčky:
+`All` vytvoří v `dist/` všechny tři veřejné balíčky a navíc ověří, že experimentální `PrivacyTelemetry` stále jde zkompilovat. PrivacyTelemetry se do veřejného `dist/` nepřidává.
 
 ```text
 CzechSpeechEnhanced-1.3.2.swyfmod
@@ -65,7 +65,7 @@ Přímo přes PowerShell:
 
 ### GitHub Actions
 
-Workflow **Build mods on self-hosted runner** se spouští pouze ručně přes `Actions → Run workflow`. Na self-hosted runneru otestuje překladové podklady, sestaví všechny tři veřejné mody s oprávněním pouze pro čtení repozitáře a uloží `.swyfmod` jako workflow artifact.
+Workflow **Build mods on self-hosted runner** se spouští pouze ručně přes `Actions → Run workflow`. Na self-hosted runneru spustí testy Speech i TranslationFix, sestaví tři veřejné mody, ověří také kompilaci PrivacyTelemetry a uloží pouze tři veřejné `.swyfmod` jako workflow artifact.
 
 Workflow **Build and release mods** se také spouští pouze ručně. Build proběhne na self-hosted runneru bez zapisovacích práv k repozitáři; samotné vytvoření GitHub Release a upload balíčků pak proběhne na GitHub-hosted runneru. Pro novější build použij nový release tag.
 
@@ -83,11 +83,11 @@ Test parseru, referenčního exportu a všech runtime override souborů:
 dotnet run --project tests/CzechTranslationFix -- localization/original/en-cs.json src/CzechTranslationFix
 ```
 
-Test odmítne duplicitní kombinace `table/key` napříč různými `overrides*.json` a samostatně kontroluje strukturu referenčního exportu. Referenční export může být starší než některé nové runtime override klíče, proto se mezi nimi nevynucuje úplná shoda.
+Test odmítne duplicitní kombinace `table/key` napříč různými `overrides*.json` a kontroluje strukturu referenčního exportu proti `localization/original/manifest.json`. Referenční export může být starší než některé nové runtime override klíče, proto se mezi nimi nevynucuje úplná shoda.
 
 ### PrivacyTelemetry
 
-Experimentální `PrivacyTelemetry` zůstává v repozitáři, ale není součástí běžného buildu `All` ani veřejného release. Ruční build:
+Experimentální `PrivacyTelemetry` zůstává v repozitáři. `All` ověřuje jeho kompilaci, ale nevytváří pro něj veřejný balíček. Samostatný ruční balíček lze stále sestavit přes:
 
 ```powershell
 .\build-package.ps1 -GameDir 'D:\Hry\Steam\steamapps\common\Scam With Your Friends' -Mod Privacy
