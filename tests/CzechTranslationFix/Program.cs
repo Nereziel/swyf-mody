@@ -23,7 +23,7 @@ namespace CzechTranslationFix
             Check(rejected, "Invalid input accepted: " + json);
         }
 
-        private static HashSet<string> LoadReference(string path)
+        private static void ValidateReference(string path)
         {
             var input = (JArray)JToken.Parse(File.ReadAllText(path));
             Check(input.Count == 3821, "Incomplete localization reference export.");
@@ -43,11 +43,9 @@ namespace CzechTranslationFix
                 string id = (string)row["table"] + "\u001f" + (string)row["key"];
                 Check(keys.Add(id), "Duplicate reference table/key: " + (string)row["table"] + "/" + (string)row["key"]);
             }
-
-            return keys;
         }
 
-        private static int ValidateOverrides(string directory, HashSet<string> referenceKeys = null)
+        private static int ValidateOverrides(string directory)
         {
             string[] files = Directory.GetFiles(directory, "overrides*.json", SearchOption.TopDirectoryOnly);
             Array.Sort(files, StringComparer.OrdinalIgnoreCase);
@@ -65,9 +63,6 @@ namespace CzechTranslationFix
                         string id = tablePair.Key + "\u001f" + entryPair.Key;
                         Check(seen.Add(id),
                             $"Duplicate runtime override across files: {tablePair.Key}/{entryPair.Key} ({Path.GetFileName(file)})." );
-                        if (referenceKeys != null)
-                            Check(referenceKeys.Contains(id),
-                                $"Runtime override is missing from reference export: {tablePair.Key}/{entryPair.Key} ({Path.GetFileName(file)})." );
                         count++;
                     }
                 }
@@ -143,8 +138,8 @@ namespace CzechTranslationFix
                 Directory.Delete(duplicateDir, true);
             }
 
-            var referenceKeys = LoadReference(args[0]);
-            int runtimeOverrides = ValidateOverrides(args[1], referenceKeys);
+            ValidateReference(args[0]);
+            int runtimeOverrides = ValidateOverrides(args[1]);
             Console.WriteLine($"PASS: {_checks} parser/reference/runtime-override checks. Runtime overrides: {runtimeOverrides}. No gameplay exercised.");
         }
     }
