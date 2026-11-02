@@ -69,11 +69,17 @@ Přímo přes PowerShell:
 
 ### GitHub Actions
 
-Workflow **Build mods on self-hosted runner** se spouští pouze ručně přes `Actions → Run workflow`. Na self-hosted runneru spustí testy Speech i TranslationFix, sestaví tři veřejné mody, ověří také kompilaci PrivacyTelemetry a uloží pouze tři veřejné `.swyfmod` jako workflow artifact.
+Workflow **Build mods on self-hosted runner** se spouští pouze ručně přes `Actions → Run workflow`. Workflow **Build and release mods** je také pouze ruční. Oba používají stejný reusable self-hosted build, takže testy, validační pravidla a sestavení se nemohou mezi Build a Release rozjet.
 
-Workflow **Build and release mods** se také spouští pouze ručně. Build proběhne na self-hosted runneru bez zapisovacích práv k repozitáři; samotné vytvoření GitHub Release a upload balíčků pak proběhne na GitHub-hosted runneru. Pro novější build použij nový release tag.
+Společný build kontroluje shodu verzí mezi C# pluginem a jeho `mod.json`, spouští Speech/Parakeet/Translation testy, sestaví tři veřejné mody, ověří kompilaci PrivacyTelemetry a následně otevře výsledné `.swyfmod` jako ZIP. Kontroluje jejich embedded `mod.json`, očekávanou DLL, povolený obsah a výslovně odmítne PrivacyTelemetry ve veřejném balíčku.
 
-Soubor [`gameversion.txt`](gameversion.txt) je jediný zdroj pro poslední ověřenou verzi hry. Jeho změna automaticky spustí Pages deploy a stejnou hodnotu převezme i příští ručně spuštěný release.
+Self-hosted build také vypisuje SHA256 fingerprinty klíčových herních knihoven (`ScriptsAssDef.dll`, `UnityEngine.CoreModule.dll`, `BepInEx.dll` a `0Harmony.dll`). Po update hry tak lze z logu určit, proti jakým DLL byl konkrétní build ověřen.
+
+Soubor [`gameversion.txt`](gameversion.txt) je jediný zdroj poslední ověřené verze hry. Musí obsahovat právě jeden řádek ve formátu `X.Y.Z-swyf`. Release tag používá formát `vYYYY.MM.DD-X.Y.Z` a jeho koncová verze musí odpovídat `gameversion.txt`; například `0.1.95-swyf` odpovídá tagu `v2026.11.02-0.1.95`.
+
+Verze veřejných modů se berou z jejich `src/.../mod.json`. Pages je při deployi automaticky doplní na web spolu s verzí hry. Pages se automaticky spouští jen při změně webových souborů nebo těchto zdrojů zobrazených verzí.
+
+Při opakovaném spuštění release pro stejný tag a stejný commit se aktualizuje název, popis, prerelease stav i `.swyfmod` assety; automaticky vygenerovaný changelog na konci popisu zůstává zachovaný. Pokud tag ukazuje na jiný commit, release se zastaví.
 
 Jeden společný release je záměr: stránka `releases/latest` tak obsahuje všechny aktuální veřejné mody na jednom místě, i když mají každý vlastní verzi.
 
