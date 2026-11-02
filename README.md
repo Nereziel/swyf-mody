@@ -52,7 +52,7 @@ Translation
 `All` vytvoří v `dist/` všechny tři veřejné balíčky a navíc ověří, že experimentální `PrivacyTelemetry` stále jde zkompilovat. PrivacyTelemetry se do veřejného `dist/` nepřidává.
 
 ```text
-CzechSpeechEnhanced-1.3.2.swyfmod
+CzechSpeechEnhanced-1.3.3.swyfmod
 CzechTTSFix-1.0.0.swyfmod
 CzechTranslationFix-1.0.3.swyfmod
 ```
