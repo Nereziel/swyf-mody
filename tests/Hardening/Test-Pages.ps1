@@ -24,10 +24,10 @@ function New-TestRoot {
 
     @'
 <html><body>
-Game __GAME_VERSION__
-Speech __SPEECH_VERSION__
-TTS __TTS_VERSION__
-Translation __TRANSLATION_VERSION__
+Game <strong>__GAME_VERSION__</strong>
+<span class="tech">CzechSpeechEnhanced</span>
+<span class="tech">CzechTTSFix</span>
+<span class="tech">CzechTranslationFix</span>
 </body></html>
 '@ | Set-Content -LiteralPath (Join-Path $root 'docs/index.html') -Encoding UTF8
     Set-Content -LiteralPath (Join-Path $root 'docs/.nojekyll') -Value '' -Encoding UTF8
@@ -52,18 +52,19 @@ try {
     $output = Join-Path $valid '_site'
     & $renderer -Root $valid -OutputDir $output
     $rendered = Get-Content -LiteralPath (Join-Path $output 'index.html') -Raw -Encoding UTF8
-    foreach ($expected in @('0.1.95-swyf', '1.4.0', '1.0.0', '1.0.3')) {
+    foreach ($expected in @('0.1.95-swyf', 'CzechSpeechEnhanced · v1.4.0', 'CzechTTSFix · v1.0.0', 'CzechTranslationFix · v1.0.3')) {
         if (-not $rendered.Contains($expected)) { throw "Rendered website is missing $expected." }
     }
     if ($rendered -match '__[A-Z0-9_]+__') { throw 'Rendered website still contains a placeholder.' }
     $source = Get-Content -LiteralPath (Join-Path $valid 'docs/index.html') -Raw -Encoding UTF8
     if (-not $source.Contains('__GAME_VERSION__')) { throw 'Renderer modified source docs/index.html.' }
+    if ($source.Contains('v1.4.0')) { throw 'Renderer modified source mod version text.' }
 
     $missing = New-TestRoot
     $roots += $missing
     $index = Join-Path $missing 'docs/index.html'
-    (Get-Content -LiteralPath $index -Raw).Replace('__TTS_VERSION__', '1.0.0') | Set-Content -LiteralPath $index -Encoding UTF8
-    Expect-Failure -Contains '__TTS_VERSION__' -Action { & $renderer -Root $missing -OutputDir (Join-Path $missing '_site') }
+    (Get-Content -LiteralPath $index -Raw).Replace('<span class="tech">CzechTTSFix</span>', '<span class="tech">Other</span>') | Set-Content -LiteralPath $index -Encoding UTF8
+    Expect-Failure -Contains 'CzechTTSFix' -Action { & $renderer -Root $missing -OutputDir (Join-Path $missing '_site') }
 
     Write-Host 'PASS: Pages metadata rendering.'
 } finally {
