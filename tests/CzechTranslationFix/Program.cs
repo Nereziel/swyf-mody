@@ -138,6 +138,28 @@ namespace CzechTranslationFix
                 Directory.Delete(duplicateDir, true);
             }
 
+            string referenceDir = Path.Combine(Path.GetTempPath(), "swyf-reference-manifest-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(referenceDir);
+            try
+            {
+                string referencePath = Path.Combine(referenceDir, "en-cs.json");
+                File.WriteAllText(referencePath,
+                    "[{\"table\":\"Menu\",\"id\":\"1\",\"key\":\"one\",\"en\":\"One\",\"cs\":\"Jedna\"}]");
+                File.WriteAllText(Path.Combine(referenceDir, "manifest.json"),
+                    "{\"total_keys\":1,\"tables\":{\"Menu\":{\"keys\":1}}}");
+                bool manifestDriven = true;
+                try { ValidateReference(referencePath); }
+                catch (Exception ex) when (ex.Message == "Incomplete localization reference export.")
+                {
+                    manifestDriven = false;
+                }
+                Check(manifestDriven, "Reference validation ignores manifest total_keys.");
+            }
+            finally
+            {
+                Directory.Delete(referenceDir, true);
+            }
+
             ValidateReference(args[0]);
             int runtimeOverrides = ValidateOverrides(args[1]);
             Console.WriteLine($"PASS: {_checks} parser/reference/runtime-override checks. Runtime overrides: {runtimeOverrides}. No gameplay exercised.");
