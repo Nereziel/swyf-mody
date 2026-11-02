@@ -21,3 +21,10 @@ jobs:
         run: dotnet run --project tests/SpeechEnhanced/SpeechEnhanced.Tests.csproj
       - name: Run translation checks
         run: dotnet run --project tests/CzechTranslationFix -- localization/original/en-cs.json src/CzechTranslationFix
+      - name: Parse build script
+        shell: pwsh
+        run: '$null = [scriptblock]::Create((Get-Content -LiteralPath "build-package.ps1" -Raw))'
+      - name: Compile localization extractor syntax
+        run: python -m py_compile tools/extract-localization.py
+      - name: Validate JSON manifests
+        run: python -c 'import json, pathlib; [json.loads(p.read_text(encoding="utf-8")) for p in pathlib.Path("src").glob("*/mod.json")]; json.loads(pathlib.Path("localization/original/manifest.json").read_text(encoding="utf-8"))'
