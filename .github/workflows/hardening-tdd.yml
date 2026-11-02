@@ -30,6 +30,10 @@ jobs:
         shell: pwsh
         run: ./tests/Hardening/Test-Packages.ps1
 
+      - name: Test release body formatting
+        shell: pwsh
+        run: ./tests/Hardening/Test-ReleaseBody.ps1
+
       - name: Test Pages metadata rendering
         shell: pwsh
         run: ./tests/Hardening/Test-Pages.ps1
