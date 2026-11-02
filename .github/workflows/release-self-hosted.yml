@@ -117,6 +117,13 @@ jobs:
           $tag = $env:RELEASE_TAG.Trim()
           if ([string]::IsNullOrWhiteSpace($tag)) { throw 'Release tag is empty.' }
 
+          function Get-StatusCode($record) {
+            if ($record.Exception.Response -and $record.Exception.Response.StatusCode) {
+              return [int]$record.Exception.Response.StatusCode
+            }
+            return 0
+          }
+
           $files = @(Get-ChildItem dist -Filter '*.swyfmod' -File)
           if ($files.Count -ne 3) { throw "Expected 3 downloaded packages, found $($files.Count)." }
 
@@ -128,6 +135,27 @@ jobs:
           }
           $repoApi = "$env:GITHUB_API_URL/repos/$env:GITHUB_REPOSITORY"
           $prerelease = $env:PRERELEASE -eq 'true'
+          $encodedTag = [Uri]::EscapeDataString($tag)
+
+          $tagRef = $null
+          try {
+            $tagRef = Invoke-RestMethod -Method Get -Uri "$repoApi/git/ref/tags/$encodedTag" -Headers $headers
+          }
+          catch {
+            if ((Get-StatusCode $_) -ne 404) { throw }
+          }
+
+          if ($tagRef) {
+            $tagObject = $tagRef.object
+            while ($tagObject.type -eq 'tag') {
+              $annotated = Invoke-RestMethod -Method Get -Uri $tagObject.url -Headers $headers
+              $tagObject = $annotated.object
+            }
+            if ($tagObject.sha -ne $env:BUILD_SHA) {
+              throw "Tag $tag points to $($tagObject.sha), but this build is $env:BUILD_SHA. Use a new release tag."
+            }
+            Write-Host "Tag $tag matches build commit $env:BUILD_SHA."
+          }
 
           $title = "SWYF CZ/SK mody $tag"
           $body = @(
@@ -144,17 +172,14 @@ jobs:
             '> CzechTranslationFix nepoužívej současně s modem **Lepší čeština**.'
           ) -join "`n"
 
-          $encodedTag = [Uri]::EscapeDataString($tag)
           $release = $null
           try {
             $release = Invoke-RestMethod -Method Get -Uri "$repoApi/releases/tags/$encodedTag" -Headers $headers
-            Write-Host "Release $tag already exists; replacing .swyfmod assets."
+            if (-not $tagRef) { throw "Release $tag exists, but its Git tag could not be resolved." }
+            Write-Host "Release $tag already exists on the same commit; replacing .swyfmod assets."
           }
           catch {
-            $status = 0
-            if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
-              $status = [int]$_.Exception.Response.StatusCode
-            }
+            $status = Get-StatusCode $_
             if ($status -ne 404) { throw }
 
             $payload = @{
