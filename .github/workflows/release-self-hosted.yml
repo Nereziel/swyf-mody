@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Společný release tag, např. v2026.11.01"
+        description: "Společný release tag, např. v2026.11.02-0.1.95"
         required: true
         type: string
       prerelease:
@@ -22,92 +22,10 @@ concurrency:
 
 jobs:
   build:
-    runs-on: [self-hosted, Linux, X64, swyf]
-    timeout-minutes: 30
-    outputs:
-      commit_sha: ${{ steps.metadata.outputs.commit_sha }}
-      speech_version: ${{ steps.metadata.outputs.speech_version }}
-      tts_version: ${{ steps.metadata.outputs.tts_version }}
-      translation_version: ${{ steps.metadata.outputs.translation_version }}
-      game_version: ${{ steps.metadata.outputs.game_version }}
-
-    steps:
-      - name: Checkout requested commit
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Capture build metadata
-        id: metadata
-        shell: pwsh
-        run: |
-          $sha = (git rev-parse HEAD).Trim()
-          $speech = (Get-Content src/SpeechEnhanced/mod.json -Raw | ConvertFrom-Json).version
-          $tts = (Get-Content src/CzechTTSFix/mod.json -Raw | ConvertFrom-Json).version
-          $translation = (Get-Content src/CzechTranslationFix/mod.json -Raw | ConvertFrom-Json).version
-          $gameVersion = (Get-Content gameversion.txt -Raw).Trim()
-          if ([string]::IsNullOrWhiteSpace($gameVersion)) { throw 'gameversion.txt is empty.' }
-          "commit_sha=$sha" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          "speech_version=$speech" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          "tts_version=$tts" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          "translation_version=$translation" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          "game_version=$gameVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-
-      - name: Verify mounted game libraries
-        shell: bash
-        run: |
-          set -euxo pipefail
-          test -f "/game/Scam With Your Friends_Data/Managed/ScriptsAssDef.dll"
-          test -f "/game/BepInEx/core/BepInEx.dll"
-
-      - name: Test CzechSpeechEnhanced audio processing
-        shell: pwsh
-        run: |
-          dotnet run --project tests/SpeechEnhanced/SpeechEnhanced.Tests.csproj
-          if ($LASTEXITCODE -ne 0) { throw "CzechSpeechEnhanced tests failed." }
-
-      - name: Test Parakeet selection and switching
-        shell: pwsh
-        run: |
-          dotnet run --project tests/SpeechMenu
-          if ($LASTEXITCODE -ne 0) { throw "Parakeet menu tests failed." }
-
-      - name: Test CzechTranslationFix parser
-        shell: pwsh
-        run: |
-          dotnet run --project tests/CzechTranslationFix -- localization/original/en-cs.json src/CzechTranslationFix
-          if ($LASTEXITCODE -ne 0) { throw "CzechTranslationFix tests failed." }
-
-      - name: Build all public mods
-        shell: pwsh
-        run: |
-          Remove-Item -LiteralPath dist -Recurse -Force -ErrorAction SilentlyContinue
-          ./build-package.ps1 -GameDir "/game" -Mod All
-          if ($LASTEXITCODE -ne 0) { throw "Build failed." }
-
-      - name: Verify three packages
-        shell: pwsh
-        run: |
-          $expected = @(
-            "CzechSpeechEnhanced-${{ steps.metadata.outputs.speech_version }}.swyfmod",
-            "CzechTTSFix-${{ steps.metadata.outputs.tts_version }}.swyfmod",
-            "CzechTranslationFix-${{ steps.metadata.outputs.translation_version }}.swyfmod"
-          )
-          $actual = @(Get-ChildItem dist -Filter '*.swyfmod' -File)
-          if ($actual.Count -ne 3) { throw "Expected 3 public packages, found $($actual.Count)." }
-          foreach ($name in $expected) {
-            if (-not (Test-Path (Join-Path dist $name))) { throw "Missing package: $name" }
-            Write-Host "OK: $name"
-          }
-
-      - name: Save build artifact
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: swyf-mod-packages-${{ inputs.tag }}
-          path: dist/*.swyfmod
-          if-no-files-found: error
-          retention-days: 7
-          compression-level: 0
+    uses: ./.github/workflows/build-mods-reusable.yml
+    with:
+      artifact_name: swyf-mod-packages-${{ inputs.tag }}
+      release_tag: ${{ inputs.tag }}
 
   publish:
     needs: build
@@ -181,8 +99,9 @@ jobs:
           }
 
           $title = "SWYF CZ/SK mody $tag"
+          $managedEnd = '> Tyto mody nejsou kompatibilní s modem **Lepší čeština**. Nepoužívej je současně.'
           $body = @(
-            "**Ověřeno pro verzi hry:** ``$env:GAME_VERSION``"
+            "**Poslední ověřená verze hry:** ``$env:GAME_VERSION``"
             ''
             '## Balíčky'
             ''
@@ -194,19 +113,48 @@ jobs:
             ''
             'Stáhni požadovaný `.swyfmod` a nainstaluj ho přes SWYF Mod Hub.'
             ''
-            '> Tyto mody nejsou kompatibilní s modem **Lepší čeština**. Nepoužívej je současně.'
+            $managedEnd
           ) -join "`n"
 
           $release = $null
+          $existingRelease = $false
           try {
             $release = Invoke-RestMethod -Method Get -Uri "$repoApi/releases/tags/$encodedTag" -Headers $headers
-            if (-not $tagRef) { throw "Release $tag exists, but its Git tag could not be resolved." }
-            Write-Host "Release $tag already exists on the same commit; replacing .swyfmod assets."
+            $existingRelease = $true
           }
           catch {
-            $status = Get-StatusCode $_
-            if ($status -ne 404) { throw }
+            if ((Get-StatusCode $_) -ne 404) { throw }
+          }
 
+          if ($existingRelease) {
+            if (-not $tagRef) { throw "Release $tag exists, but its Git tag could not be resolved." }
+
+            if (-not [string]::IsNullOrWhiteSpace([string]$release.body)) {
+              $existingLines = @([string]$release.body -split "`r?`n")
+              $managedEndIndex = -1
+              for ($i = 0; $i -lt $existingLines.Count; $i++) {
+                if ($existingLines[$i] -eq $managedEnd) {
+                  $managedEndIndex = $i
+                  break
+                }
+              }
+              if ($managedEndIndex -ge 0 -and ($managedEndIndex + 1) -lt $existingLines.Count) {
+                $suffix = ($existingLines[($managedEndIndex + 1)..($existingLines.Count - 1)] -join "`n").Trim()
+                if (-not [string]::IsNullOrWhiteSpace($suffix)) {
+                  $body = "$body`n`n$suffix"
+                }
+              }
+            }
+
+            $updatePayload = @{
+              name = $title
+              body = $body
+              draft = $false
+              prerelease = $prerelease
+            } | ConvertTo-Json
+            $release = Invoke-RestMethod -Method Patch -Uri "$repoApi/releases/$($release.id)" -Headers $headers -ContentType 'application/json' -Body $updatePayload
+            Write-Host "Updated release $tag metadata on commit $env:BUILD_SHA."
+          } else {
             $payload = @{
               tag_name = $tag
               target_commitish = $env:BUILD_SHA
