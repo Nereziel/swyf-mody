@@ -18,10 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Plugin.cs" Link="Plugin.cs" />
-    <Compile Include="..\SpeechConfiguration.cs" Link="SpeechConfiguration.cs" />
-    <Compile Include="..\Patches.cs" Link="Patches.cs" />
-    <Compile Include="..\ParakeetBridge.cs" Link="ParakeetBridge.cs" />
+    <Compile Include="Plugin.cs" />
+    <Compile Include="SpeechConfiguration.cs" />
+    <Compile Include="Patches.cs" />
+    <Compile Include="ParakeetBridge.cs" />
   </ItemGroup>
 
   <ItemGroup>
