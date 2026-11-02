@@ -1,0 +1,138 @@
+name: Reusable SWYF mod build
+
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        description: "Název artifactu s veřejnými balíčky"
+        required: true
+        type: string
+      release_tag:
+        description: "Volitelný release tag pro validaci proti gameversion.txt"
+        required: false
+        default: ""
+        type: string
+    outputs:
+      commit_sha:
+        value: ${{ jobs.build.outputs.commit_sha }}
+      speech_version:
+        value: ${{ jobs.build.outputs.speech_version }}
+      tts_version:
+        value: ${{ jobs.build.outputs.tts_version }}
+      translation_version:
+        value: ${{ jobs.build.outputs.translation_version }}
+      game_version:
+        value: ${{ jobs.build.outputs.game_version }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: [self-hosted, Linux, X64, swyf]
+    timeout-minutes: 30
+    outputs:
+      commit_sha: ${{ steps.metadata.outputs.commit_sha }}
+      speech_version: ${{ steps.metadata.outputs.speech_version }}
+      tts_version: ${{ steps.metadata.outputs.tts_version }}
+      translation_version: ${{ steps.metadata.outputs.translation_version }}
+      game_version: ${{ steps.metadata.outputs.game_version }}
+
+    steps:
+      - name: Checkout requested commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate release metadata
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ([string]::IsNullOrWhiteSpace($env:RELEASE_TAG)) {
+            ./tools/validate-release-metadata.ps1 -Root $PWD.Path
+          } else {
+            ./tools/validate-release-metadata.ps1 -Root $PWD.Path -ReleaseTag $env:RELEASE_TAG
+          }
+
+      - name: Capture build metadata
+        id: metadata
+        shell: pwsh
+        run: |
+          $sha = (git rev-parse HEAD).Trim()
+          $speech = (Get-Content src/SpeechEnhanced/mod.json -Raw | ConvertFrom-Json).version
+          $tts = (Get-Content src/CzechTTSFix/mod.json -Raw | ConvertFrom-Json).version
+          $translation = (Get-Content src/CzechTranslationFix/mod.json -Raw | ConvertFrom-Json).version
+          $gameVersion = (Get-Content gameversion.txt -Raw).Trim()
+          "commit_sha=$sha" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "speech_version=$speech" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "tts_version=$tts" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "translation_version=$translation" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "game_version=$gameVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Fingerprint mounted game libraries
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $files = [ordered]@{
+            ScriptsAssDef = '/game/Scam With Your Friends_Data/Managed/ScriptsAssDef.dll'
+            UnityEngineCore = '/game/Scam With Your Friends_Data/Managed/UnityEngine.CoreModule.dll'
+            BepInEx = '/game/BepInEx/core/BepInEx.dll'
+            Harmony = '/game/BepInEx/core/0Harmony.dll'
+          }
+          foreach ($item in $files.GetEnumerator()) {
+            if (-not (Test-Path -LiteralPath $item.Value)) {
+              throw "Mounted game library is missing: $($item.Value)"
+            }
+            $hash = (Get-FileHash -LiteralPath $item.Value -Algorithm SHA256).Hash.ToLowerInvariant()
+            Write-Host "GAME_FINGERPRINT $($item.Key) sha256=$hash path=$($item.Value)"
+          }
+
+      - name: Test hardening validators
+        shell: pwsh
+        run: |
+          ./tests/Hardening/Test-Metadata.ps1
+          if ($LASTEXITCODE -ne 0) { throw "Metadata hardening tests failed." }
+          ./tests/Hardening/Test-Packages.ps1
+          if ($LASTEXITCODE -ne 0) { throw "Package hardening tests failed." }
+
+      - name: Test CzechSpeechEnhanced audio processing
+        shell: pwsh
+        run: |
+          dotnet run --project tests/SpeechEnhanced/SpeechEnhanced.Tests.csproj
+          if ($LASTEXITCODE -ne 0) { throw "CzechSpeechEnhanced tests failed." }
+
+      - name: Test Parakeet selection and switching
+        shell: pwsh
+        run: |
+          dotnet run --project tests/SpeechMenu
+          if ($LASTEXITCODE -ne 0) { throw "Parakeet menu tests failed." }
+
+      - name: Test CzechTranslationFix parser
+        shell: pwsh
+        run: |
+          dotnet run --project tests/CzechTranslationFix -- localization/original/en-cs.json src/CzechTranslationFix
+          if ($LASTEXITCODE -ne 0) { throw "CzechTranslationFix tests failed." }
+
+      - name: Build all public mods
+        shell: pwsh
+        run: |
+          Remove-Item -LiteralPath dist -Recurse -Force -ErrorAction SilentlyContinue
+          ./build-package.ps1 -GameDir "/game" -Mod All
+          if ($LASTEXITCODE -ne 0) { throw "Build failed." }
+
+      - name: Verify public package contents
+        shell: pwsh
+        run: |
+          ./tools/verify-packages.ps1 -Root $PWD.Path -Dist (Join-Path $PWD.Path 'dist')
+          if ($LASTEXITCODE -ne 0) { throw "Public package verification failed." }
+
+      - name: Save build artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: dist/*.swyfmod
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
