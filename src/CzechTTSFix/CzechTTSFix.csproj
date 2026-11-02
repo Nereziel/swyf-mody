@@ -17,7 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Plugin.cs" />
-    <Compile Include="..\CzechPocketText.cs" Link="CzechPocketText.cs" />
+    <Compile Include="CzechPocketText.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="BepInEx" HintPath="$(BepInExDir)\core\BepInEx.dll" Private="false" />
