@@ -64,9 +64,9 @@ if defined DIRTY (
 )
 
 echo Kontroluji aktualni main...
-git fetch origin main --quiet
+git fetch origin main --tags --quiet
 if errorlevel 1 (
-    echo Nepodarilo se nacist origin/main.
+    echo Nepodarilo se nacist origin/main a tagy.
     goto :fail
 )
 for /f %%H in ('git rev-parse HEAD') do set "LOCAL_HEAD=%%H"
@@ -77,10 +77,21 @@ if /I not "!LOCAL_HEAD!"=="!REMOTE_HEAD!" (
     goto :fail
 )
 
+set "TAG_HEAD="
+for /f %%H in ('git rev-list -n 1 "%TAG%" 2^>nul') do set "TAG_HEAD=%%H"
+if defined TAG_HEAD (
+    if /I not "!TAG_HEAD!"=="!LOCAL_HEAD!" (
+        echo Tag %TAG% uz existuje a ukazuje na jiny commit: !TAG_HEAD!
+        echo Aktualni build je !LOCAL_HEAD!. Pouzij novy release tag.
+        goto :fail
+    )
+    echo Tag %TAG% odpovida aktualnimu commitu !LOCAL_HEAD!.
+)
+
 set "CREATE_RELEASE=1"
 gh release view "%TAG%" --repo "%REPO%" >nul 2>&1
 if not errorlevel 1 (
-    echo Release %TAG% uz existuje.
+    echo Release %TAG% uz existuje na stejnem commitu.
     set /p "REPLACE=Nahradit v nem .swyfmod soubory? [y/N]: "
     if /I not "!REPLACE!"=="Y" if /I not "!REPLACE!"=="ANO" (
         echo Release zrusen.
@@ -111,8 +122,8 @@ if not "!COUNT!"=="3" (
 
 if "!CREATE_RELEASE!"=="1" (
     echo.
-    echo Vytvarim GitHub Release %TAG%...
-    gh release create "%TAG%" --repo "%REPO%" --target main --title "SWYF CZ/SK mody %TAG%" --generate-notes
+    echo Vytvarim GitHub Release %TAG% pro !LOCAL_HEAD!...
+    gh release create "%TAG%" --repo "%REPO%" --target "!LOCAL_HEAD!" --title "SWYF CZ/SK mody %TAG%" --generate-notes
     if errorlevel 1 (
         echo Vytvoreni GitHub Release selhalo.
         goto :fail
