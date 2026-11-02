@@ -83,7 +83,7 @@ Test parseru, referenčního exportu a všech runtime override souborů:
 dotnet run --project tests/CzechTranslationFix -- localization/original/en-cs.json src/CzechTranslationFix
 ```
 
-Test také odmítne duplicitní kombinace `table/key` napříč různými `overrides*.json` a ověří, že každý runtime override odpovídá existujícímu klíči v referenčním exportu.
+Test odmítne duplicitní kombinace `table/key` napříč různými `overrides*.json` a samostatně kontroluje strukturu referenčního exportu. Referenční export může být starší než některé nové runtime override klíče, proto se mezi nimi nevynucuje úplná shoda.
 
 ### PrivacyTelemetry
 
