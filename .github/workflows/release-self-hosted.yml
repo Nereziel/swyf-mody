@@ -169,7 +169,7 @@ jobs:
             ''
             'Stáhni požadovaný `.swyfmod` a nainstaluj ho přes SWYF Mod Hub.'
             ''
-            '> CzechTranslationFix nepoužívej současně s modem **Lepší čeština**.'
+            '> Tyto mody nejsou kompatibilní s modem **Lepší čeština**. Nepoužívej je současně.'
           ) -join "`n"
 
           $release = $null
