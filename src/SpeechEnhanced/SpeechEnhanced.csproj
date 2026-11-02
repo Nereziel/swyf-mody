@@ -20,6 +20,7 @@
   <ItemGroup>
     <Compile Include="Plugin.cs" />
     <Compile Include="SpeechConfiguration.cs" />
+    <Compile Include="AudioProcessing.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="ParakeetBridge.cs" />
   </ItemGroup>
