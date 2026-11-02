@@ -24,6 +24,11 @@ def main():
     source = args.game_dir / "Scam With Your Friends_Data/StreamingAssets/aa/StandaloneWindows64"
     output = args.output_dir
     output.mkdir(parents=True, exist_ok=True)
+    for obsolete in ("en.json", "cs.json", "en-cs.txt"):
+        path = output / obsolete
+        if path.exists():
+            path.unlink()
+
     names = {
         "shared": "localization-assets-shared_assets_all.bundle",
         "en": "localization-string-tables-english(en)_assets_all.bundle",
