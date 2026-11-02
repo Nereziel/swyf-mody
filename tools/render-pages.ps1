@@ -23,14 +23,12 @@ if ($gameVersion -notmatch '^\d+\.\d+\.\d+-swyf$') {
 }
 
 $manifestDefinitions = @(
-    @{ Directory='SpeechEnhanced'; Id='CzechSpeechEnhanced'; Placeholder='__SPEECH_VERSION__' },
-    @{ Directory='CzechTTSFix'; Id='CzechTTSFix'; Placeholder='__TTS_VERSION__' },
-    @{ Directory='CzechTranslationFix'; Id='CzechTranslationFix'; Placeholder='__TRANSLATION_VERSION__' }
+    @{ Directory='SpeechEnhanced'; Id='CzechSpeechEnhanced' },
+    @{ Directory='CzechTTSFix'; Id='CzechTTSFix' },
+    @{ Directory='CzechTranslationFix'; Id='CzechTranslationFix' }
 )
 
-$replacements = [ordered]@{
-    '__GAME_VERSION__' = $gameVersion
-}
+$versions = [ordered]@{}
 foreach ($definition in $manifestDefinitions) {
     $manifestPath = Join-Path $Root "src/$($definition.Directory)/mod.json"
     $manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -41,7 +39,7 @@ foreach ($definition in $manifestDefinitions) {
     if ($version -notmatch '^\d+\.\d+\.\d+$') {
         throw "Manifest version for $($definition.Id) must match X.Y.Z, got '$version'."
     }
-    $replacements[$definition.Placeholder] = $version
+    $versions[$definition.Id] = $version
 }
 
 $docsDir = Join-Path $Root 'docs'
@@ -51,24 +49,29 @@ if (-not (Test-Path -LiteralPath $sourceIndex)) {
 }
 
 $sourceHtml = Get-Content -LiteralPath $sourceIndex -Raw -Encoding UTF8
-foreach ($placeholder in $replacements.Keys) {
-    if (-not $sourceHtml.Contains($placeholder)) {
-        throw "Required website placeholder is missing: $placeholder"
+if (-not $sourceHtml.Contains('__GAME_VERSION__')) {
+    throw 'Required website placeholder is missing: __GAME_VERSION__'
+}
+
+$rendered = $sourceHtml.Replace('__GAME_VERSION__', $gameVersion)
+foreach ($definition in $manifestDefinitions) {
+    $id = $definition.Id
+    $sourceMarker = "<span class=`"tech`">$id</span>"
+    if (-not $rendered.Contains($sourceMarker)) {
+        throw "Required website mod marker is missing: $id"
     }
+    $renderedMarker = "<span class=`"tech`">$id · v$($versions[$id])</span>"
+    $rendered = $rendered.Replace($sourceMarker, $renderedMarker)
+}
+
+if ($rendered -match '__[A-Z0-9_]+__') {
+    throw "Website contains unresolved placeholder '$($Matches[0])'."
 }
 
 Remove-Item -LiteralPath $OutputDir -Recurse -Force -ErrorAction SilentlyContinue
 Copy-Item -LiteralPath $docsDir -Destination $OutputDir -Recurse
 Copy-Item -LiteralPath $gameVersionPath -Destination (Join-Path $OutputDir 'gameversion.txt')
 
-$rendered = $sourceHtml
-foreach ($placeholder in $replacements.Keys) {
-    $rendered = $rendered.Replace($placeholder, $replacements[$placeholder])
-}
-if ($rendered -match '__[A-Z0-9_]+__') {
-    throw "Website contains unresolved placeholder '$($Matches[0])'."
-}
-
 $outputIndex = Join-Path $OutputDir 'index.html'
 [IO.File]::WriteAllText($outputIndex, $rendered, [Text.UTF8Encoding]::new($false))
-Write-Host "Website metadata rendered: game=$gameVersion; Speech=$($replacements['__SPEECH_VERSION__']); TTS=$($replacements['__TTS_VERSION__']); Translation=$($replacements['__TRANSLATION_VERSION__'])"
+Write-Host "Website metadata rendered: game=$gameVersion; Speech=$($versions.CzechSpeechEnhanced); TTS=$($versions.CzechTTSFix); Translation=$($versions.CzechTranslationFix)"
