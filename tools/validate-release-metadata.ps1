@@ -61,7 +61,7 @@ foreach ($mod in $mods) {
 
     $manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
     if ($manifest.id -ne $mod.Id) {
-        throw "Manifest id mismatch in $manifestPath: expected '$($mod.Id)', got '$($manifest.id)'."
+        throw "Manifest id mismatch in ${manifestPath}: expected '$($mod.Id)', got '$($manifest.id)'."
     }
     if ([string]$manifest.version -notmatch '^\d+\.\d+\.\d+$') {
         throw "Manifest version for $($mod.Id) must match X.Y.Z, got '$($manifest.version)'."
