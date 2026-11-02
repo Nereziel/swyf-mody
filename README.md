@@ -22,10 +22,10 @@ Pokud ti hra špatně rozumí, české hlasy čtou text divně nebo jsou v menu 
 
 1. Nainstaluj [SWYF Mod Hub](https://dexhauls.github.io/swyf-mods/).
 2. Na stránce [Stažení](https://github.com/Nereziel/swyf-mody/releases/latest) stáhni požadovaný soubor `.swyfmod`.
-3. Otevři ho v SWYF Mod Hubu a nainstaluj.
+3. Otevři ho v [SWYF Mod Hubu](https://dexhauls.github.io/swyf-mods/) a nainstaluj.
 4. Restartuj hru.
 
-U `CzechSpeechEnhanced` si v Mod Hubu můžeš vybrat **Parakeet TDT v3** nebo **Parakeet Ultra**. Potřebný model se stáhne automaticky, takže ho nemusíš hledat ani instalovat ručně.
+U `CzechSpeechEnhanced` si v [SWYF Mod Hubu](https://dexhauls.github.io/swyf-mods/) můžeš vybrat **Parakeet TDT v3** nebo **Parakeet Ultra**. Potřebný model se stáhne automaticky, takže ho nemusíš hledat ani instalovat ručně.
 
 ## Pro vývojáře a pokročilé
 
