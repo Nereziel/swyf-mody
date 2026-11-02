@@ -1,6 +1,7 @@
 """Read SWYF Unity localization bundles without modifying game files.
 
 Requires UnityPy (tested with 1.25.4). IDs are strings to preserve 64-bit precision.
+Writes one canonical English/Czech export plus a source manifest.
 """
 
 import argparse
@@ -75,20 +76,6 @@ def main():
         }
 
     write_json(output / "en-cs.json", rows)
-    for locale in ("en", "cs"):
-        write_json(output / f"{locale}.json", [
-            {"table": row["table"], "id": row["id"], "key": row["key"], "text": row[locale]}
-            for row in rows
-        ])
-    lines = ["SWYF — English / čeština", "Chybějící položka: [CHYBÍ]. Prázdný text: [PRÁZDNÉ].", ""]
-    for row in rows:
-        lines.append(f"[{row['table']}] {row['key']} (ID {row['id']})")
-        for locale in ("en", "cs"):
-            value = row[locale]
-            text = "[CHYBÍ]" if value is None else ("[PRÁZDNÉ]" if value == "" else value)
-            lines.append(f"{locale.upper()}: {text}")
-        lines.append("")
-    (output / "en-cs.txt").write_text("\n".join(lines), encoding="utf-8-sig")
     write_json(output / "manifest.json", {"sources": manifest, "tables": stats, "total_keys": len(rows)})
 
     # Verify UTF-8 round trip and exact preservation of every source entry.
