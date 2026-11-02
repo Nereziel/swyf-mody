@@ -170,6 +170,8 @@ jobs:
 
           $title = "SWYF CZ/SK mody $tag"
           $body = @(
+            '**Ověřeno pro verzi hry:** `0.1.95-swyf`'
+            ''
             '## Balíčky'
             ''
             "- **CzechSpeechEnhanced $env:SPEECH_VERSION** – lepší CZ/SK přepis řeči přes Parakeet"
