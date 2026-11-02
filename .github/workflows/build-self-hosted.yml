@@ -24,6 +24,12 @@ jobs:
           test -f "/game/Scam With Your Friends_Data/Managed/ScriptsAssDef.dll"
           test -f "/game/BepInEx/core/BepInEx.dll"
 
+      - name: Test CzechSpeechEnhanced audio processing
+        shell: pwsh
+        run: |
+          dotnet run --project tests/SpeechEnhanced/SpeechEnhanced.Tests.csproj
+          if ($LASTEXITCODE -ne 0) { throw "CzechSpeechEnhanced tests failed." }
+
       - name: Test CzechTranslationFix parser
         shell: pwsh
         run: |
@@ -59,3 +65,4 @@ jobs:
           path: dist/*.swyfmod
           if-no-files-found: error
           retention-days: 7
+          compression-level: 0
