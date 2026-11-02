@@ -9,7 +9,7 @@ using UnityEngine.Localization.Tables;
 
 namespace CzechTranslationFix
 {
-    [BepInPlugin("nereziel.swyf.czechtranslationfix", "Czech Translation Fix", "1.0.2")]
+    [BepInPlugin("nereziel.swyf.czechtranslationfix", "Czech Translation Fix", "1.0.3")]
     public sealed class Plugin : BaseUnityPlugin
     {
         private static Plugin _instance;
@@ -104,30 +104,43 @@ namespace CzechTranslationFix
             if (!string.Equals(locale, "cs", StringComparison.OrdinalIgnoreCase)
                 && !string.Equals(locale, "cs-CZ", StringComparison.OrdinalIgnoreCase)) return;
             if (table.SharedData == null || _processed.TryGetValue(table, out _)) return;
+
+            // Mark first to prevent re-entrant GetEntry calls while entries are being replaced.
             _processed.Add(table, new object());
             if (!_translations.TryGetValue(table.TableCollectionName, out var entries)) return;
+
             try
             {
                 int applied = 0;
                 foreach (var pair in entries)
                 {
-                    var shared = table.SharedData.GetEntry(pair.Key);
-                    if (shared == null)
+                    try
                     {
-                        Logger.LogWarning($"Unknown translation key: {table.TableCollectionName}/{pair.Key}; skipped.");
-                        continue;
+                        var shared = table.SharedData.GetEntry(pair.Key);
+                        if (shared == null)
+                        {
+                            Logger.LogWarning($"Unknown translation key: {table.TableCollectionName}/{pair.Key}; skipped.");
+                            continue;
+                        }
+
+                        var entry = table.AddEntry(shared.Id, pair.Value);
+                        // AddEntry preserves metadata but does not clear parsed smart strings.
+                        FormatCache.SetValue(entry, null);
+                        applied++;
                     }
-                    var entry = table.AddEntry(shared.Id, pair.Value);
-                    // AddEntry preserves metadata but does not clear parsed smart strings.
-                    FormatCache.SetValue(entry, null);
-                    applied++;
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Could not apply translation {table.TableCollectionName}/{pair.Key}; skipped. {ex}");
+                    }
                 }
+
                 Logger.LogInfo($"Czech Translation Fix: applied {applied} overrides to {table.TableCollectionName} ({locale}).");
             }
             catch (Exception ex)
             {
-                // Never let an override failure break the game's localization call.
-                Logger.LogError($"Could not finish applying translations to {table.TableCollectionName}: {ex}");
+                // A table-wide failure should be retryable on the next lookup.
+                _processed.Remove(table);
+                Logger.LogError($"Could not finish applying translations to {table.TableCollectionName}; will retry. {ex}");
             }
         }
 
