@@ -7,6 +7,31 @@ on:
         description: "Společný release tag, např. v2026.11.01"
         required: true
         type: string
+      version_bump:
+        description: "SemVer zvýšení vybraných modů"
+        required: true
+        default: none
+        type: choice
+        options:
+          - none
+          - patch
+          - minor
+          - major
+      bump_speech:
+        description: "Zvýšit verzi CzechSpeechEnhanced"
+        required: false
+        default: false
+        type: boolean
+      bump_tts:
+        description: "Zvýšit verzi CzechTTSFix"
+        required: false
+        default: false
+        type: boolean
+      bump_translation:
+        description: "Zvýšit verzi CzechTranslationFix"
+        required: false
+        default: false
+        type: boolean
       prerelease:
         description: "Označit jako prerelease"
         required: false
@@ -17,11 +42,143 @@ permissions:
   contents: read
 
 concurrency:
-  group: swyf-release-${{ inputs.tag }}
+  group: swyf-release-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    outputs:
+      commit_sha: ${{ steps.bump.outputs.commit_sha }}
+
+    steps:
+      - name: Checkout requested commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Bump selected mod versions
+        id: bump
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          BUMP_KIND: ${{ inputs.version_bump }}
+          BUMP_SPEECH: ${{ inputs.bump_speech }}
+          BUMP_TTS: ${{ inputs.bump_tts }}
+          BUMP_TRANSLATION: ${{ inputs.bump_translation }}
+          REF_TYPE: ${{ github.ref_type }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $tag = $env:RELEASE_TAG.Trim()
+          if ([string]::IsNullOrWhiteSpace($tag)) { throw 'Release tag is empty.' }
+
+          $bump = $env:BUMP_KIND.Trim().ToLowerInvariant()
+          if ($bump -notin @('none', 'patch', 'minor', 'major')) {
+            throw "Unsupported version bump: $bump"
+          }
+
+          $selected = [ordered]@{
+            'src/SpeechEnhanced/mod.json' = $env:BUMP_SPEECH -eq 'true'
+            'src/CzechTTSFix/mod.json' = $env:BUMP_TTS -eq 'true'
+            'src/CzechTranslationFix/mod.json' = $env:BUMP_TRANSLATION -eq 'true'
+          }
+          $selectedPaths = @($selected.GetEnumerator() | Where-Object Value | ForEach-Object Key)
+
+          if ($bump -eq 'none') {
+            if ($selectedPaths.Count -gt 0) {
+              throw 'A mod is selected for version bump, but version_bump is none.'
+            }
+            $sha = (git rev-parse HEAD).Trim()
+            "commit_sha=$sha" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            Write-Host "Version bump disabled; building commit $sha."
+            exit 0
+          }
+
+          if ($env:REF_TYPE -ne 'branch' -or $env:BRANCH -ne 'main') {
+            throw 'Automatic version bump is allowed only when the workflow is dispatched from the main branch.'
+          }
+          if ($selectedPaths.Count -eq 0) {
+            throw 'Select at least one mod when version_bump is patch, minor, or major.'
+          }
+
+          function Get-StatusCode($record) {
+            if ($record.Exception.Response -and $record.Exception.Response.StatusCode) {
+              return [int]$record.Exception.Response.StatusCode
+            }
+            return 0
+          }
+
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'swyf-release-workflow'
+          }
+          $repoApi = "$env:GITHUB_API_URL/repos/$env:GITHUB_REPOSITORY"
+          $encodedTag = [Uri]::EscapeDataString($tag)
+          try {
+            $existingTag = Invoke-RestMethod -Method Get -Uri "$repoApi/git/ref/tags/$encodedTag" -Headers $headers
+            throw "Tag $tag already exists at $($existingTag.object.sha). Refusing to bump versions."
+          }
+          catch {
+            if ((Get-StatusCode $_) -ne 404) { throw }
+          }
+
+          function Get-BumpedVersion([string]$Version, [string]$Kind) {
+            if ($Version -notmatch '^(\d+)\.(\d+)\.(\d+)$') {
+              throw "Version '$Version' is not SemVer major.minor.patch."
+            }
+
+            [long]$major = $Matches[1]
+            [long]$minor = $Matches[2]
+            [long]$patch = $Matches[3]
+            switch ($Kind) {
+              'patch' { $patch++ }
+              'minor' { $minor++; $patch = 0 }
+              'major' { $major++; $minor = 0; $patch = 0 }
+              default { throw "Unsupported version bump: $Kind" }
+            }
+            return "$major.$minor.$patch"
+          }
+
+          foreach ($path in $selectedPaths) {
+            $text = [IO.File]::ReadAllText($path)
+            $manifest = $text | ConvertFrom-Json
+            $oldVersion = [string]$manifest.version
+            $newVersion = Get-BumpedVersion $oldVersion $bump
+
+            $pattern = '(?m)(^\s*"version"\s*:\s*")' + [regex]::Escape($oldVersion) + '("\s*,?\s*$)'
+            $regex = [regex]::new($pattern)
+            if ($regex.Matches($text).Count -ne 1) {
+              throw "Could not uniquely locate version $oldVersion in $path."
+            }
+
+            $updated = $regex.Replace($text, '${1}' + $newVersion + '${2}', 1)
+            [IO.File]::WriteAllText($path, $updated, [Text.UTF8Encoding]::new($false))
+            Write-Host "${path}: $oldVersion -> $newVersion"
+          }
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- $selectedPaths
+          git commit -m "chore: bump mod versions ($bump)"
+          if ($LASTEXITCODE -ne 0) { throw 'Version bump commit failed.' }
+
+          git push origin "HEAD:$env:BRANCH"
+          if ($LASTEXITCODE -ne 0) { throw 'Version bump push failed. The branch may have changed; rerun the release workflow.' }
+
+          $sha = (git rev-parse HEAD).Trim()
+          "commit_sha=$sha" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Version bump committed as $sha."
+
   build:
+    needs: version
     runs-on: [self-hosted, Linux, X64, swyf]
     timeout-minutes: 30
     outputs:
@@ -32,9 +189,10 @@ jobs:
       game_version: ${{ steps.metadata.outputs.game_version }}
 
     steps:
-      - name: Checkout requested commit
+      - name: Checkout versioned commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ needs.version.outputs.commit_sha }}
           persist-credentials: false
 
       - name: Capture build metadata
