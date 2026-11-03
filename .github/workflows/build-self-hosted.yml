@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: [self-hosted, Linux, X64, swyf]
+    runs-on: [self-hosted, Windows, X64, swyf-win]
     timeout-minutes: 20
 
     steps:
@@ -18,11 +18,19 @@ jobs:
           persist-credentials: false
 
       - name: Verify mounted game libraries
-        shell: bash
+        shell: pwsh
         run: |
-          set -euxo pipefail
-          test -f "/game/Scam With Your Friends_Data/Managed/ScriptsAssDef.dll"
-          test -f "/game/BepInEx/core/BepInEx.dll"
+          $required = @(
+            'C:\game\Scam With Your Friends_Data\Managed\ScriptsAssDef.dll',
+            'C:\game\BepInEx\core\BepInEx.dll'
+          )
+          foreach ($path in $required) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+              throw "Missing game dependency: $path"
+            }
+          }
+          dotnet --version
+          Write-Host "Game libraries are available."
 
       - name: Test CzechSpeechEnhanced audio processing
         shell: pwsh
@@ -46,7 +54,7 @@ jobs:
         shell: pwsh
         run: |
           Remove-Item -LiteralPath dist -Recurse -Force -ErrorAction SilentlyContinue
-          ./build-package.ps1 -GameDir "/game" -Mod All
+          ./build-package.ps1 -GameDir "C:\game" -Mod All
           if ($LASTEXITCODE -ne 0) { throw "Build failed." }
 
       - name: Verify packages
