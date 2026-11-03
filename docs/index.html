@@ -2,270 +2,330 @@
 <html lang="cs">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#080b13">
-  <title>SWYF CZ/SK mody – lepší hlas a opravená čeština</title>
-  <meta name="description" content="Jednoduché CZ/SK mody pro Scam With Your Friends: hra ti lépe rozumí, české hlasy čtou správněji a menu má opravené překlady. Instalace přes SWYF Mod Hub.">
-  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f4">
+  <meta name="description" content="Vylepši češtinu a slovenštinu ve Scam With Your Friends. Tři jednoduché mody: přesnější rozpoznávání řeči, oprava českého hlasu a srozumitelnější menu. Návod na instalaci krok za krokem.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="https://nereziel.github.io/swyf-mody/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="cs_CZ">
-  <meta property="og:title" content="SWYF CZ/SK mody – lepší hlas a opravená čeština">
-  <meta property="og:description" content="Vyber si jen to, co potřebuješ opravit: rozpoznávání řeči, české hlasy nebo překlady v menu.">
+  <meta property="og:title" content="SWYF česky, jak má být | CZ/SK mody">
+  <meta property="og:description" content="Hra ti nerozumí? Hlas čte divně? Překlad nedává smysl? Vyber jednoduchou opravu a nainstaluj ji přes SWYF Mod Hub.">
   <meta property="og:url" content="https://nereziel.github.io/swyf-mody/">
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"SoftwareSourceCode",
-    "name":"SWYF CZ/SK mody",
-    "description":"Tři neoficiální mody pro Scam With Your Friends zaměřené na rozpoznávání češtiny a slovenštiny, české TTS a opravu české lokalizace.",
-    "url":"https://nereziel.github.io/swyf-mody/",
-    "codeRepository":"https://github.com/Nereziel/swyf-mody",
-    "programmingLanguage":"C#",
-    "runtimePlatform":"Windows / BepInEx",
-    "inLanguage":"cs"
-  }
-  </script>
+  <title>SWYF česky, jak má být | CZ/SK mody</title>
   <style>
-    :root{
-      color-scheme:dark;
-      --bg:#080b13;
-      --bg-soft:#0d1220;
-      --panel:#111827;
-      --panel-strong:#151d2d;
-      --text:#f7f9fc;
-      --muted:#9ca9bd;
-      --line:rgba(255,255,255,.09);
-      --blue:#78a9ff;
-      --blue-strong:#5f91ff;
-      --violet:#a58cff;
-      --green:#7ed9b3;
-      --amber:#ffd18a;
-      --danger:#ffb4a8;
-      --shadow:0 24px 70px rgba(0,0,0,.28);
+    :root {
+      color-scheme: light;
+      --ink: #18293a;
+      --ink-soft: #516273;
+      --faint: #788896;
+      --paper: #f7f8f5;
+      --white: #ffffff;
+      --line: #dfe7e7;
+      --blue: #1357c5;
+      --blue-dark: #0a3e95;
+      --mint: #dff7e9;
+      --mint-dark: #0f7553;
+      --peach: #fff0d9;
+      --lilac: #eee8ff;
+      --shadow: 0 18px 48px rgba(29, 47, 72, .08);
     }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at 12% -10%,rgba(95,145,255,.22),transparent 34rem),
-        radial-gradient(circle at 92% 8%,rgba(165,140,255,.14),transparent 30rem),
-        linear-gradient(180deg,#080b13 0%,#0a0e18 50%,#080b13 100%);
-      line-height:1.55;
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 95px; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    a { color: inherit; }
+    a:focus-visible, summary:focus-visible { outline: 3px solid #2678ef; outline-offset: 4px; border-radius: 5px; }
+    .container { width: min(1160px, calc(100% - 44px)); margin-inline: auto; }
+    .skip { position: absolute; top: -100px; left: 16px; z-index: 50; background: #fff; padding: 10px 16px; border-radius: 10px; }
+    .skip:focus { top: 12px; }
+    .topbar { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(14px); }
+    .topbar .container { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 76px; }
+    .logo { display: inline-flex; align-items: center; gap: 11px; font-weight: 900; font-size: 1.04rem; letter-spacing: -.035em; text-decoration: none; white-space: nowrap; }
+    .logo-mark { width: 39px; height: 39px; border-radius: 13px; display: grid; place-items: center; background: var(--ink); color: #fff; font-size: .95rem; box-shadow: 4px 4px 0 #9be7c6; }
+    .logo em { font-style: normal; color: var(--blue); }
+    .nav { display: flex; align-items: center; gap: 28px; font-size: .88rem; font-weight: 700; }
+    .nav a { text-decoration: none; }
+    .nav a:not(.nav-cta):hover { color: var(--blue); }
+    .nav-cta { color: #fff; background: var(--ink); border-radius: 11px; padding: 11px 16px; transition: background .2s; }
+    .nav-cta:hover { background: var(--blue); }
+    .hero-wrap { background: radial-gradient(circle at 79% 17%, #dff4ed 0, transparent 30%), linear-gradient(140deg,#f7f8f5 20%,#eff6fa 100%); border-bottom: 1px solid var(--line); overflow: hidden; }
+    .hero { display: grid; grid-template-columns: 1.04fr .96fr; gap: 64px; align-items: center; padding: 94px 0 100px; }
+    .eyebrow { display: inline-flex; gap: 10px; align-items: center; font-weight: 850; font-size: .77rem; letter-spacing: .08em; text-transform: uppercase; color: var(--mint-dark); }
+    .eyebrow .dot { width: 9px; height: 9px; background: #13b77c; border-radius: 50%; box-shadow: 0 0 0 5px rgba(19,183,124,.12); }
+    h1,h2,h3,p { margin-top: 0; }
+    h1 { max-width: 700px; font-weight: 900; font-size: clamp(3.25rem, 5.7vw, 5.6rem); line-height: 1.035; letter-spacing: -.067em; margin: 24px 0; }
+    h1 span { color: var(--blue); }
+    .hero-lead { color: var(--ink-soft); font-size: 1.15rem; max-width: 575px; margin-bottom: 31px; }
+    .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .button { display: inline-flex; gap: 11px; justify-content: center; align-items: center; min-height: 53px; padding: 12px 21px; border-radius: 13px; font-size: .94rem; font-weight: 850; text-decoration: none; transition: transform .2s, box-shadow .2s, background .2s; text-align: center; }
+    .button:hover { transform: translateY(-2px); }
+    .button-primary { color: #fff; background: var(--blue); box-shadow: 0 10px 22px rgba(19,87,197,.18); }
+    .button-primary:hover { background: var(--blue-dark); }
+    .button-outline { background: white; border: 1px solid #cbd7df; }
+    .button-outline:hover { box-shadow: var(--shadow); }
+    .button svg { width: 18px; height: 18px; flex: none; }
+    .tiny-note { font-size: .83rem; color: var(--ink-soft); margin: 17px 0 0; }
+    .tiny-note strong { color: var(--ink); }
+    .visual { position: relative; min-height: 460px; display: grid; place-items: center; }
+    .visual::before { content: ""; position: absolute; width: 93%; aspect-ratio: 1; border-radius: 46% 54% 56% 44%; background: #d7ebf9; transform: rotate(-12deg); }
+    .visual::after { content: ""; position: absolute; inset: 11% 7%; border-radius: 50%; border: 2px dashed rgba(19,87,197,.12); transform: rotate(-18deg); }
+    .window { position: relative; z-index: 2; width: min(100%, 465px); background: var(--white); border: 1px solid #d9e6ec; border-radius: 26px; box-shadow: 0 28px 74px rgba(41,77,105,.18); overflow: hidden; transform: rotate(-3deg); }
+    .window-bar { height: 49px; background: #19314c; display: flex; align-items: center; gap: 7px; padding: 0 19px; }
+    .window-bar i { width: 10px; height: 10px; border-radius: 50%; background: #f48e8a; }
+    .window-bar i:nth-child(2) { background: #ffd17b; }
+    .window-bar i:nth-child(3) { background: #78dcad; }
+    .window-bar span { margin-left: auto; font-size: .68rem; color: #cedceb; letter-spacing: .14em; font-weight: 800; }
+    .window-body { padding: 27px 25px 31px; }
+    .mock-title { font-size: .69rem; color: var(--faint); font-weight: 900; letter-spacing: .12em; }
+    .chat-line { display: flex; align-items: center; gap: 12px; margin-top: 20px; }
+    .avatar { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 15px; background: #dceafd; font-size: 1.35rem; }
+    .bubble { border-radius: 16px 16px 16px 4px; background: #f0f4f7; padding: 12px 15px; font-size: .89rem; font-weight: 750; }
+    .bubble.before { color: #667787; text-decoration: line-through; text-decoration-color: #ed8c8c; }
+    .bubble.after { background: #e5f8ed; color: #14674b; }
+    .status { margin-top: 25px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 14px; border-radius: 12px; background: #f5f9fb; color: #617486; font-size: .79rem; }
+    .status strong { color: #16855f; }
+    .sticker { position: absolute; z-index: 3; font-weight: 900; border-radius: 16px; box-shadow: 0 14px 30px rgba(36,63,84,.1); }
+    .sticker.one { top: 15px; right: -9px; background: #fff0cf; color: #805519; padding: 15px 19px; transform: rotate(9deg); }
+    .sticker.two { bottom: 8px; left: -20px; background: #c6f2df; color: #126448; padding: 13px 19px; transform: rotate(5deg); }
+    .trust { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 0 27px; margin-top: -34px; position: relative; z-index: 4; }
+    .trust span { background: #fff; border: 1px solid var(--line); color: #486174; border-radius: 99px; padding: 8px 14px; font-size: .78rem; font-weight: 750; }
+    .section { padding: 88px 0; }
+    .section-heading { max-width: 680px; margin-bottom: 35px; }
+    .kicker { display: block; color: var(--blue); font-size: .75rem; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 12px; }
+    h2 { font-size: clamp(2rem, 4vw, 3.1rem); letter-spacing: -.055em; line-height: 1.12; margin-bottom: 14px; }
+    .section-heading p { color: var(--ink-soft); font-size: 1.04rem; margin: 0; }
+    .question-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .question { min-width: 0; padding: 29px; border: 1px solid var(--line); border-radius: 23px; background: #fff; box-shadow: 0 8px 25px rgba(22,46,69,.035); text-decoration: none; transition: transform .2s, border-color .2s, box-shadow .2s; }
+    .question:hover { transform: translateY(-4px); border-color: #a8c6e7; box-shadow: var(--shadow); }
+    .question .emoji { width: 61px; height: 61px; display: grid; place-items: center; border-radius: 20px; font-size: 1.65rem; margin-bottom: 26px; }
+    .q-blue .emoji { background: #e5f0ff; }.q-peach .emoji { background: var(--peach); }.q-lilac .emoji { background: var(--lilac); }
+    .question h3 { font-size: 1.45rem; line-height: 1.18; letter-spacing: -.035em; margin-bottom: 13px; }
+    .question p { color: var(--ink-soft); font-size: .93rem; min-height: 66px; margin-bottom: 24px; }
+    .question .link { color: var(--blue); font-weight: 850; font-size: .9rem; }
+    .tinted { background: #edf3f4; border-block: 1px solid var(--line); }
+    .mod-list { display: grid; gap: 22px; }
+    .mod { display: grid; grid-template-columns: 245px minmax(0, 1fr); border: 1px solid #d6e0e5; border-radius: 24px; overflow: hidden; background: white; box-shadow: 0 10px 25px rgba(33,62,83,.035); scroll-margin-top: 100px; }
+    .mod-art { min-height: 240px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 18px; position: relative; text-align: center; }
+    .mod-art span { font-size: 5rem; filter: drop-shadow(0 9px 12px rgba(32,47,67,.12)); }
+    .mod-art b { font-size: .74rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .mod-speech .mod-art { background: #dceaff; color: #245cb3; }
+    .mod-tts .mod-art { background: #ffebcd; color: #9f5b0b; }
+    .mod-translation .mod-art { background: #e4ddff; color: #6146b3; }
+    .mod-content { padding: 31px 34px; }
+    .mod-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .mod h3 { font-size: clamp(1.35rem, 2.5vw, 1.85rem); margin: 0 0 9px; letter-spacing: -.04em; line-height: 1.2; }
+    .mod-tag { flex: none; border: 1px solid #d8e4e8; background: #f5f8f9; border-radius: 99px; color: #5a6c79; font-size: .73rem; padding: 5px 10px; font-weight: 800; }
+    .mod-desc { color: var(--ink-soft); margin: 0 0 16px; max-width: 690px; }
+    .mod-benefit { display: inline-block; background: #eaf8ef; color: #146447; border-radius: 10px; padding: 9px 12px; font-size: .84rem; font-weight: 800; }
+    .mod-foot { margin-top: 24px; display: flex; gap: 16px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .mod-foot small { color: var(--faint); font-size: .76rem; }
+    .text-link { color: var(--blue); font-size: .92rem; font-weight: 900; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
+    .install { display: grid; grid-template-columns: .8fr 1.2fr; align-items: start; gap: 60px; }
+    .install-intro { position: sticky; top: 120px; }
+    .install-intro p { color: var(--ink-soft); }
+    .step-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 15px; }
+    .step-list li { display: grid; grid-template-columns: 48px 1fr; gap: 17px; padding: 23px; border-radius: 19px; background: white; border: 1px solid var(--line); }
+    .step-n { display: grid; place-items: center; width: 45px; height: 45px; border-radius: 14px; background: #e2edff; color: var(--blue); font-weight: 900; font-size: 1.13rem; }
+    .step-list h3 { font-size: 1.13rem; margin: 0 0 6px; letter-spacing: -.02em; }
+    .step-list p { color: var(--ink-soft); font-size: .92rem; margin: 0; }
+    .step-list a { color: var(--blue); font-weight: 750; }
+    .warning { margin-top: 18px; border: 1px solid #f0d3a6; background: #fff5e5; color: #6e5026; border-radius: 15px; padding: 16px 19px; font-size: .91rem; }
+    .warning strong { color: #77450b; }
+    .faq-section { padding-top: 22px; padding-bottom: 90px; }
+    .faq-wrap { display: grid; grid-template-columns: .7fr 1.3fr; gap: 65px; align-items: start; }
+    .faq-list { display: grid; gap: 10px; }
+    details { border: 1px solid var(--line); border-radius: 15px; padding: 0 21px; background: white; }
+    details[open] { border-color: #b9d0e6; }
+    summary { padding: 19px 30px 19px 0; font-weight: 850; cursor: pointer; position: relative; list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; position: absolute; right: 0; top: 13px; font-size: 1.5rem; color: var(--blue); font-weight: 500; }
+    details[open] summary::after { content: "−"; }
+    details p { color: var(--ink-soft); margin: 0; padding: 0 0 20px; font-size: .92rem; }
+    details a { color: var(--blue); }
+    .bottom-cta { background: #19314c; color: white; overflow: hidden; }
+    .bottom-inner { display: flex; justify-content: space-between; align-items: center; gap: 30px; padding: 56px 0; }
+    .bottom-cta h2 { margin-bottom: 8px; }
+    .bottom-cta p { color: #bfd0df; margin: 0; }
+    .bottom-cta .button { background: #bdf1d8; color: #134b39; white-space: nowrap; }
+    .bottom-cta .button:hover { background: #d7f9e8; }
+    footer { background: #122437; color: #aebfce; }
+    footer .container { display: flex; justify-content: space-between; gap: 25px; padding: 30px 0; font-size: .81rem; }
+    footer a { color: #e4edf4; text-underline-offset: 3px; }
+    @media (max-width: 1000px) {
+      .hero { gap: 32px; }.visual { min-height: 400px; }.question { padding: 23px; }.mod { grid-template-columns: 210px minmax(0,1fr); }.install { gap: 34px; }
     }
-    body:before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      opacity:.18;
-      background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
-      background-size:42px 42px;
-      mask-image:linear-gradient(to bottom,black,transparent 70%);
+    @media (max-width: 780px) {
+      .topbar .container { min-height: 68px; }.nav { gap: 15px; }.nav .desktop-link { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 65px 0 55px; gap: 28px; }.hero-lead { max-width: 620px; }.visual { min-height: 385px; max-width: 500px; width: 100%; margin-inline: auto; }.trust { margin-top: 0; padding-bottom: 25px; }
+      .question-grid { grid-template-columns: 1fr; }.question p { min-height: 0; }.question .emoji { margin-bottom: 17px; }.question { padding: 24px; }
+      .install, .faq-wrap { grid-template-columns: 1fr; }.install-intro { position: static; }.mod { grid-template-columns: 170px 1fr; }
+      .bottom-inner { flex-direction: column; align-items: flex-start; }
     }
-    a{color:inherit}
-    .wrap{width:min(1120px,calc(100% - 36px));margin:auto}
-    .site-header{display:flex;align-items:center;justify-content:space-between;padding:22px 0;position:relative;z-index:2}
-    .brand{font-weight:900;letter-spacing:-.02em;text-decoration:none;font-size:1rem}.brand span{color:var(--blue)}
-    .nav{display:flex;align-items:center;gap:22px;color:var(--muted);font-size:.9rem}
-    .nav a{text-decoration:none}.nav a:hover{color:var(--text)}
-    .nav .github{padding:8px 12px;border:1px solid var(--line);border-radius:10px;color:var(--text);background:rgba(255,255,255,.025)}
-    main{position:relative;z-index:1}
-    .hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr);gap:34px;align-items:center;padding:58px 0 48px}
-    .eyebrow{display:inline-flex;align-items:center;gap:8px;color:#cbd9f7;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
-    .eyebrow:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 18px rgba(126,217,179,.6)}
-    h1{font-size:clamp(2.55rem,6vw,5.1rem);line-height:.98;letter-spacing:-.055em;margin:0;max-width:840px}
-    h1 .accent{background:linear-gradient(110deg,#fff 12%,#9fc2ff 52%,#c1afff);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .lead{font-size:clamp(1rem,2vw,1.2rem);color:var(--muted);max-width:720px;margin:22px 0 0}
-    .hero-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:28px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:12px;text-decoration:none;font-weight:850;font-size:.94rem;border:1px solid var(--line);transition:transform .18s ease,border-color .18s ease,background .18s ease}
-    .btn:hover{transform:translateY(-1px)}
-    .btn.primary{background:linear-gradient(135deg,var(--blue-strong),#8167df);border-color:transparent;box-shadow:0 14px 32px rgba(95,145,255,.18)}
-    .btn.secondary{background:rgba(255,255,255,.035)}
-    .hero-note{margin-top:13px;color:#8390a5;font-size:.82rem}
-    .chooser{border:1px solid var(--line);background:linear-gradient(160deg,rgba(255,255,255,.065),rgba(255,255,255,.025));border-radius:22px;padding:20px;box-shadow:var(--shadow);backdrop-filter:blur(12px)}
-    .chooser-title{font-size:.82rem;color:#c4cee0;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
-    .choice{display:grid;grid-template-columns:38px 1fr auto;gap:11px;align-items:center;padding:13px 0;border-top:1px solid var(--line);text-decoration:none}
-    .choice:first-of-type{border-top:0}
-    .choice-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:var(--panel-strong);color:#dce7ff;border:1px solid var(--line)}
-    .choice-icon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-    .choice strong{display:block;font-size:.92rem}.choice small{display:block;color:var(--muted);font-size:.78rem;margin-top:2px}
-    .arrow{color:#66758c;font-size:1.1rem}.choice:hover .arrow{color:var(--blue)}
-    .section{padding:52px 0}
-    .section-head{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:20px}
-    .section-kicker{font-size:.76rem;font-weight:850;text-transform:uppercase;letter-spacing:.09em;color:#a9c4ff;margin-bottom:6px}
-    h2{font-size:clamp(1.75rem,3vw,2.4rem);letter-spacing:-.035em;margin:0;line-height:1.1}
-    .section-head p{margin:0;max-width:500px;color:var(--muted);font-size:.92rem}
-    .mods{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-    .mod-card{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:20px;background:linear-gradient(155deg,rgba(255,255,255,.055),rgba(255,255,255,.018));padding:22px;min-height:280px;display:flex;flex-direction:column}
-    .mod-card:after{content:"";position:absolute;width:160px;height:160px;border-radius:50%;right:-90px;top:-90px;background:var(--glow);filter:blur(4px);opacity:.18}
-    .problem{font-size:.76rem;font-weight:800;color:#c5d0e3;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
-    .mod-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;background:var(--panel-strong);border:1px solid var(--line);margin-bottom:16px;color:var(--icon)}
-    .mod-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-    .mod-card h3{font-size:1.25rem;letter-spacing:-.025em;margin:0 0 9px}
-    .mod-card p{margin:0;color:var(--muted);font-size:.92rem}
-    .mod-meta{margin-top:auto;padding-top:20px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .tech{font-size:.73rem;color:#78869b;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
-    .pill{font-size:.7rem;font-weight:800;padding:5px 8px;border:1px solid var(--line);border-radius:999px;color:#cbd7eb;background:rgba(255,255,255,.025);white-space:nowrap}
-    .speech{--glow:#5f91ff;--icon:#8cb3ff}.tts{--glow:#a58cff;--icon:#bcaaff}.translation{--glow:#7ed9b3;--icon:#86e0bc}
-    .install-box{border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,#111827,#0e1421);padding:26px;box-shadow:var(--shadow)}
-    .install-top{display:flex;align-items:start;justify-content:space-between;gap:24px;margin-bottom:23px}
-    .install-top p{margin:8px 0 0;color:var(--muted);font-size:.92rem;max-width:620px}
-    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-    .step{border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:15px;padding:16px}
-    .num{width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:rgba(120,169,255,.12);color:#bed2ff;font-weight:900;font-size:.8rem;margin-bottom:11px}
-    .step strong{display:block;font-size:.94rem;margin-bottom:4px}.step span{color:var(--muted);font-size:.84rem}
-    .install-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-    .warning{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:13px 14px;border-radius:13px;border:1px solid rgba(255,209,138,.25);background:rgba(255,209,138,.065);color:#e6d3b5;font-size:.86rem}
-    .warning strong{color:var(--amber)}
-    .faq{display:grid;grid-template-columns:minmax(0,820px);justify-content:center;gap:10px}
-    details{border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:15px;padding:0 16px;overflow:hidden;transition:border-color .18s ease,background .18s ease}
-    details:hover{border-color:rgba(120,169,255,.24);background:rgba(255,255,255,.035)}
-    details[open]{border-color:rgba(120,169,255,.22);background:rgba(120,169,255,.045)}
-    summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:minmax(0,1fr) 20px;gap:12px;align-items:center;padding:16px 0;font-weight:800;font-size:.92rem}
-    summary::marker{content:""}
-    summary::-webkit-details-marker{display:none}
-    summary:after{content:"";width:8px;height:8px;justify-self:center;border-right:2px solid var(--blue);border-bottom:2px solid var(--blue);transform:rotate(45deg) translate(-1px,-1px);transition:transform .18s ease}
-    details[open] summary:after{transform:rotate(225deg) translate(-1px,-1px)}
-    details p{margin:0;padding:14px 0 17px;border-top:1px solid var(--line);color:var(--muted);font-size:.87rem}
-    footer{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:28px 0 34px;border-top:1px solid var(--line);color:#78869b;font-size:.8rem}
-    footer a{text-decoration:none;color:#aeb9cb}
-    a:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
-    @media(max-width:900px){
-      .hero{grid-template-columns:1fr;padding-top:38px}.chooser{max-width:620px}.mods{grid-template-columns:1fr}.mod-card{min-height:0}.section-head{align-items:start;flex-direction:column}.steps{grid-template-columns:1fr}.faq{grid-template-columns:1fr}
+    @media (max-width: 540px) {
+      .container { width: min(100% - 30px, 1160px); }.logo { font-size: .91rem; }.logo-mark { width: 34px; height: 34px; }.nav-cta { padding: 9px 11px; font-size: .79rem; }
+      h1 { font-size: clamp(2.75rem, 12vw, 3.6rem); }.hero { padding-top: 48px; }.hero-lead { font-size: 1rem; }.actions { align-items: stretch; }.actions .button { width: 100%; }
+      .visual { min-height: 290px; }.window { width: 91%; }.window-body { padding: 18px; }.sticker.one { right: 0; top: 0; font-size: .74rem; padding: 10px; }.sticker.two { left: 0; bottom: 0; font-size: .74rem; padding: 10px; }
+      .section { padding: 62px 0; }.mod { grid-template-columns: 1fr; }.mod-art { min-height: 150px; flex-direction: row; gap: 22px; }.mod-art span { font-size: 4rem; }.mod-content { padding: 23px; }.mod-top { display: block; }.mod-tag { display: inline-block; margin-bottom: 10px; }
+      .faq-section { padding-top: 0; }.bottom-cta .button { white-space: normal; }.bottom-inner { padding: 46px 0; }footer .container { flex-direction: column; gap: 10px; }
     }
-    @media(max-width:620px){
-      .wrap{width:min(100% - 22px,1120px)}.site-header{padding:16px 0}.nav a:not(.github){display:none}.hero{padding:30px 0 34px;gap:24px}h1{font-size:2.55rem}.lead{font-size:.98rem}.chooser{padding:16px;border-radius:18px}.choice{grid-template-columns:36px 1fr auto}.section{padding:38px 0}.mod-card,.install-box{padding:18px;border-radius:17px}.install-top{flex-direction:column}.install-actions .btn{width:100%}footer{align-items:flex-start;flex-direction:column}
-    }
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn,details,summary:after{transition:none}}
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .button,.question { transition: none; } }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="site-header">
-      <a class="brand" href="./">SWYF <span>CZ/SK</span></a>
+  <a class="skip" href="#obsah">Přejít na obsah</a>
+  <header class="topbar">
+    <div class="container">
+      <a class="logo" href="./" aria-label="SWYF CZ/SK – úvod"><span class="logo-mark" aria-hidden="true">S<span style="color:#9be7c6">.</span></span><span>SWYF <em>CZ/SK</em></span></a>
       <nav class="nav" aria-label="Hlavní navigace">
-        <a href="#mody">Který mod?</a>
-        <a href="#instalace">Instalace</a>
-        <a class="github" href="https://github.com/Nereziel/swyf-mody">GitHub</a>
+        <a class="desktop-link" href="#vyber">Vybrat mod</a>
+        <a class="desktop-link" href="#instalace">Jak nainstalovat</a>
+        <a class="nav-cta" href="https://github.com/Nereziel/swyf-mody/releases/latest">Stáhnout mody ↗</a>
       </nav>
-    </header>
-
-    <main>
-      <section class="hero">
-        <div class="hero-copy">
-          <div class="eyebrow">Scam With Your Friends · neoficiální mody</div>
-          <h1>Aby ti SWYF <span class="accent">lépe rozuměl a lépe fungoval česky.</span></h1>
-          <p class="lead">Vyber si jen to, co potřebuješ opravit. Lepší rozpoznávání češtiny a slovenštiny, správnější čtení českého textu nebo opravené překlady v menu.</p>
-          <div class="hero-actions">
-            <a class="btn primary" href="https://github.com/Nereziel/swyf-mody/releases/latest">Stáhnout mody</a>
-            <a class="btn secondary" href="#instalace">Jak je nainstalovat</a>
-          </div>
-          <div class="hero-note">Ověřeno pro verzi hry <strong>__GAME_VERSION__</strong>. Nemusíš instalovat všechny tři. Každý mod řeší jiný problém.</div>
-        </div>
-
-        <aside class="chooser" aria-label="Rychlý výběr modu">
-          <div class="chooser-title">Co tě ve hře trápí?</div>
-          <a class="choice" href="#speech">
-            <span class="choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg></span>
-            <span><strong>Hra mi špatně rozumí</strong><small>Čeština nebo slovenština v mikrofonu</small></span>
-            <span class="arrow">→</span>
-          </a>
-          <a class="choice" href="#tts">
-            <span class="choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/></svg></span>
-            <span><strong>České hlasy čtou divně</strong><small>Pokud používáš Pocket TTS</small></span>
-            <span class="arrow">→</span>
-          </a>
-          <a class="choice" href="#translation">
-            <span class="choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h10M9 3v2M6 9c2.5 3 5 4.5 8 5M13 5c-1 4-4 7-8 9"/><path d="m15 19 3-7 3 7M16 17h4"/></svg></span>
-            <span><strong>V menu jsou divné překlady</strong><small>Chybné nebo chybějící české texty</small></span>
-            <span class="arrow">→</span>
-          </a>
-        </aside>
-      </section>
-
-      <section class="section" id="mody">
-        <div class="section-head">
+    </div>
+  </header>
+  <main id="obsah">
+    <div class="hero-wrap">
+      <div class="container">
+        <section class="hero" aria-labelledby="uvodni-nadpis">
           <div>
-            <div class="section-kicker">Vyber podle problému</div>
-            <h2>Tři mody, tři jednoduchá řešení</h2>
-          </div>
-          <p>Technické názvy nemusíš znát. Podívej se, co chceš ve hře opravit, a stáhni odpovídající balíček.</p>
-        </div>
-
-        <div class="mods">
-          <article class="mod-card speech" id="speech">
-            <div class="problem">Když tě hra často přeslechne</div>
-            <div class="mod-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg></div>
-            <h3>Lepší rozpoznávání hlasu</h3>
-            <p>Pomáhá hře přesněji pochopit, co říkáš česky nebo slovensky do mikrofonu. Hodí se, pokud hra tvoje věty často přepíše špatně.</p>
-            <div class="mod-meta"><span class="tech">CzechSpeechEnhanced</span><span class="pill">model se stáhne sám</span></div>
-          </article>
-
-          <article class="mod-card tts" id="tts">
-            <div class="problem">Když český hlas zní špatně</div>
-            <div class="mod-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/></svg></div>
-            <h3>Oprava českého hlasu</h3>
-            <p>Pokud používáš Pocket TTS, mod pomůže českému hlasu správně zpracovat text s diakritikou a interpunkcí před jeho přečtením.</p>
-            <div class="mod-meta"><span class="tech">CzechTTSFix</span><span class="pill">pro Pocket TTS</span></div>
-          </article>
-
-          <article class="mod-card translation" id="translation">
-            <div class="problem">Když menu nedává smysl</div>
-            <div class="mod-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h10M9 3v2M6 9c2.5 3 5 4.5 8 5M13 5c-1 4-4 7-8 9"/><path d="m15 19 3-7 3 7M16 17h4"/></svg></div>
-            <h3>Opravený český překlad</h3>
-            <p>Opravuje chybné, slepené nebo chybějící české texty v menu. Například špatné popisky přepínačů typu „Na“ místo „Zapnuto“.</p>
-            <div class="mod-meta"><span class="tech">CzechTranslationFix</span><span class="pill">opravy menu</span></div>
-          </article>
-        </div>
-      </section>
-
-      <section class="section" id="instalace">
-        <div class="install-box">
-          <div class="install-top">
-            <div>
-              <div class="section-kicker">Instalace</div>
-              <h2>Hotovo ve třech krocích</h2>
-              <p>Nic nemusíš kopírovat ručně do složek hry. Balíčky jsou určené pro <a href="https://dexhauls.github.io/swyf-mods/">SWYF Mod Hub</a>.</p>
+            <div class="eyebrow"><span class="dot" aria-hidden="true"></span> Neoficiální vylepšení hry Scam With Your Friends</div>
+            <h1>Hraj česky.<br><span>Bez zbytečných problémů.</span></h1>
+            <p class="hero-lead">Hra ti nerozumí, český hlas čte podivně nebo tě matou překlady? Vyber si jednoduchou opravu. Nemusíš umět programovat ani rozumět modům.</p>
+            <div class="actions">
+              <a class="button button-primary" href="#vyber">Zjistit, který mod potřebuji <span aria-hidden="true">↓</span></a>
+              <a class="button button-outline" href="#instalace">Jak mody nainstalovat</a>
             </div>
+            <p class="tiny-note">Ověřeno pro verzi hry <strong>__GAME_VERSION__</strong> · Mody jsou zdarma a můžeš používat jen jeden.</p>
           </div>
-
-          <div class="steps">
-            <div class="step"><div class="num">1</div><strong>Nainstaluj <a href="https://dexhauls.github.io/swyf-mods/">SWYF Mod Hub</a></strong><span>Je to správce modů, přes který se balíčky instalují.</span></div>
-            <div class="step"><div class="num">2</div><strong>Stáhni požadovaný .swyfmod</strong><span>Vyber jen mod nebo mody, které řeší tvůj problém.</span></div>
-            <div class="step"><div class="num">3</div><strong>Nainstaluj a restartuj hru</strong><span>Otevři balíček v <a href="https://dexhauls.github.io/swyf-mods/">Mod Hubu</a>, nainstaluj ho a spusť hru znovu.</span></div>
+          <div class="visual" aria-hidden="true">
+            <div class="window">
+              <div class="window-bar"><i></i><i></i><i></i><span>SWYF · ČEŠTINA</span></div>
+              <div class="window-body">
+                <div class="mock-title">KDYŽ TI HRA OPRAVDU ROZUMÍ</div>
+                <div class="chat-line"><span class="avatar">🎙️</span><span class="bubble before">„Já sem na levo“</span></div>
+                <div class="chat-line"><span class="avatar">✨</span><span class="bubble after">„Já jsem nalevo!“</span></div>
+                <div class="status"><span>Český jazyk · připraveno ke hře</span><strong>● Vylepšeno</strong></div>
+              </div>
+            </div>
+            <div class="sticker one">Česky ✓</div>
+            <div class="sticker two">Jednoduše!</div>
           </div>
-
-          <div class="install-actions">
-            <a class="btn primary" href="https://github.com/Nereziel/swyf-mody/releases/latest">Otevřít stažení</a>
-            <a class="btn secondary" href="https://dexhauls.github.io/swyf-mods/">Získat SWYF Mod Hub</a>
-          </div>
-
-          <div class="warning"><span aria-hidden="true">⚠</span><div><strong>Nekombinuj s modem Lepší čeština.</strong> Tyto mody s ním nejsou kompatibilní, takže je nepoužívej současně.</div></div>
+        </section>
+        <div class="trust" aria-label="Základní informace">
+          <span>✓ 3 jednoduchá vylepšení</span>
+          <span>✓ Vybereš jen to, co potřebuješ</span>
+          <span>✓ Instalace přes SWYF Mod Hub</span>
         </div>
-      </section>
+      </div>
+    </div>
 
-      <section class="section" aria-labelledby="faq-title">
-        <div class="section-head">
-          <div><div class="section-kicker">Časté otázky</div><h2 id="faq-title">Co je dobré vědět</h2></div>
-        </div>
-        <div class="faq">
-          <details><summary>Musím instalovat všechny tři mody?</summary><p>Ne. Každý řeší jiný problém. Pokud chceš jen opravit překlady v menu, stačí CzechTranslationFix. Pokud ti hra špatně rozumí do mikrofonu, stačí CzechSpeechEnhanced.</p></details>
-          <details><summary>Musím ručně stahovat model pro rozpoznávání řeči?</summary><p>Ne. U CzechSpeechEnhanced si v <a href="https://dexhauls.github.io/swyf-mods/">SWYF Mod Hubu</a> vybereš Parakeet TDT v3 nebo Parakeet Ultra a potřebný model se stáhne automaticky.</p></details>
-          <details><summary>Je CzechTTSFix potřeba pro každý hlasový model?</summary><p>Ne. Tento mod je určený pro Pocket TTS. Pokud používáš jiný TTS engine, CzechTTSFix do něj nezasahuje.</p></details>
-          <details><summary>Mění mody přímo soubory hry?</summary><p>Mody jsou balené pro <a href="https://dexhauls.github.io/swyf-mods/">SWYF Mod Hub</a> a fungují přes modovací vrstvu hry. CzechTranslationFix například opravuje texty za běhu místo přepisování původních lokalizačních souborů.</p></details>
-        </div>
-      </section>
-    </main>
+    <section class="section container" id="vyber" aria-labelledby="vyber-nadpis">
+      <div class="section-heading">
+        <span class="kicker">01 / Začni tady</span>
+        <h2>Co tě při hraní trápí?</h2>
+        <p>Nemusíš znát žádné technické názvy. Klikni na problém, který chceš vyřešit.</p>
+      </div>
+      <div class="question-grid">
+        <a class="question q-blue" href="#hlas">
+          <span class="emoji" aria-hidden="true">🎙️</span>
+          <h3>Hra mi špatně rozumí.</h3>
+          <p>Říkáš něco česky nebo slovensky, ale hra slyší a zapisuje úplně jiná slova.</p>
+          <span class="link">Chci opravit rozpoznávání řeči →</span>
+        </a>
+        <a class="question q-peach" href="#cteni">
+          <span class="emoji" aria-hidden="true">🔊</span>
+          <h3>Český hlas čte divně.</h3>
+          <p>Hra čte text nahlas, ale diakritika a interpunkce zní špatně. Používáš Pocket TTS.</p>
+          <span class="link">Chci opravit české čtení →</span>
+        </a>
+        <a class="question q-lilac" href="#preklad">
+          <span class="emoji" aria-hidden="true">💬</span>
+          <h3>V menu jsou špatné překlady.</h3>
+          <p>Popisky nedávají smysl, některé české texty chybí nebo jsou přeložené chybně.</p>
+          <span class="link">Chci opravit překlady →</span>
+        </a>
+      </div>
+    </section>
 
-    <footer>
-      <span>Neoficiální fanouškovský projekt pro Scam With Your Friends.</span>
-      <span><a href="https://github.com/Nereziel/swyf-mody">Zdrojový kód na GitHubu</a></span>
-    </footer>
-  </div>
+    <section class="section tinted" aria-labelledby="mody-nadpis">
+      <div class="container">
+        <div class="section-heading">
+          <span class="kicker">02 / Co jednotlivé mody dělají</span>
+          <h2>Malé opravy. Příjemnější hraní.</h2>
+          <p>Každý mod řeší jiný problém. Instaluj pouze ty, které skutečně využiješ.</p>
+        </div>
+        <div class="mod-list">
+          <article class="mod mod-speech" id="hlas">
+            <div class="mod-art" aria-hidden="true"><span>🎙️</span><b>Mluvení</b></div>
+            <div class="mod-content">
+              <div class="mod-top"><h3>Lepší rozpoznávání češtiny a slovenštiny</h3><span class="mod-tag">Pro mikrofon</span></div>
+              <p class="mod-desc">Pokud hra špatně přepisuje tvoje slova, tento mod jí pomůže lépe rozpoznat mluvenou češtinu a slovenštinu. V Mod Hubu si vybereš hlasový model, který se pak automaticky stáhne.</p>
+              <span class="mod-benefit">Hodí se, když tě hra často přeslechne.</span>
+              <div class="mod-foot"><small>Technický název: CzechSpeechEnhanced</small><a class="text-link" href="https://github.com/Nereziel/swyf-mody/releases/latest">Stáhnout balíček ↗</a></div>
+            </div>
+          </article>
+          <article class="mod mod-tts" id="cteni">
+            <div class="mod-art" aria-hidden="true"><span>🔊</span><b>Čtení nahlas</b></div>
+            <div class="mod-content">
+              <div class="mod-top"><h3>Oprava českého hlasu</h3><span class="mod-tag">Jen Pocket TTS</span></div>
+              <p class="mod-desc">Používáš Pocket TTS, které převádí text na hlas? Tento mod pomáhá správně zpracovat českou diakritiku a interpunkci, aby se text lépe četl nahlas. Pro jiné hlasové systémy určený není.</p>
+              <span class="mod-benefit">Hodí se, když české čtení zní nepřirozeně.</span>
+              <div class="mod-foot"><small>Technický název: CzechTTSFix</small><a class="text-link" href="https://github.com/Nereziel/swyf-mody/releases/latest">Stáhnout balíček ↗</a></div>
+            </div>
+          </article>
+          <article class="mod mod-translation" id="preklad">
+            <div class="mod-art" aria-hidden="true"><span>💬</span><b>Texty ve hře</b></div>
+            <div class="mod-content">
+              <div class="mod-top"><h3>Opravený český překlad</h3><span class="mod-tag">Pro menu hry</span></div>
+              <p class="mod-desc">Opravuje chybné, chybějící nebo nesrozumitelné české texty v menu a dalších částech hry. Díky tomu snáz poznáš, co jednotlivá nastavení znamenají.</p>
+              <span class="mod-benefit">Hodí se, když české popisky nedávají smysl.</span>
+              <div class="mod-foot"><small>Technický název: CzechTranslationFix</small><a class="text-link" href="https://github.com/Nereziel/swyf-mody/releases/latest">Stáhnout balíček ↗</a></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section container" id="instalace" aria-labelledby="instalace-nadpis">
+      <div class="install">
+        <div class="install-intro">
+          <span class="kicker">03 / Instalace</span>
+          <h2>Zvládneš to ve třech krocích.</h2>
+          <p>Není potřeba upravovat soubory hry ručně. Mody nainstaluješ pomocí programu <strong>SWYF Mod Hub</strong>, který slouží ke správě modů.</p>
+          <div class="actions"><a class="button button-primary" href="https://github.com/Nereziel/swyf-mody/releases/latest">Otevřít stránku se stažením ↗</a></div>
+        </div>
+        <div>
+          <ol class="step-list">
+            <li><span class="step-n">1</span><div><h3>Připrav si SWYF Mod Hub</h3><p>Je to aplikace, která mody do hry nainstaluje. Pokud ji ještě nemáš, <a href="https://dexhauls.github.io/swyf-mods/">stáhni ji na stránce SWYF Mod Hubu</a>.</p></div></li>
+            <li><span class="step-n">2</span><div><h3>Stáhni mod, který potřebuješ</h3><p>Otevři <a href="https://github.com/Nereziel/swyf-mody/releases/latest">nejnovější vydání modů</a> a vyber soubor s názvem požadovaného modu a příponou <strong>.swyfmod</strong>.</p></div></li>
+            <li><span class="step-n">3</span><div><h3>Nainstaluj mod a znovu spusť hru</h3><p>Otevři stažený balíček v Mod Hubu, nainstaluj ho a hru restartuj. Hotovo.</p></div></li>
+          </ol>
+          <div class="warning"><strong>Pozor na kombinování modů.</strong> Tyto opravy nejsou kompatibilní s modem <strong>Lepší čeština</strong>. Nepoužívej je současně.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section faq-section container" aria-labelledby="faq-nadpis">
+      <div class="faq-wrap">
+        <div><span class="kicker">04 / Časté otázky</span><h2 id="faq-nadpis">Ještě něco potřebuješ vědět?</h2></div>
+        <div class="faq-list">
+          <details><summary>Musím nainstalovat všechny tři mody?</summary><p>Ne. Každý funguje samostatně a opravuje jinou věc. Klidně nainstaluj jen ten, který potřebuješ.</p></details>
+          <details><summary>Kde najdu soubory ke stažení?</summary><p>Na stránce <a href="https://github.com/Nereziel/swyf-mody/releases/latest">nejnovějšího vydání na GitHubu</a>. Uvidíš tam soubory končící na <strong>.swyfmod</strong>, které se instalují přes SWYF Mod Hub.</p></details>
+          <details><summary>Musím u rozpoznávání řeči něco složitě nastavovat?</summary><p>V SWYF Mod Hubu si vybereš model Parakeet TDT v3 nebo Parakeet Ultra. Vybraný hlasový model se stáhne automaticky; první stažení může být větší.</p></details>
+          <details><summary>Funguje oprava českého hlasu se všemi hlasy?</summary><p>Ne. CzechTTSFix je určený pro Pocket TTS. Pokud ho nepoužíváš, tento mod nepotřebuješ.</p></details>
+          <details><summary>Je to oficiální součást hry?</summary><p>Ne. Jde o neoficiální fanouškovské úpravy pro Scam With Your Friends. Projekt ani tato stránka nejsou oficiálně spojené s tvůrci hry.</p></details>
+        </div>
+      </div>
+    </section>
+    <section class="bottom-cta" aria-label="Stažení modů">
+      <div class="container bottom-inner">
+        <div><h2>Připraveno na lepší hraní?</h2><p>Vyber potřebný balíček, nainstaluj ho a vrať se do hry.</p></div>
+        <a class="button" href="https://github.com/Nereziel/swyf-mody/releases/latest">Přejít ke stažení modů ↗</a>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="container"><span>SWYF CZ/SK · Neoficiální fanouškovský projekt.</span><span><a href="https://github.com/Nereziel/swyf-mody">Zdrojové soubory na GitHubu</a></span></div>
+  </footer>
 </body>
 </html>
